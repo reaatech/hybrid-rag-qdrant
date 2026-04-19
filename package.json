@@ -1,0 +1,122 @@
+{
+  "name": "hybrid-rag-qdrant",
+  "version": "0.1.0",
+  "description": "Production-grade hybrid RAG reference implementation with vector + BM25 + reranker, benchmarked chunking strategies, evaluation frameworks, and ablation studies",
+  "author": "Rick Somers <rick@reaatech.com> (https://reaatech.com)",
+  "license": "MIT",
+  "keywords": [
+    "rag",
+    "hybrid-retrieval",
+    "qdrant",
+    "bm25",
+    "reranker",
+    "evaluation",
+    "benchmarking",
+    "mcp"
+  ],
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "bin": {
+    "hybrid-rag": "./dist/src/cli/index.js",
+    "hybrid-rag-healthcheck": "./dist/src/healthcheck.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    },
+    "./mcp-server": {
+      "types": "./dist/src/mcp-server/index.d.ts",
+      "import": "./dist/src/mcp-server/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "skills",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "dev": "tsc --watch",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "format": "prettier --write src tests",
+    "format:check": "prettier --check src tests",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:integration": "vitest run tests/integration",
+    "test:perf": "vitest run --config vitest.perf.config.ts",
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@google/generative-ai": "^0.21.0",
+    "@modelcontextprotocol/sdk": "^1.6.1",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.54.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.57.0",
+    "@opentelemetry/resources": "^1.30.0",
+    "@opentelemetry/sdk-metrics": "^1.30.0",
+    "@opentelemetry/sdk-node": "^0.57.0",
+    "@opentelemetry/sdk-trace-node": "^1.30.0",
+    "@opentelemetry/semantic-conventions": "^1.28.0",
+    "@qdrant/js-client-rest": "^1.11.0",
+    "chalk": "^5.3.0",
+    "cheerio": "^1.0.0",
+    "cli-progress": "^3.12.0",
+    "commander": "^13.1.0",
+    "compromise": "^14.15.0",
+    "marked": "^15.0.6",
+    "openai": "^4.83.0",
+    "pdf-parse": "^1.1.1",
+    "pino": "^9.6.0",
+    "pino-pretty": "^13.0.0",
+    "tiktoken": "^1.0.19",
+    "yaml": "^2.7.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.19.0",
+    "@types/cli-progress": "^3.11.6",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.13.1",
+    "@types/pdf-parse": "^1.1.5",
+    "@typescript-eslint/eslint-plugin": "^8.22.0",
+    "@typescript-eslint/parser": "^8.22.0",
+    "@vitest/coverage-v8": "^3.0.5",
+    "eslint": "^9.19.0",
+    "globals": "^16.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.22.0",
+    "vitest": "^3.0.5"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/reaatech/hybrid-rag-qdrant.git"
+  },
+  "bugs": {
+    "url": "https://github.com/reaatech/hybrid-rag-qdrant/issues"
+  },
+  "homepage": "https://github.com/reaatech/hybrid-rag-qdrant#readme",
+  "lint-staged": {
+    "*.{ts,js}": [
+      "eslint --fix",
+      "prettier --write",
+      "vitest run --related"
+    ]
+  }
+}

@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Coverage reports
+coverage/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+logs/
+
+# Data directories
+datasets/
+reports/
+models/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Test fixtures (generated)
+tests/fixtures/generated/
+
+# Benchmark results (large files)
+benchmarks/results/*.json
+
+# Cache
+.cache/
+.eslintcache
+
+# Development plan
+DEV_PLAN.md
