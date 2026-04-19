@@ -1,0 +1,92 @@
+name: Evaluation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'datasets/**'
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    services:
+      qdrant:
+        image: qdrant/qdrant:latest
+        ports:
+          - 6333:6333
+
+    steps:
+      - name: Checkout base
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
+
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pr
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies (base)
+        working-directory: base
+        run: npm ci
+
+      - name: Build (base)
+        working-directory: base
+        run: npm run build
+
+      - name: Run evaluation (base)
+        working-directory: base
+        run: npm run evaluate -- --dataset datasets/examples/sample.jsonl --output base-eval.json
+        env:
+          QDRANT_URL: http://localhost:6333
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Install dependencies (PR)
+        working-directory: pr
+        run: npm ci
+
+      - name: Build (PR)
+        working-directory: pr
+        run: npm run build
+
+      - name: Run evaluation (PR)
+        working-directory: pr
+        run: npm run evaluate -- --dataset datasets/examples/sample.jsonl --output pr-eval.json
+        env:
+          QDRANT_URL: http://localhost:6333
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Compare results
+        run: |
+          echo "## Evaluation Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Base Results" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          cat base/base-eval.json >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### PR Results" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          cat pr/pr-eval.json >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload base results
+        uses: actions/upload-artifact@v4
+        with:
+          name: base-eval
+          path: base/base-eval.json
+
+      - name: Upload PR results
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-eval
+          path: pr/pr-eval.json
