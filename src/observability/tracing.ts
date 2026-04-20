@@ -2,10 +2,7 @@
  * OpenTelemetry tracing for hybrid-rag-qdrant
  */
 
-import {
-  NodeTracerProvider,
-  BatchSpanProcessor,
-} from '@opentelemetry/sdk-trace-node';
+import { NodeTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { SimpleSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
@@ -65,9 +62,7 @@ export class TracingManager {
     }
 
     if (this.config.consoleExport) {
-      this.provider.addSpanProcessor(
-        new SimpleSpanProcessor(new ConsoleSpanExporter()),
-      );
+      this.provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
     }
 
     this.provider.register();
@@ -85,7 +80,9 @@ export class TracingManager {
    * Start a query span
    */
   startQuerySpan(queryId: string, query: string): Span | null {
-    if (!this.tracer) {return null;}
+    if (!this.tracer) {
+      return null;
+    }
 
     return this.tracer.startSpan('rag.query', {
       attributes: {
@@ -100,7 +97,9 @@ export class TracingManager {
    * Start an embedding span
    */
   startEmbeddingSpan(provider: string, model: string, tokenCount: number): Span | null {
-    if (!this.tracer) {return null;}
+    if (!this.tracer) {
+      return null;
+    }
 
     return this.tracer.startSpan('rag.embedding', {
       attributes: {
@@ -115,7 +114,9 @@ export class TracingManager {
    * Start a vector search span
    */
   startVectorSearchSpan(k: number, filter?: Record<string, unknown>): Span | null {
-    if (!this.tracer) {return null;}
+    if (!this.tracer) {
+      return null;
+    }
 
     return this.tracer.startSpan('rag.vector_search', {
       attributes: {
@@ -129,7 +130,9 @@ export class TracingManager {
    * Start a BM25 search span
    */
   startBM25SearchSpan(k: number, terms: string[]): Span | null {
-    if (!this.tracer) {return null;}
+    if (!this.tracer) {
+      return null;
+    }
 
     return this.tracer.startSpan('rag.bm25_search', {
       attributes: {
@@ -144,7 +147,9 @@ export class TracingManager {
    * Start a fusion span
    */
   startFusionSpan(strategy: string, candidateCount: number): Span | null {
-    if (!this.tracer) {return null;}
+    if (!this.tracer) {
+      return null;
+    }
 
     return this.tracer.startSpan('rag.fusion', {
       attributes: {
@@ -158,7 +163,9 @@ export class TracingManager {
    * Start a rerank span
    */
   startRerankSpan(provider: string, documentCount: number): Span | null {
-    if (!this.tracer) {return null;}
+    if (!this.tracer) {
+      return null;
+    }
 
     return this.tracer.startSpan('rag.rerank', {
       attributes: {
@@ -181,10 +188,7 @@ export class TracingManager {
 /**
  * Execute a function within a span context
  */
-export async function withSpan<T>(
-  span: Span,
-  fn: () => Promise<T>,
-): Promise<T> {
+export async function withSpan<T>(span: Span, fn: () => Promise<T>): Promise<T> {
   return context.with(trace.setSpan(context.active(), span), async () => {
     try {
       const result = await fn();

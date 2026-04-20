@@ -21,4 +21,8 @@ export {
   type NormalizationMethod,
 } from './normalization.js';
 
-export { HybridRetriever, type HybridRetrieverConfig, type HybridRetrievalOptions } from './hybrid-retriever.js';
+export {
+  HybridRetriever,
+  type HybridRetrieverConfig,
+  type HybridRetrievalOptions,
+} from './hybrid-retriever.js';

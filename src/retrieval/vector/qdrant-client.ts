@@ -59,7 +59,6 @@ export class QdrantClientWrapper {
   }
 
   private async _initialize(): Promise<void> {
-
     const exists = await this.collectionExists(this.config.collectionName);
     if (!exists) {
       await this.createCollection(this.config.collectionName, {
@@ -76,7 +75,7 @@ export class QdrantClientWrapper {
   async collectionExists(collectionName: string): Promise<boolean> {
     try {
       const collections = await this.client.getCollections();
-      return collections.collections.some(c => c.name === collectionName);
+      return collections.collections.some((c) => c.name === collectionName);
     } catch {
       return false;
     }
@@ -120,7 +119,7 @@ export class QdrantClientWrapper {
     for (let i = 0; i < points.length; i += batchSize) {
       const batch = points.slice(i, i + batchSize);
       await this.client.upsert(this.config.collectionName, {
-        points: batch.map(p => ({
+        points: batch.map((p) => ({
           id: p.id,
           vector: p.vector,
           payload: p.payload,
@@ -140,7 +139,7 @@ export class QdrantClientWrapper {
       filter: query.filter ? this.buildFilter(query.filter) : undefined,
     });
 
-    return results.map(result => ({
+    return results.map((result) => ({
       chunkId: result.id as string,
       documentId: (result.payload?.documentId as string) ?? '',
       content: (result.payload?.content as string) ?? '',

@@ -22,17 +22,100 @@ export interface TokenizerConfig {
  * Default English stop words
  */
 const DEFAULT_STOP_WORDS = new Set([
-  'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
-  'of', 'with', 'by', 'from', 'is', 'are', 'was', 'were', 'be', 'been',
-  'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would',
-  'could', 'should', 'may', 'might', 'shall', 'can', 'this', 'that',
-  'these', 'those', 'it', 'its', 'as', 'if', 'when', 'than', 'so',
-  'not', 'no', 'nor', 'too', 'very', 'just', 'about', 'above', 'after',
-  'again', 'all', 'also', 'any', 'because', 'before', 'between', 'both',
-  'each', 'few', 'get', 'here', 'how', 'into', 'more', 'most', 'other',
-  'our', 'over', 'own', 'same', 'some', 'such', 'then', 'there', 'they',
-  'through', 'under', 'until', 'up', 'what', 'where', 'which', 'while',
-  'who', 'whom', 'why', 'your',
+  'the',
+  'a',
+  'an',
+  'and',
+  'or',
+  'but',
+  'in',
+  'on',
+  'at',
+  'to',
+  'for',
+  'of',
+  'with',
+  'by',
+  'from',
+  'is',
+  'are',
+  'was',
+  'were',
+  'be',
+  'been',
+  'being',
+  'have',
+  'has',
+  'had',
+  'do',
+  'does',
+  'did',
+  'will',
+  'would',
+  'could',
+  'should',
+  'may',
+  'might',
+  'shall',
+  'can',
+  'this',
+  'that',
+  'these',
+  'those',
+  'it',
+  'its',
+  'as',
+  'if',
+  'when',
+  'than',
+  'so',
+  'not',
+  'no',
+  'nor',
+  'too',
+  'very',
+  'just',
+  'about',
+  'above',
+  'after',
+  'again',
+  'all',
+  'also',
+  'any',
+  'because',
+  'before',
+  'between',
+  'both',
+  'each',
+  'few',
+  'get',
+  'here',
+  'how',
+  'into',
+  'more',
+  'most',
+  'other',
+  'our',
+  'over',
+  'own',
+  'same',
+  'some',
+  'such',
+  'then',
+  'there',
+  'they',
+  'through',
+  'under',
+  'until',
+  'up',
+  'what',
+  'where',
+  'which',
+  'while',
+  'who',
+  'whom',
+  'why',
+  'your',
 ]);
 
 /**
@@ -69,7 +152,7 @@ export class Tokenizer {
 
     this.stopWords = new Set([
       ...DEFAULT_STOP_WORDS,
-      ...this.config.customStopWords.map(w => w.toLowerCase()),
+      ...this.config.customStopWords.map((w) => w.toLowerCase()),
     ]);
   }
 
@@ -81,15 +164,15 @@ export class Tokenizer {
     const words = text
       .toLowerCase()
       .split(/[^\p{L}\p{N}]+/u)
-      .filter(w => w.length >= this.config.minWordLength);
+      .filter((w) => w.length >= this.config.minWordLength);
 
     // Remove stop words
     const filtered = this.config.removeStopWords
-      ? words.filter(w => !this.stopWords.has(w))
+      ? words.filter((w) => !this.stopWords.has(w))
       : words;
 
     // Apply stemming
-    const stemmed = this.config.useStemming ? filtered.map(w => simpleStem(w)) : filtered;
+    const stemmed = this.config.useStemming ? filtered.map((w) => simpleStem(w)) : filtered;
 
     // Generate n-grams
     return this.generateNgrams(stemmed);

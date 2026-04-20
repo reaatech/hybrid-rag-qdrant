@@ -15,7 +15,10 @@ import {
 /**
  * Query function type
  */
-export type QueryFunction = (query: string, options?: { topK?: number }) => Promise<RetrievalResult[]>;
+export type QueryFunction = (
+  query: string,
+  options?: { topK?: number },
+) => Promise<RetrievalResult[]>;
 
 /**
  * Evaluation configuration
@@ -97,10 +100,11 @@ export class EvaluationRunner {
     const results = await this.queryFn(sample.query, { topK: this.config.topK });
 
     // Extract retrieved chunk IDs
-    const retrievedIds = results.map(r => r.chunkId);
+    const retrievedIds = results.map((r) => r.chunkId);
 
     // Use relevant chunks for evaluation
-    const relevantIds = sample.relevantChunks.length > 0 ? sample.relevantChunks : sample.relevantDocs;
+    const relevantIds =
+      sample.relevantChunks.length > 0 ? sample.relevantChunks : sample.relevantDocs;
 
     // Calculate metrics
     return evaluateQuery(sample.queryId, retrievedIds, relevantIds, this.config.topK);

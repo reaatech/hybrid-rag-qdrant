@@ -54,11 +54,16 @@ export interface RerankerInterface {
  * This provides a deterministic baseline scoring when API is unavailable
  */
 function computeRelevanceScore(query: string, document: string): number {
-  const queryTerms = query.toLowerCase().split(/\s+/).filter(t => t.length > 2);
+  const queryTerms = query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((t) => t.length > 2);
   const docTerms = document.toLowerCase().split(/\s+/);
   const docSet = new Set(docTerms);
 
-  if (queryTerms.length === 0) {return 0;}
+  if (queryTerms.length === 0) {
+    return 0;
+  }
 
   let matchCount = 0;
   for (const term of queryTerms) {
@@ -112,7 +117,9 @@ export class RerankerEngine implements RerankerInterface {
   }
 
   async rerank(query: string, documents: string[]): Promise<RerankerResult[]> {
-    if (documents.length === 0) {return [];}
+    if (documents.length === 0) {
+      return [];
+    }
 
     const docsToRerank = documents.slice(0, this.config.topK);
 
@@ -130,17 +137,27 @@ export class RerankerEngine implements RerankerInterface {
     }
   }
 
-  async rerankResults(query: string, results: RetrievalResult[]): Promise<Array<RetrievalResult & { rerankScore: number; rerankRank: number }>> {
-    if (results.length === 0) {return [];}
+  async rerankResults(
+    query: string,
+    results: RetrievalResult[],
+  ): Promise<Array<RetrievalResult & { rerankScore: number; rerankRank: number }>> {
+    if (results.length === 0) {
+      return [];
+    }
 
     const resultsList = [...results];
-    const rerankedDocs = await this.rerank(query, resultsList.map(r => r.content));
+    const rerankedDocs = await this.rerank(
+      query,
+      resultsList.map((r) => r.content),
+    );
 
     return rerankedDocs
       .slice(0, this.config.finalK)
       .map((r, index) => {
-        const originalIdx = resultsList.findIndex(res => res.content === r.content);
-        if (originalIdx === -1) {return null;}
+        const originalIdx = resultsList.findIndex((res) => res.content === r.content);
+        if (originalIdx === -1) {
+          return null;
+        }
         const original = resultsList[originalIdx];
         return {
           ...original,
@@ -148,7 +165,9 @@ export class RerankerEngine implements RerankerInterface {
           rerankRank: index + 1,
         } as RetrievalResult & { rerankScore: number; rerankRank: number };
       })
-      .filter((r): r is RetrievalResult & { rerankScore: number; rerankRank: number } => r !== null);
+      .filter(
+        (r): r is RetrievalResult & { rerankScore: number; rerankRank: number } => r !== null,
+      );
   }
 
   private async rerankCohere(query: string, documents: string[]): Promise<RerankerResult[]> {
@@ -161,7 +180,7 @@ export class RerankerEngine implements RerankerInterface {
       const response = await fetch('https://api.cohere.ai/v1/rerank', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.config.apiKey}`,
+          Authorization: `Bearer ${this.config.apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -177,7 +196,7 @@ export class RerankerEngine implements RerankerInterface {
         throw new Error(`Cohere API ${response.status}: ${body}`);
       }
 
-      const data = await response.json() as {
+      const data = (await response.json()) as {
         results: Array<{ index: number; relevance_score: number }>;
       };
 
@@ -204,7 +223,7 @@ export class RerankerEngine implements RerankerInterface {
       const response = await fetch('https://api.jina.ai/v1/rerank', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.config.apiKey}`,
+          Authorization: `Bearer ${this.config.apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -220,7 +239,7 @@ export class RerankerEngine implements RerankerInterface {
         throw new Error(`Jina API ${response.status}: ${body}`);
       }
 
-      const data = await response.json() as {
+      const data = (await response.json()) as {
         results: Array<{ index: number; relevance_score: number; document: { text: string } }>;
       };
 
@@ -259,7 +278,8 @@ export class RerankerEngine implements RerankerInterface {
           messages: [
             {
               role: 'system',
-              content: 'You are a relevance scoring engine. Score each document\'s relevance to the query on a scale of 0.0 to 1.0. Respond ONLY with a JSON array of objects with "index" and "score" fields, no other text.',
+              content:
+                'You are a relevance scoring engine. Score each document\'s relevance to the query on a scale of 0.0 to 1.0. Respond ONLY with a JSON array of objects with "index" and "score" fields, no other text.',
             },
             {
               role: 'user',
@@ -271,7 +291,10 @@ export class RerankerEngine implements RerankerInterface {
         });
 
         const text = completion.choices[0]?.message?.content ?? '[]';
-        const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        const cleaned = text
+          .replace(/```json\n?/g, '')
+          .replace(/```\n?/g, '')
+          .trim();
         const scores = JSON.parse(cleaned) as Array<{ index: number; score: number }>;
         scoredDocs.push(...scores);
       }
@@ -293,13 +316,15 @@ export class RerankerEngine implements RerankerInterface {
   }
 
   private async rerankLocal(query: string, documents: string[]): Promise<RerankerResult[]> {
-    return documents.map((doc, i) => ({
-      chunkId: `local-${i}`,
-      documentId: `doc-${i}`,
-      content: doc,
-      relevanceScore: computeRelevanceScore(query, doc),
-      metadata: { provider: 'local' },
-    })).sort((a, b) => b.relevanceScore - a.relevanceScore);
+    return documents
+      .map((doc, i) => ({
+        chunkId: `local-${i}`,
+        documentId: `doc-${i}`,
+        content: doc,
+        relevanceScore: computeRelevanceScore(query, doc),
+        metadata: { provider: 'local' },
+      }))
+      .sort((a, b) => b.relevanceScore - a.relevanceScore);
   }
 
   getConfig(): RerankerConfig {

@@ -81,7 +81,7 @@ export class EmbeddingService {
       // Rate limiting
       if (this.config.rateLimit && batchResults.length > 0) {
         const delay = (60 / this.config.rateLimit) * 1000;
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
 
@@ -143,14 +143,14 @@ export class EmbeddingService {
       const totalTokens = response.usage?.prompt_tokens ?? 0;
       const tokensPerItem = texts.length > 0 ? Math.ceil(totalTokens / texts.length) : 0;
 
-      return response.data.map(data => ({
+      return response.data.map((data) => ({
         embedding: data.embedding,
         tokens: tokensPerItem,
         cost: this.calculateCost(tokensPerItem),
       }));
     }
 
-    return Promise.all(texts.map(text => this.embed(text)));
+    return Promise.all(texts.map((text) => this.embed(text)));
   }
 
   /**

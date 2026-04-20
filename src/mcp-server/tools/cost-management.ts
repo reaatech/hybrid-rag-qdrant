@@ -1,6 +1,6 @@
 /**
  * MCP Cost Management Tools
- * 
+ *
  * Tools for cost tracking, budgeting, optimization recommendations,
  * and cost control enforcement across RAG operations.
  */
@@ -54,7 +54,12 @@ export interface CostBreakdown {
 class CostTracker {
   private budgets: Map<string, BudgetConfig> = new Map();
   private spending: Map<string, number> = new Map();
-  private costHistory: Array<{ timestamp: string; amount: number; component: string; metadata: Record<string, unknown> }> = [];
+  private costHistory: Array<{
+    timestamp: string;
+    amount: number;
+    component: string;
+    metadata: Record<string, unknown>;
+  }> = [];
   private static readonly MAX_COST_HISTORY = 10000;
 
   /**
@@ -72,12 +77,14 @@ class CostTracker {
    */
   getBudgetStatus(key: string): BudgetStatus | null {
     const budget = this.budgets.get(key);
-    if (!budget) {return null;}
+    if (!budget) {
+      return null;
+    }
 
     const spent = this.spending.get(key) || 0;
     const remaining = budget.limit - spent;
     const percentageUsed = budget.limit > 0 ? (spent / budget.limit) * 100 : 0;
-    const alertTriggered = budget.alert_thresholds.some(t => percentageUsed >= t * 100);
+    const alertTriggered = budget.alert_thresholds.some((t) => percentageUsed >= t * 100);
     const hardLimitReached = budget.hard_limit && spent >= budget.limit;
 
     return {
@@ -94,7 +101,12 @@ class CostTracker {
   /**
    * Track spending
    */
-  trackSpending(key: string, amount: number, component: string, metadata: Record<string, unknown> = {}): void {
+  trackSpending(
+    key: string,
+    amount: number,
+    component: string,
+    metadata: Record<string, unknown> = {},
+  ): void {
     const current = this.spending.get(key) || 0;
     this.spending.set(key, current + amount);
 
@@ -169,7 +181,9 @@ class CostTracker {
    */
   canSpend(key: string, amount: number): boolean {
     const budget = this.budgets.get(key);
-    if (!budget) {return true;} // No budget set
+    if (!budget) {
+      return true;
+    } // No budget set
 
     const current = this.spending.get(key) || 0;
     const newTotal = current + amount;
@@ -189,7 +203,12 @@ class CostTracker {
     rerankerProvider?: string;
     topK: number;
     embeddingModel?: string;
-  }): Array<{ strategy: string; estimated_savings: number; quality_impact: 'none' | 'low' | 'medium' | 'high'; description: string }> {
+  }): Array<{
+    strategy: string;
+    estimated_savings: number;
+    quality_impact: 'none' | 'low' | 'medium' | 'high';
+    description: string;
+  }> {
     const recommendations = [];
 
     // Reranker optimization
@@ -207,7 +226,7 @@ class CostTracker {
         strategy: 'Skip reranking for simple queries',
         estimated_savings: 0.01 * currentConfig.topK,
         quality_impact: 'low' as const,
-        description: 'Use query analysis to identify simple queries that don\'t need reranking',
+        description: "Use query analysis to identify simple queries that don't need reranking",
       });
     }
 
@@ -291,40 +310,51 @@ export const ragGetCostEstimate: RAGTool = {
 
     // Estimate token count (rough approximation: 1 token ≈ 4 characters)
     const estimatedTokens = Math.ceil(query.length / 4);
-    const embeddingModel = config?.embeddingModel as string ?? 'text-embedding-3-small';
-    const topK = config?.topK as number ?? 10;
-    const useReranker = config?.useReranker as boolean ?? false;
-    const rerankerProvider = config?.rerankerProvider as string ?? 'cohere';
+    const embeddingModel = (config?.embeddingModel as string) ?? 'text-embedding-3-small';
+    const topK = (config?.topK as number) ?? 10;
+    const useReranker = (config?.useReranker as boolean) ?? false;
+    const rerankerProvider = (config?.rerankerProvider as string) ?? 'cohere';
 
     // Calculate costs
-    const embeddingCost = (estimatedTokens / 1000) * (PRICING.embeddings[embeddingModel as keyof typeof PRICING.embeddings] || PRICING.embeddings['text-embedding-3-small']);
-    const rerankerCost = useReranker ? topK * (PRICING.reranking[rerankerProvider as keyof typeof PRICING.reranking] || 0) : 0;
+    const embeddingCost =
+      (estimatedTokens / 1000) *
+      (PRICING.embeddings[embeddingModel as keyof typeof PRICING.embeddings] ||
+        PRICING.embeddings['text-embedding-3-small']);
+    const rerankerCost = useReranker
+      ? topK * (PRICING.reranking[rerankerProvider as keyof typeof PRICING.reranking] || 0)
+      : 0;
     const vectorSearchCost = 0.0001; // Minimal Qdrant cost
     const bm25SearchCost = 0.00005; // Minimal compute cost
 
     const totalCost = embeddingCost + rerankerCost + vectorSearchCost + bm25SearchCost;
 
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify({
-          query,
-          estimated_tokens: estimatedTokens,
-          cost_breakdown: {
-            embeddings: parseFloat(embeddingCost.toFixed(6)),
-            reranking: parseFloat(rerankerCost.toFixed(6)),
-            vector_search: vectorSearchCost,
-            bm25_search: bm25SearchCost,
-          },
-          total_cost: parseFloat(totalCost.toFixed(6)),
-          config: {
-            embedding_model: embeddingModel,
-            top_k: topK,
-            use_reranker: useReranker,
-            reranker_provider: rerankerProvider,
-          },
-        }, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              query,
+              estimated_tokens: estimatedTokens,
+              cost_breakdown: {
+                embeddings: parseFloat(embeddingCost.toFixed(6)),
+                reranking: parseFloat(rerankerCost.toFixed(6)),
+                vector_search: vectorSearchCost,
+                bm25_search: bm25SearchCost,
+              },
+              total_cost: parseFloat(totalCost.toFixed(6)),
+              config: {
+                embedding_model: embeddingModel,
+                top_k: topK,
+                use_reranker: useReranker,
+                reranker_provider: rerankerProvider,
+              },
+            },
+            null,
+            2,
+          ),
+        },
+      ],
     };
   },
 };
@@ -372,12 +402,12 @@ export const ragSetBudget: RAGTool = {
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
     const budgetType = args.budget_type as string;
     const limit = args.limit as number;
-    const alertThresholds = args.alert_thresholds as number[] ?? [0.5, 0.75, 0.9];
-    const hardLimit = args.hard_limit as boolean ?? false;
+    const alertThresholds = (args.alert_thresholds as number[]) ?? [0.5, 0.75, 0.9];
+    const hardLimit = (args.hard_limit as boolean) ?? false;
     const scope = args.scope as { user_id?: string; project?: string } | undefined;
 
     const key = [scope?.user_id, scope?.project].filter(Boolean).join(':') || 'default';
-    
+
     const config: BudgetConfig = {
       budget_type: budgetType as BudgetConfig['budget_type'],
       limit,
@@ -389,17 +419,23 @@ export const ragSetBudget: RAGTool = {
     costTracker.setBudget(key, config);
 
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify({
-          success: true,
-          message: `Budget set for ${key}`,
-          budget: {
-            key,
-            ...config,
-          },
-        }, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              success: true,
+              message: `Budget set for ${key}`,
+              budget: {
+                key,
+                ...config,
+              },
+            },
+            null,
+            2,
+          ),
+        },
+      ],
     };
   },
 };
@@ -431,28 +467,41 @@ export const ragGetBudgetStatus: RAGTool = {
 
     if (!status) {
       return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify({
-            message: 'No budget configured',
-            key,
-            suggestion: 'Use rag.set_budget to configure a budget',
-          }, null, 2),
-        }],
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                message: 'No budget configured',
+                key,
+                suggestion: 'Use rag.set_budget to configure a budget',
+              },
+              null,
+              2,
+            ),
+          },
+        ],
       };
     }
 
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify({
-          key,
-          status,
-          recommendations: status.percentage_used > 80 
-            ? ['Consider reducing topK', 'Skip reranking for simple queries'] 
-            : [],
-        }, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              key,
+              status,
+              recommendations:
+                status.percentage_used > 80
+                  ? ['Consider reducing topK', 'Skip reranking for simple queries']
+                  : [],
+            },
+            null,
+            2,
+          ),
+        },
+      ],
     };
   },
 };
@@ -497,37 +546,50 @@ export const ragOptimizeCost: RAGTool = {
       embeddingModel?: string;
     };
 
-    const targetQuality = args.target_quality as number ?? 0.8;
-    const budgetConstraint = args.budget_constraint as number ?? 0.05;
+    const targetQuality = (args.target_quality as number) ?? 0.8;
+    const budgetConstraint = (args.budget_constraint as number) ?? 0.05;
 
     const recommendations = costTracker.getOptimizationRecommendations(currentConfig);
 
     // Filter recommendations based on quality impact and budget
-    const filteredRecommendations = recommendations.filter(rec => {
-      if (rec.quality_impact === 'high') {return false;}
-      if (rec.quality_impact === 'medium' && targetQuality > 0.9) {return false;}
+    const filteredRecommendations = recommendations.filter((rec) => {
+      if (rec.quality_impact === 'high') {
+        return false;
+      }
+      if (rec.quality_impact === 'medium' && targetQuality > 0.9) {
+        return false;
+      }
       return rec.estimated_savings > 0;
     });
 
-    const currentEstimatedCost = currentConfig.useReranker 
-      ? 0.001 + (currentConfig.topK * 0.01) 
+    const currentEstimatedCost = currentConfig.useReranker
+      ? 0.001 + currentConfig.topK * 0.01
       : 0.001;
 
-    const potentialSavings = filteredRecommendations.reduce((sum, rec) => sum + rec.estimated_savings, 0);
+    const potentialSavings = filteredRecommendations.reduce(
+      (sum, rec) => sum + rec.estimated_savings,
+      0,
+    );
 
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify({
-          current_config: currentConfig,
-          current_estimated_cost: currentEstimatedCost,
-          budget_constraint: budgetConstraint,
-          target_quality: targetQuality,
-          recommendations: filteredRecommendations,
-          total_potential_savings: potentialSavings,
-          new_estimated_cost: Math.max(0, currentEstimatedCost - potentialSavings),
-        }, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              current_config: currentConfig,
+              current_estimated_cost: currentEstimatedCost,
+              budget_constraint: budgetConstraint,
+              target_quality: targetQuality,
+              recommendations: filteredRecommendations,
+              total_potential_savings: potentialSavings,
+              new_estimated_cost: Math.max(0, currentEstimatedCost - potentialSavings),
+            },
+            null,
+            2,
+          ),
+        },
+      ],
     };
   },
 };
@@ -566,10 +628,10 @@ export const ragGetCostReport: RAGTool = {
     },
   },
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
-    const period = args.period as 'day' | 'week' | 'month' ?? 'day';
+    const period = (args.period as 'day' | 'week' | 'month') ?? 'day';
     const _groupBy = args.group_by as string[] | undefined;
-    const includeTrends = args.include_trends as boolean ?? false;
-    const _format = args.format as 'summary' | 'detailed' ?? 'summary';
+    const includeTrends = (args.include_trends as boolean) ?? false;
+    const _format = (args.format as 'summary' | 'detailed') ?? 'summary';
 
     const breakdown = costTracker.getCostReport(period);
 
@@ -579,9 +641,10 @@ export const ragGetCostReport: RAGTool = {
       breakdown,
       summary: {
         total_cost: breakdown.total,
-        largest_component: Object.entries(breakdown)
-          .filter(([key]) => key !== 'total')
-          .sort(([,a], [,b]) => (b as number) - (a as number))[0]?.[0] || 'none',
+        largest_component:
+          Object.entries(breakdown)
+            .filter(([key]) => key !== 'total')
+            .sort(([, a], [, b]) => (b as number) - (a as number))[0]?.[0] || 'none',
       },
     };
 
@@ -594,10 +657,12 @@ export const ragGetCostReport: RAGTool = {
     }
 
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify(report, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(report, null, 2),
+        },
+      ],
     };
   },
 };
@@ -640,7 +705,7 @@ export const ragSetCostControls: RAGTool = {
     const maxCostPerQuery = args.max_cost_per_query as number | undefined;
     const maxCostPerDay = args.max_cost_per_day as number | undefined;
     const alertThresholds = args.alert_thresholds as number[] | undefined;
-    const hardLimit = args.hard_limit as boolean ?? false;
+    const hardLimit = (args.hard_limit as boolean) ?? false;
     const alertChannels = args.alert_channels as string[] | undefined;
 
     // Set per-query budget if specified
@@ -664,20 +729,26 @@ export const ragSetCostControls: RAGTool = {
     }
 
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify({
-          success: true,
-          message: 'Cost controls configured',
-          configuration: {
-            max_cost_per_query: maxCostPerQuery,
-            max_cost_per_day: maxCostPerDay,
-            alert_thresholds: alertThresholds,
-            hard_limit: hardLimit,
-            alert_channels: alertChannels,
-          },
-        }, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              success: true,
+              message: 'Cost controls configured',
+              configuration: {
+                max_cost_per_query: maxCostPerQuery,
+                max_cost_per_day: maxCostPerDay,
+                alert_thresholds: alertThresholds,
+                hard_limit: hardLimit,
+                alert_channels: alertChannels,
+              },
+            },
+            null,
+            2,
+          ),
+        },
+      ],
     };
   },
 };

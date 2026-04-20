@@ -31,7 +31,7 @@ export interface RetrievalMetrics {
  */
 export function precisionAtK(retrieved: string[], relevant: string[], k: number): number {
   const topK = retrieved.slice(0, k);
-  const relevantInTopK = topK.filter(id => relevant.includes(id)).length;
+  const relevantInTopK = topK.filter((id) => relevant.includes(id)).length;
   return topK.length > 0 ? relevantInTopK / topK.length : 0;
 }
 
@@ -40,7 +40,7 @@ export function precisionAtK(retrieved: string[], relevant: string[], k: number)
  */
 export function recallAtK(retrieved: string[], relevant: string[], k: number): number {
   const topK = retrieved.slice(0, k);
-  const relevantInTopK = topK.filter(id => relevant.includes(id)).length;
+  const relevantInTopK = topK.filter((id) => relevant.includes(id)).length;
   return relevant.length > 0 ? relevantInTopK / relevant.length : 0;
 }
 

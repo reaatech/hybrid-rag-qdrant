@@ -82,7 +82,9 @@ export class AblationRunner {
     const baselinePipeline = await this.pipelineBuilder(this.config.baseline);
     let baselineMetrics: RetrievalMetrics;
     try {
-      const baselineRunner = new EvaluationRunner(baselinePipeline.query, { topK: this.config.baseline.topK });
+      const baselineRunner = new EvaluationRunner(baselinePipeline.query, {
+        topK: this.config.baseline.topK,
+      });
       baselineMetrics = (await baselineRunner.evaluate(dataset)).metrics;
     } finally {
       await baselinePipeline.cleanup();

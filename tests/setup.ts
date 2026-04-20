@@ -18,7 +18,7 @@ const MockEncoder = {
     return tokens.length > 0 ? tokens : [0];
   }),
   decode: vi.fn((tokens: number[]): Uint8Array => {
-    const chars = tokens.map(t => String.fromCharCode((t % 26) + 97));
+    const chars = tokens.map((t) => String.fromCharCode((t % 26) + 97));
     return new TextEncoder().encode(chars.join(''));
   }),
   free: vi.fn(),

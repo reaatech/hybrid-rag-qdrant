@@ -94,10 +94,7 @@ describe('Admin Tools', () => {
     });
 
     it('should handle list action explicitly', async () => {
-      const result = await ragCollections.handler(
-        { action: 'list' },
-        mockPipeline,
-      );
+      const result = await ragCollections.handler({ action: 'list' }, mockPipeline);
 
       const response = JSON.parse((result.content[0] as { text: string }).text);
       expect(response.action).toBe('list');
@@ -113,10 +110,7 @@ describe('Admin Tools', () => {
     });
 
     it('should get specific config key', async () => {
-      const result = await ragConfig.handler(
-        { action: 'get', key: 'topK' },
-        mockPipeline,
-      );
+      const result = await ragConfig.handler({ action: 'get', key: 'topK' }, mockPipeline);
 
       const response = JSON.parse((result.content[0] as { text: string }).text);
       expect(response.action).toBe('get');
@@ -136,10 +130,7 @@ describe('Admin Tools', () => {
     });
 
     it('should handle get action explicitly', async () => {
-      const result = await ragConfig.handler(
-        { action: 'get' },
-        mockPipeline,
-      );
+      const result = await ragConfig.handler({ action: 'get' }, mockPipeline);
 
       const response = JSON.parse((result.content[0] as { text: string }).text);
       expect(response.action).toBe('get');

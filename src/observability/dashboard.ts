@@ -103,7 +103,13 @@ class MetricsStore {
 
   update(data: Partial<DashboardMetrics>): void {
     for (const [key, value] of Object.entries(data)) {
-      if (value && typeof value === 'object' && !Array.isArray(value) && key in this.metrics && typeof this.metrics[key as keyof DashboardMetrics] === 'object') {
+      if (
+        value &&
+        typeof value === 'object' &&
+        !Array.isArray(value) &&
+        key in this.metrics &&
+        typeof this.metrics[key as keyof DashboardMetrics] === 'object'
+      ) {
         (this.metrics as Record<string, unknown>)[key] = {
           ...(this.metrics[key as keyof DashboardMetrics] as object),
           ...value,
@@ -116,15 +122,18 @@ class MetricsStore {
 
   get(): DashboardMetrics {
     const uptime = (Date.now() - this.startTime) / 1000;
-      const result = { ...emptyMetrics } as DashboardMetrics;
-      for (const key of Object.keys(this.metrics) as Array<keyof DashboardMetrics>) {
-        const value = this.metrics[key];
-        if (value && typeof value === 'object' && !Array.isArray(value)) {
-          (result as unknown as Record<string, unknown>)[key] = { ...(emptyMetrics[key] as object), ...value };
-        } else if (value !== undefined) {
-          (result as unknown as Record<string, unknown>)[key] = value;
-        }
+    const result = { ...emptyMetrics } as DashboardMetrics;
+    for (const key of Object.keys(this.metrics) as Array<keyof DashboardMetrics>) {
+      const value = this.metrics[key];
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        (result as unknown as Record<string, unknown>)[key] = {
+          ...(emptyMetrics[key] as object),
+          ...value,
+        };
+      } else if (value !== undefined) {
+        (result as unknown as Record<string, unknown>)[key] = value;
       }
+    }
     result.timestamp = new Date().toISOString();
     result.system = { ...emptyMetrics.system, ...(this.metrics.system ?? {}), uptime };
     return result;
@@ -168,15 +177,25 @@ export function calculateHealth(metrics: DashboardMetrics): 'healthy' | 'degrade
   const { performance, cost } = metrics;
 
   // Check error rate
-  if (performance.errorRate > 0.1) {return 'unhealthy';}
-  if (performance.errorRate > 0.05) {return 'degraded';}
+  if (performance.errorRate > 0.1) {
+    return 'unhealthy';
+  }
+  if (performance.errorRate > 0.05) {
+    return 'degraded';
+  }
 
   // Check budget
-  if (cost.budgetStatus === 'exceeded') {return 'unhealthy';}
-  if (cost.budgetStatus === 'warning') {return 'degraded';}
+  if (cost.budgetStatus === 'exceeded') {
+    return 'unhealthy';
+  }
+  if (cost.budgetStatus === 'warning') {
+    return 'degraded';
+  }
 
   // Check latency
-  if (performance.p99Latency > 5000) {return 'degraded';}
+  if (performance.p99Latency > 5000) {
+    return 'degraded';
+  }
 
   return 'healthy';
 }

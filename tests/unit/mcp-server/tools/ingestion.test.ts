@@ -34,9 +34,15 @@ describe('Ingestion Tools', () => {
 
     it('should have required inputSchema fields', () => {
       expect((ragIngestDocument.inputSchema as { required: string[] }).required).toContain('id');
-      expect((ragIngestDocument.inputSchema as { required: string[] }).required).toContain('content');
-      expect((ragIngestBatch.inputSchema as { required: string[] }).required).toContain('documents');
-      expect((ragChunkDocument.inputSchema as { required: string[] }).required).toContain('content');
+      expect((ragIngestDocument.inputSchema as { required: string[] }).required).toContain(
+        'content',
+      );
+      expect((ragIngestBatch.inputSchema as { required: string[] }).required).toContain(
+        'documents',
+      );
+      expect((ragChunkDocument.inputSchema as { required: string[] }).required).toContain(
+        'content',
+      );
     });
   });
 
@@ -60,9 +66,7 @@ describe('Ingestion Tools', () => {
         mockPipeline,
       );
 
-      expect(mockPipeline.ingest).toHaveBeenCalledWith([
-        expect.objectContaining({ metadata }),
-      ]);
+      expect(mockPipeline.ingest).toHaveBeenCalledWith([expect.objectContaining({ metadata })]);
     });
 
     it('should return error when content is missing', async () => {
@@ -74,10 +78,7 @@ describe('Ingestion Tools', () => {
     });
 
     it('should return error when content is not a string', async () => {
-      const result = await ragIngestDocument.handler(
-        { id: 'doc-1', content: 123 },
-        mockPipeline,
-      );
+      const result = await ragIngestDocument.handler({ id: 'doc-1', content: 123 }, mockPipeline);
 
       expect(result.isError).toBe(true);
     });
@@ -156,8 +157,12 @@ describe('Ingestion Tools', () => {
       const result = await ragIngestBatch.handler({ documents: docs }, batchPipeline);
       const response = JSON.parse((result.content[0] as { text: string }).text);
 
-      const docA = response.chunksPerDocument.find((d: { documentId: string }) => d.documentId === 'doc-a');
-      const docB = response.chunksPerDocument.find((d: { documentId: string }) => d.documentId === 'doc-b');
+      const docA = response.chunksPerDocument.find(
+        (d: { documentId: string }) => d.documentId === 'doc-a',
+      );
+      const docB = response.chunksPerDocument.find(
+        (d: { documentId: string }) => d.documentId === 'doc-b',
+      );
       expect(docA.chunkCount).toBe(2);
       expect(docB.chunkCount).toBe(1);
     });
@@ -223,10 +228,7 @@ describe('Ingestion Tools', () => {
     });
 
     it('should use default strategy when not specified', async () => {
-      const result = await ragChunkDocument.handler(
-        { content: 'Test content' },
-        mockPipeline,
-      );
+      const result = await ragChunkDocument.handler({ content: 'Test content' }, mockPipeline);
 
       const response = JSON.parse((result.content[0] as { text: string }).text);
       expect(response.strategy).toBeUndefined();

@@ -15,7 +15,11 @@ export interface IngestOptions {
   collection: string;
 }
 
-export async function ingestCommand(files: string[], options: IngestOptions, pipeline: RAGPipeline): Promise<void> {
+export async function ingestCommand(
+  files: string[],
+  options: IngestOptions,
+  pipeline: RAGPipeline,
+): Promise<void> {
   console.log(`Ingesting ${files.length} files...`);
 
   const loader = new DocumentLoader();
@@ -29,7 +33,7 @@ export async function ingestCommand(files: string[], options: IngestOptions, pip
       if (ext === '.json' || ext === '.jsonl') {
         content = await readFile(file, 'utf-8');
         if (ext === '.jsonl') {
-          const lines = content.split('\n').filter(l => l.trim());
+          const lines = content.split('\n').filter((l) => l.trim());
           for (const line of lines) {
             const doc = JSON.parse(line);
             documents.push({

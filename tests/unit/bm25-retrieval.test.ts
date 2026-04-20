@@ -66,14 +66,14 @@ describe('Tokenizer', () => {
     expect(tokens).toEqual([]);
   });
 
-    it('should apply stemming when enabled', () => {
-      const tokenizer = new Tokenizer({ useStemming: true });
-      const tokens = tokenizer.tokenize('running quickly');
+  it('should apply stemming when enabled', () => {
+    const tokenizer = new Tokenizer({ useStemming: true });
+    const tokens = tokenizer.tokenize('running quickly');
 
-      // Basic stemming should strip suffixes (simple stemmer removes common suffixes)
-      // 'running' -> 'runn' (strips 'ing'), 'quickly' -> 'quick' (strips 'ly')
-      expect(tokens).toContain('runn');
-    });
+    // Basic stemming should strip suffixes (simple stemmer removes common suffixes)
+    // 'running' -> 'runn' (strips 'ing'), 'quickly' -> 'quick' (strips 'ly')
+    expect(tokens).toContain('runn');
+  });
 });
 
 describe('BM25Engine', () => {

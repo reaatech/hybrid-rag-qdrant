@@ -83,7 +83,9 @@ export class SlidingWindowChunker {
       index++;
 
       // Avoid infinite loop if stride is 0
-      if (stride <= 0) {break;}
+      if (stride <= 0) {
+        break;
+      }
     }
 
     return chunks;

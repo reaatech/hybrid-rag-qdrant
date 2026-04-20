@@ -63,7 +63,7 @@ export class VectorSearchEngine {
    */
   async indexChunks(chunks: Chunk[]): Promise<void> {
     // Generate embeddings for all chunks
-    const texts = chunks.map(c => c.content);
+    const texts = chunks.map((c) => c.content);
     const embeddingResults = await this.embedding.embedBatch(texts);
 
     const points: QdrantPoint[] = [];
@@ -100,7 +100,10 @@ export class VectorSearchEngine {
   /**
    * Search for similar documents
    */
-  async search(query: string, options?: { topK?: number; filter?: Record<string, unknown> }): Promise<RetrievalResult[]> {
+  async search(
+    query: string,
+    options?: { topK?: number; filter?: Record<string, unknown> },
+  ): Promise<RetrievalResult[]> {
     const topK = options?.topK ?? this.topK;
 
     // Generate query embedding
@@ -119,7 +122,10 @@ export class VectorSearchEngine {
   /**
    * Search with pre-computed embedding
    */
-  async searchByVector(vector: number[], options?: { topK?: number; filter?: Record<string, unknown> }): Promise<RetrievalResult[]> {
+  async searchByVector(
+    vector: number[],
+    options?: { topK?: number; filter?: Record<string, unknown> },
+  ): Promise<RetrievalResult[]> {
     const topK = options?.topK ?? this.topK;
 
     return this.qdrant.search({

@@ -56,7 +56,7 @@ describe('observability/dashboard', async () => {
 
     it('should return different uptime on subsequent calls', async () => {
       const metrics1 = getDashboardMetrics();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
       const metrics2 = getDashboardMetrics();
 
       expect(metrics2.system.uptime).toBeGreaterThan(metrics1.system.uptime);
@@ -94,7 +94,7 @@ describe('observability/dashboard', async () => {
     it('should update cost metrics', () => {
       updateDashboardMetrics({
         cost: {
-          totalCostToday: 25.50,
+          totalCostToday: 25.5,
           avgCostPerQuery: 0.05,
           budgetRemaining: 75,
           budgetStatus: 'under',
@@ -102,7 +102,7 @@ describe('observability/dashboard', async () => {
       });
 
       const metrics = getDashboardMetrics();
-      expect(metrics.cost.totalCostToday).toBe(25.50);
+      expect(metrics.cost.totalCostToday).toBe(25.5);
       expect(metrics.cost.avgCostPerQuery).toBe(0.05);
       expect(metrics.cost.budgetRemaining).toBe(75);
       expect(metrics.cost.budgetStatus).toBe('under');
@@ -405,7 +405,7 @@ describe('observability/dashboard', async () => {
           p99Latency: 1000,
         },
         cost: {
-          totalCostToday: 25.50,
+          totalCostToday: 25.5,
           avgCostPerQuery: 0.05,
           budgetRemaining: 75,
           budgetStatus: 'under' as const,

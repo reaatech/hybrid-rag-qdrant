@@ -29,7 +29,7 @@ export class BM25SearchEngine {
    * Index chunks for BM25 search
    */
   async indexChunks(chunks: Chunk[]): Promise<void> {
-    const documents = chunks.map(chunk => ({
+    const documents = chunks.map((chunk) => ({
       id: chunk.id,
       content: chunk.content,
       metadata: {
@@ -54,7 +54,7 @@ export class BM25SearchEngine {
     const topK = options?.topK ?? this.topK;
     const results = this.engine.search(query, topK);
 
-    return results.map(result => ({
+    return results.map((result) => ({
       chunkId: result.chunkId,
       documentId: result.documentId,
       content: result.content,

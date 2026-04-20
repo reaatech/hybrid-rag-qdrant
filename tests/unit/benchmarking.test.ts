@@ -143,12 +143,14 @@ describe('benchmarking', () => {
           min: 100,
           max: 300,
         },
-        throughput: [{
-          qps: 50,
-          totalQueries: 100,
-          totalTime: 2000,
-          concurrency: 5,
-        }],
+        throughput: [
+          {
+            qps: 50,
+            totalQueries: 100,
+            totalTime: 2000,
+            concurrency: 5,
+          },
+        ],
         cost: {
           embedding: 0.001,
           vectorSearch: 0.01,
@@ -189,12 +191,14 @@ describe('benchmarking', () => {
         max: 300,
       };
 
-      const throughput = [{
-        qps: 50,
-        totalQueries: 100,
-        totalTime: 2000,
-        concurrency: 5,
-      }];
+      const throughput = [
+        {
+          qps: 50,
+          totalQueries: 100,
+          totalTime: 2000,
+          concurrency: 5,
+        },
+      ];
 
       const cost = {
         embedding: 0.001,

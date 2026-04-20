@@ -51,7 +51,9 @@ export const ragRetrieve: RAGTool = {
   handler: async (args: Record<string, unknown>, pipeline: RAGPipeline) => {
     try {
       const parsed = validateInput(retrieveSchema, args);
-      if (!parsed.success) {return makeErrorResponse(parsed.error);}
+      if (!parsed.success) {
+        return makeErrorResponse(parsed.error);
+      }
 
       const results = await pipeline.query(parsed.data.query, {
         topK: parsed.data.topK,
@@ -62,18 +64,30 @@ export const ragRetrieve: RAGTool = {
       });
 
       return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify({
-            results: results.map(r => ({
-              chunkId: r.chunkId, score: r.score, content: r.content, metadata: r.metadata,
-            })),
-            count: results.length,
-          }, null, 2),
-        }],
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                results: results.map((r) => ({
+                  chunkId: r.chunkId,
+                  score: r.score,
+                  content: r.content,
+                  metadata: r.metadata,
+                })),
+                count: results.length,
+              },
+              null,
+              2,
+            ),
+          },
+        ],
       };
     } catch (_error) {
-      return { content: [{ type: 'text', text: JSON.stringify({ error: 'Retrieval failed' }) }], isError: true };
+      return {
+        content: [{ type: 'text', text: JSON.stringify({ error: 'Retrieval failed' }) }],
+        isError: true,
+      };
     }
   },
 };
@@ -93,7 +107,9 @@ export const ragVectorSearch: RAGTool = {
   handler: async (args: Record<string, unknown>, pipeline: RAGPipeline) => {
     try {
       const parsed = validateInput(vectorSearchSchema, args);
-      if (!parsed.success) {return makeErrorResponse(parsed.error);}
+      if (!parsed.success) {
+        return makeErrorResponse(parsed.error);
+      }
 
       const results = await pipeline.query(parsed.data.query, {
         topK: parsed.data.topK,
@@ -103,18 +119,30 @@ export const ragVectorSearch: RAGTool = {
       });
 
       return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify({
-            results: results.map(r => ({
-              chunkId: r.chunkId, score: r.score, content: r.content, metadata: r.metadata,
-            })),
-            count: results.length,
-          }, null, 2),
-        }],
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                results: results.map((r) => ({
+                  chunkId: r.chunkId,
+                  score: r.score,
+                  content: r.content,
+                  metadata: r.metadata,
+                })),
+                count: results.length,
+              },
+              null,
+              2,
+            ),
+          },
+        ],
       };
     } catch (_error) {
-      return { content: [{ type: 'text', text: JSON.stringify({ error: 'Retrieval failed' }) }], isError: true };
+      return {
+        content: [{ type: 'text', text: JSON.stringify({ error: 'Retrieval failed' }) }],
+        isError: true,
+      };
     }
   },
 };
@@ -133,7 +161,9 @@ export const ragBM25Search: RAGTool = {
   handler: async (args: Record<string, unknown>, pipeline: RAGPipeline) => {
     try {
       const parsed = validateInput(bm25SearchSchema, args);
-      if (!parsed.success) {return makeErrorResponse(parsed.error);}
+      if (!parsed.success) {
+        return makeErrorResponse(parsed.error);
+      }
 
       const results = await pipeline.query(parsed.data.query, {
         topK: parsed.data.topK,
@@ -142,18 +172,30 @@ export const ragBM25Search: RAGTool = {
       });
 
       return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify({
-            results: results.map(r => ({
-              chunkId: r.chunkId, score: r.score, content: r.content, metadata: r.metadata,
-            })),
-            count: results.length,
-          }, null, 2),
-        }],
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                results: results.map((r) => ({
+                  chunkId: r.chunkId,
+                  score: r.score,
+                  content: r.content,
+                  metadata: r.metadata,
+                })),
+                count: results.length,
+              },
+              null,
+              2,
+            ),
+          },
+        ],
       };
     } catch (_error) {
-      return { content: [{ type: 'text', text: JSON.stringify({ error: 'Retrieval failed' }) }], isError: true };
+      return {
+        content: [{ type: 'text', text: JSON.stringify({ error: 'Retrieval failed' }) }],
+        isError: true,
+      };
     }
   },
 };
@@ -165,31 +207,42 @@ export const ragRerank: RAGTool = {
     type: 'object',
     properties: {
       query: { type: 'string', description: 'Original query' },
-      documents: { type: 'array', items: { type: 'string' }, description: 'Document texts to rerank' },
-      topK: { type: 'number', description: 'Number of results to return after reranking', default: 5 },
+      documents: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Document texts to rerank',
+      },
+      topK: {
+        type: 'number',
+        description: 'Number of results to return after reranking',
+        default: 5,
+      },
     },
     required: ['query', 'documents'],
   },
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
     const parsed = validateInput(rerankSchema, args);
-    if (!parsed.success) {return makeErrorResponse(parsed.error);}
+    if (!parsed.success) {
+      return makeErrorResponse(parsed.error);
+    }
 
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify({
-          message: 'Reranking not yet implemented in MCP tools',
-          query: parsed.data.query,
-          documentCount: parsed.data.documents.length,
-        }, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              message: 'Reranking not yet implemented in MCP tools',
+              query: parsed.data.query,
+              documentCount: parsed.data.documents.length,
+            },
+            null,
+            2,
+          ),
+        },
+      ],
     };
   },
 };
 
-export const retrievalTools: RAGTool[] = [
-  ragRetrieve,
-  ragVectorSearch,
-  ragBM25Search,
-  ragRerank,
-];
+export const retrievalTools: RAGTool[] = [ragRetrieve, ragVectorSearch, ragBM25Search, ragRerank];

@@ -18,15 +18,57 @@ import type { RetrievalResult } from '../../src/types/domain.js';
 describe('Reciprocal Rank Fusion', () => {
   it('should combine results by rank', () => {
     const vectorResults: RetrievalResult[] = [
-      { chunkId: 'c1', score: 0.9, documentId: 'd1', content: 'test', source: 'vector', metadata: {} },
-      { chunkId: 'c2', score: 0.8, documentId: 'd1', content: 'test', source: 'vector', metadata: {} },
-      { chunkId: 'c3', score: 0.7, documentId: 'd1', content: 'test', source: 'vector', metadata: {} },
+      {
+        chunkId: 'c1',
+        score: 0.9,
+        documentId: 'd1',
+        content: 'test',
+        source: 'vector',
+        metadata: {},
+      },
+      {
+        chunkId: 'c2',
+        score: 0.8,
+        documentId: 'd1',
+        content: 'test',
+        source: 'vector',
+        metadata: {},
+      },
+      {
+        chunkId: 'c3',
+        score: 0.7,
+        documentId: 'd1',
+        content: 'test',
+        source: 'vector',
+        metadata: {},
+      },
     ];
 
     const bm25Results: RetrievalResult[] = [
-      { chunkId: 'c2', score: 0.95, documentId: 'd1', content: 'test', source: 'bm25', metadata: {} },
-      { chunkId: 'c4', score: 0.85, documentId: 'd1', content: 'test', source: 'bm25', metadata: {} },
-      { chunkId: 'c1', score: 0.75, documentId: 'd1', content: 'test', source: 'bm25', metadata: {} },
+      {
+        chunkId: 'c2',
+        score: 0.95,
+        documentId: 'd1',
+        content: 'test',
+        source: 'bm25',
+        metadata: {},
+      },
+      {
+        chunkId: 'c4',
+        score: 0.85,
+        documentId: 'd1',
+        content: 'test',
+        source: 'bm25',
+        metadata: {},
+      },
+      {
+        chunkId: 'c1',
+        score: 0.75,
+        documentId: 'd1',
+        content: 'test',
+        source: 'bm25',
+        metadata: {},
+      },
     ];
 
     const fused = reciprocalRankFusion(vectorResults, bm25Results, 60);
@@ -43,7 +85,14 @@ describe('Reciprocal Rank Fusion', () => {
 
   it('should use default k value', () => {
     const vectorResults: RetrievalResult[] = [
-      { chunkId: 'c1', score: 0.9, documentId: 'd1', content: 'test', source: 'vector', metadata: {} },
+      {
+        chunkId: 'c1',
+        score: 0.9,
+        documentId: 'd1',
+        content: 'test',
+        source: 'vector',
+        metadata: {},
+      },
     ];
 
     const fused = reciprocalRankFusion(vectorResults, []);
@@ -54,13 +103,41 @@ describe('Reciprocal Rank Fusion', () => {
 describe('Weighted Sum Fusion', () => {
   it('should combine scores with weights', () => {
     const vectorResults: RetrievalResult[] = [
-      { chunkId: 'c1', score: 0.8, documentId: 'd1', content: 'test', source: 'vector', metadata: {} },
-      { chunkId: 'c2', score: 0.6, documentId: 'd1', content: 'test', source: 'vector', metadata: {} },
+      {
+        chunkId: 'c1',
+        score: 0.8,
+        documentId: 'd1',
+        content: 'test',
+        source: 'vector',
+        metadata: {},
+      },
+      {
+        chunkId: 'c2',
+        score: 0.6,
+        documentId: 'd1',
+        content: 'test',
+        source: 'vector',
+        metadata: {},
+      },
     ];
 
     const bm25Results: RetrievalResult[] = [
-      { chunkId: 'c1', score: 0.4, documentId: 'd1', content: 'test', source: 'bm25', metadata: {} },
-      { chunkId: 'c2', score: 0.9, documentId: 'd1', content: 'test', source: 'bm25', metadata: {} },
+      {
+        chunkId: 'c1',
+        score: 0.4,
+        documentId: 'd1',
+        content: 'test',
+        source: 'bm25',
+        metadata: {},
+      },
+      {
+        chunkId: 'c2',
+        score: 0.9,
+        documentId: 'd1',
+        content: 'test',
+        source: 'bm25',
+        metadata: {},
+      },
     ];
 
     const fused = weightedSumFusion(vectorResults, bm25Results, 0.7, 0.3);
@@ -73,7 +150,14 @@ describe('Weighted Sum Fusion', () => {
 
   it('should handle missing results in one source', () => {
     const vectorResults: RetrievalResult[] = [
-      { chunkId: 'c1', score: 0.8, documentId: 'd1', content: 'test', source: 'vector', metadata: {} },
+      {
+        chunkId: 'c1',
+        score: 0.8,
+        documentId: 'd1',
+        content: 'test',
+        source: 'vector',
+        metadata: {},
+      },
     ];
 
     const fused = weightedSumFusion(vectorResults, [], 0.7, 0.3);
@@ -86,13 +170,41 @@ describe('Weighted Sum Fusion', () => {
 describe('Normalized Fusion', () => {
   it('should normalize scores before combining', () => {
     const vectorResults: RetrievalResult[] = [
-      { chunkId: 'c1', score: 100, documentId: 'd1', content: 'test', source: 'vector', metadata: {} },
-      { chunkId: 'c2', score: 50, documentId: 'd1', content: 'test', source: 'vector', metadata: {} },
+      {
+        chunkId: 'c1',
+        score: 100,
+        documentId: 'd1',
+        content: 'test',
+        source: 'vector',
+        metadata: {},
+      },
+      {
+        chunkId: 'c2',
+        score: 50,
+        documentId: 'd1',
+        content: 'test',
+        source: 'vector',
+        metadata: {},
+      },
     ];
 
     const bm25Results: RetrievalResult[] = [
-      { chunkId: 'c1', score: 0.9, documentId: 'd1', content: 'test', source: 'bm25', metadata: {} },
-      { chunkId: 'c2', score: 0.1, documentId: 'd1', content: 'test', source: 'bm25', metadata: {} },
+      {
+        chunkId: 'c1',
+        score: 0.9,
+        documentId: 'd1',
+        content: 'test',
+        source: 'bm25',
+        metadata: {},
+      },
+      {
+        chunkId: 'c2',
+        score: 0.1,
+        documentId: 'd1',
+        content: 'test',
+        source: 'bm25',
+        metadata: {},
+      },
     ];
 
     const fused = normalizedFusion(vectorResults, bm25Results, 0.5, 0.5);
@@ -107,10 +219,24 @@ describe('Normalized Fusion', () => {
 describe('applyFusion', () => {
   it('should apply RRF strategy', () => {
     const vectorResults: RetrievalResult[] = [
-      { chunkId: 'c1', score: 0.9, documentId: 'd1', content: 'test', source: 'vector', metadata: {} },
+      {
+        chunkId: 'c1',
+        score: 0.9,
+        documentId: 'd1',
+        content: 'test',
+        source: 'vector',
+        metadata: {},
+      },
     ];
     const bm25Results: RetrievalResult[] = [
-      { chunkId: 'c2', score: 0.9, documentId: 'd1', content: 'test', source: 'bm25', metadata: {} },
+      {
+        chunkId: 'c2',
+        score: 0.9,
+        documentId: 'd1',
+        content: 'test',
+        source: 'bm25',
+        metadata: {},
+      },
     ];
 
     const fused = applyFusion(vectorResults, bm25Results, { strategy: 'rrf' });
@@ -119,10 +245,24 @@ describe('applyFusion', () => {
 
   it('should apply weighted-sum strategy', () => {
     const vectorResults: RetrievalResult[] = [
-      { chunkId: 'c1', score: 0.8, documentId: 'd1', content: 'test', source: 'vector', metadata: {} },
+      {
+        chunkId: 'c1',
+        score: 0.8,
+        documentId: 'd1',
+        content: 'test',
+        source: 'vector',
+        metadata: {},
+      },
     ];
     const bm25Results: RetrievalResult[] = [
-      { chunkId: 'c1', score: 0.4, documentId: 'd1', content: 'test', source: 'bm25', metadata: {} },
+      {
+        chunkId: 'c1',
+        score: 0.4,
+        documentId: 'd1',
+        content: 'test',
+        source: 'bm25',
+        metadata: {},
+      },
     ];
 
     const fused = applyFusion(vectorResults, bm25Results, {
@@ -150,7 +290,7 @@ describe('Normalization', () => {
       const scores = [5, 5, 5];
       const normalized = minMaxNormalize(scores);
 
-      normalized.forEach(n => expect(n).toBe(0.5));
+      normalized.forEach((n) => expect(n).toBe(0.5));
     });
 
     it('should handle empty array', () => {
@@ -212,11 +352,25 @@ describe('HybridRetrievalEngine', () => {
 
   it('should fuse results', () => {
     const vectorResults: RetrievalResult[] = [
-      { chunkId: 'c1', score: 0.9, documentId: 'd1', content: 'test', source: 'vector', metadata: {} },
+      {
+        chunkId: 'c1',
+        score: 0.9,
+        documentId: 'd1',
+        content: 'test',
+        source: 'vector',
+        metadata: {},
+      },
     ];
 
     const bm25Results: RetrievalResult[] = [
-      { chunkId: 'c2', score: 0.9, documentId: 'd1', content: 'test', source: 'bm25', metadata: {} },
+      {
+        chunkId: 'c2',
+        score: 0.9,
+        documentId: 'd1',
+        content: 'test',
+        source: 'bm25',
+        metadata: {},
+      },
     ];
 
     const fused = engine.fuse(vectorResults, bm25Results);
@@ -225,9 +379,30 @@ describe('HybridRetrievalEngine', () => {
 
   it('should limit results to topK', () => {
     const vectorResults: RetrievalResult[] = [
-      { chunkId: 'c1', score: 0.9, documentId: 'd1', content: 'test', source: 'vector', metadata: {} },
-      { chunkId: 'c2', score: 0.8, documentId: 'd1', content: 'test', source: 'vector', metadata: {} },
-      { chunkId: 'c3', score: 0.7, documentId: 'd1', content: 'test', source: 'vector', metadata: {} },
+      {
+        chunkId: 'c1',
+        score: 0.9,
+        documentId: 'd1',
+        content: 'test',
+        source: 'vector',
+        metadata: {},
+      },
+      {
+        chunkId: 'c2',
+        score: 0.8,
+        documentId: 'd1',
+        content: 'test',
+        source: 'vector',
+        metadata: {},
+      },
+      {
+        chunkId: 'c3',
+        score: 0.7,
+        documentId: 'd1',
+        content: 'test',
+        source: 'vector',
+        metadata: {},
+      },
     ];
 
     const fused = engine.fuse(vectorResults, [], { topK: 2 });

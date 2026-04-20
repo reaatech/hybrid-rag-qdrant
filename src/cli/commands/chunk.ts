@@ -51,6 +51,8 @@ export async function chunkCommand(file: string, options: ChunkOptions): Promise
 
   console.log(`\nChunking Results:`);
   console.log(`  Total chunks: ${chunks.length}`);
-  console.log(`  Average chunk size: ${Math.round(chunks.reduce((sum, c) => sum + c.content.length, 0) / chunks.length)} chars`);
+  console.log(
+    `  Average chunk size: ${Math.round(chunks.reduce((sum, c) => sum + c.content.length, 0) / chunks.length)} chars`,
+  );
   console.log(`\nResults saved to: ${options.output}`);
 }

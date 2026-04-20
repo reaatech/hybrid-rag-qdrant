@@ -23,11 +23,15 @@ export const ragStatus: RAGTool = {
         content: [
           {
             type: 'text',
-            text: JSON.stringify({
-              status: 'healthy',
-              timestamp: new Date().toISOString(),
-              ...stats,
-            }, null, 2),
+            text: JSON.stringify(
+              {
+                status: 'healthy',
+                timestamp: new Date().toISOString(),
+                ...stats,
+              },
+              null,
+              2,
+            ),
           },
         ],
       };
@@ -66,11 +70,15 @@ export const ragCollections: RAGTool = {
       content: [
         {
           type: 'text',
-          text: JSON.stringify({
-            message: 'Collections management tool',
-            action: args.action,
-            collectionName: args.collectionName,
-          }, null, 2),
+          text: JSON.stringify(
+            {
+              message: 'Collections management tool',
+              action: args.action,
+              collectionName: args.collectionName,
+            },
+            null,
+            2,
+          ),
         },
       ],
     };
@@ -107,20 +115,20 @@ export const ragConfig: RAGTool = {
       content: [
         {
           type: 'text',
-          text: JSON.stringify({
-            message: 'Configuration management tool',
-            action: args.action,
-            key: args.key,
-            value: args.value,
-          }, null, 2),
+          text: JSON.stringify(
+            {
+              message: 'Configuration management tool',
+              action: args.action,
+              key: args.key,
+              value: args.value,
+            },
+            null,
+            2,
+          ),
         },
       ],
     };
   },
 };
 
-export const adminTools: RAGTool[] = [
-  ragStatus,
-  ragCollections,
-  ragConfig,
-];
+export const adminTools: RAGTool[] = [ragStatus, ragCollections, ragConfig];

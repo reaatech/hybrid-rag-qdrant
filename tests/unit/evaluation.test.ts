@@ -296,7 +296,10 @@ describe('generation metrics', () => {
     });
 
     it('returns partial score for partial match', () => {
-      const score = answerCorrectnessScore('Paris is capital of France', 'The capital of France is Paris');
+      const score = answerCorrectnessScore(
+        'Paris is capital of France',
+        'The capital of France is Paris',
+      );
       expect(score).toBeGreaterThan(0);
       expect(score).toBeLessThanOrEqual(1);
     });
@@ -308,7 +311,7 @@ describe('generation metrics', () => {
         'q1',
         'What is the capital of France?',
         'Paris is the capital of France.',
-        ['The capital of France is Paris.']
+        ['The capital of France is Paris.'],
       );
 
       expect(result.queryId).toBe('q1');
@@ -323,7 +326,7 @@ describe('generation metrics', () => {
         'q1',
         'What is the capital of France?',
         'Paris is the capital.',
-        ['The capital of France is Paris.']
+        ['The capital of France is Paris.'],
       );
 
       expect(result.answerCorrectness).toBeUndefined();
@@ -335,7 +338,7 @@ describe('generation metrics', () => {
         'What is the capital of France?',
         'Paris is the capital of France.',
         ['The capital of France is Paris.'],
-        'Paris is the capital of France.'
+        'Paris is the capital of France.',
       );
 
       expect(result.answerCorrectness).toBeDefined();

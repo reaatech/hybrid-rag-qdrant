@@ -68,10 +68,7 @@ describe('Session Management Tools', () => {
       });
 
       it('should fail without user_id', async () => {
-        const result = await ragSessionManage.handler(
-          { action: 'create' },
-          mockPipeline,
-        );
+        const result = await ragSessionManage.handler({ action: 'create' }, mockPipeline);
 
         expect(result.isError).toBe(true);
         const response = JSON.parse((result.content[0] as { text: string }).text);
@@ -111,10 +108,7 @@ describe('Session Management Tools', () => {
       });
 
       it('should fail without session_id', async () => {
-        const result = await ragSessionManage.handler(
-          { action: 'get' },
-          mockPipeline,
-        );
+        const result = await ragSessionManage.handler({ action: 'get' }, mockPipeline);
 
         expect(result.isError).toBe(true);
       });
@@ -197,14 +191,8 @@ describe('Session Management Tools', () => {
     describe('list action', () => {
       it('should list user sessions', async () => {
         // Create multiple sessions
-        await ragSessionManage.handler(
-          { action: 'create', user_id: 'user-123' },
-          mockPipeline,
-        );
-        await ragSessionManage.handler(
-          { action: 'create', user_id: 'user-123' },
-          mockPipeline,
-        );
+        await ragSessionManage.handler({ action: 'create', user_id: 'user-123' }, mockPipeline);
+        await ragSessionManage.handler({ action: 'create', user_id: 'user-123' }, mockPipeline);
 
         // List them
         const result = await ragSessionManage.handler(
@@ -218,10 +206,7 @@ describe('Session Management Tools', () => {
       });
 
       it('should fail without user_id', async () => {
-        const result = await ragSessionManage.handler(
-          { action: 'list' },
-          mockPipeline,
-        );
+        const result = await ragSessionManage.handler({ action: 'list' }, mockPipeline);
 
         expect(result.isError).toBe(true);
       });
@@ -229,10 +214,7 @@ describe('Session Management Tools', () => {
 
     describe('unknown action', () => {
       it('should return error for unknown action', async () => {
-        const result = await ragSessionManage.handler(
-          { action: 'unknown' },
-          mockPipeline,
-        );
+        const result = await ragSessionManage.handler({ action: 'unknown' }, mockPipeline);
 
         expect(result.isError).toBe(true);
         const response = JSON.parse((result.content[0] as { text: string }).text);
@@ -251,10 +233,7 @@ describe('Session Management Tools', () => {
       const sessionId = JSON.parse((createResult.content[0] as { text: string }).text).session.id;
 
       // Get context
-      const result = await ragGetContext.handler(
-        { session_id: sessionId },
-        mockPipeline,
-      );
+      const result = await ragGetContext.handler({ session_id: sessionId }, mockPipeline);
 
       expect(result.isError).toBeFalsy();
       const response = JSON.parse((result.content[0] as { text: string }).text);
@@ -302,10 +281,7 @@ describe('Session Management Tools', () => {
     });
 
     it('should fail for non-existent session', async () => {
-      const result = await ragGetContext.handler(
-        { session_id: 'non-existent' },
-        mockPipeline,
-      );
+      const result = await ragGetContext.handler({ session_id: 'non-existent' }, mockPipeline);
 
       expect(result.isError).toBe(true);
     });
@@ -321,10 +297,7 @@ describe('Session Management Tools', () => {
       const sessionId = JSON.parse((createResult.content[0] as { text: string }).text).session.id;
 
       // Get history
-      const result = await ragSessionHistory.handler(
-        { session_id: sessionId },
-        mockPipeline,
-      );
+      const result = await ragSessionHistory.handler({ session_id: sessionId }, mockPipeline);
 
       expect(result.isError).toBeFalsy();
       const response = JSON.parse((result.content[0] as { text: string }).text);
@@ -354,10 +327,7 @@ describe('Session Management Tools', () => {
     });
 
     it('should fail for non-existent session', async () => {
-      const result = await ragSessionHistory.handler(
-        { session_id: 'non-existent' },
-        mockPipeline,
-      );
+      const result = await ragSessionHistory.handler({ session_id: 'non-existent' }, mockPipeline);
 
       expect(result.isError).toBe(true);
     });

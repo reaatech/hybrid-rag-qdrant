@@ -73,7 +73,10 @@ export class ChunkingBenchmark {
   /**
    * Run benchmark on documents
    */
-  benchmark(documents: Document[], options: ChunkingBenchmarkOptions = {}): ChunkingBenchmarkResult {
+  benchmark(
+    documents: Document[],
+    options: ChunkingBenchmarkOptions = {},
+  ): ChunkingBenchmarkResult {
     const strategies = options.strategies ?? Object.values(ChunkingStrategy);
     const chunkSize = options.chunkSize ?? 512;
     const overlap = options.overlap ?? 50;
@@ -110,7 +113,10 @@ export class ChunkingBenchmark {
         config,
         chunkingStats: {
           totalChunks,
-          avgChunkSize: chunkSizes.length > 0 ? Math.round(chunkSizes.reduce((a, b) => a + b, 0) / chunkSizes.length) : 0,
+          avgChunkSize:
+            chunkSizes.length > 0
+              ? Math.round(chunkSizes.reduce((a, b) => a + b, 0) / chunkSizes.length)
+              : 0,
           minChunkSize: chunkSizes.length > 0 ? Math.min(...chunkSizes) : 0,
           maxChunkSize: chunkSizes.length > 0 ? Math.max(...chunkSizes) : 0,
           totalTokens,

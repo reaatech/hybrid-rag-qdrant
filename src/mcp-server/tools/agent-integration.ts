@@ -1,6 +1,6 @@
 /**
  * MCP Agent Integration Tools
- * 
+ *
  * Tools for discovering, routing to, and communicating with
  * agents in a multi-agent system like agent-mesh.
  */
@@ -59,15 +59,13 @@ class AgentRegistry {
    */
   list(filter?: { capabilities?: string[] }): AgentInfo[] {
     let agents = Array.from(this.agents.values());
-    
+
     if (filter?.capabilities) {
-      agents = agents.filter(agent => 
-        filter.capabilities!.some(cap => 
-          agent.capabilities.some(ac => ac.name === cap)
-        )
+      agents = agents.filter((agent) =>
+        filter.capabilities!.some((cap) => agent.capabilities.some((ac) => ac.name === cap)),
       );
     }
-    
+
     return agents;
   }
 
@@ -94,14 +92,16 @@ class AgentRegistry {
     }
 
     // Fall back to default agent
-    return Array.from(this.agents.values()).find(a => a.is_default);
+    return Array.from(this.agents.values()).find((a) => a.is_default);
   }
 
   /**
    * Register a callback for async responses
    */
   registerCallback(requestId: string, callback: (response: unknown) => void): void {
-    if (this.callbacks.size >= AgentRegistry.MAX_CALLBACKS) { throw new Error('Maximum callbacks reached'); }
+    if (this.callbacks.size >= AgentRegistry.MAX_CALLBACKS) {
+      throw new Error('Maximum callbacks reached');
+    }
     this.callbacks.set(requestId, callback);
   }
 
@@ -131,7 +131,8 @@ function initializeDefaultAgents(): void {
   agentRegistry.register({
     agent_id: 'hybrid-rag-qdrant',
     display_name: 'Hybrid RAG System',
-    description: 'Enterprise-grade RAG system with hybrid retrieval (vector + BM25), reranking, and evaluation',
+    description:
+      'Enterprise-grade RAG system with hybrid retrieval (vector + BM25), reranking, and evaluation',
     is_default: true,
     confidence_threshold: 0.85,
     capabilities: [
@@ -215,13 +216,13 @@ export const ragDiscoverAgents: RAGTool = {
   },
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
     const filter = args.filter as { capabilities?: string[] } | undefined;
-    const includeDetails = args.include_details as boolean ?? true;
+    const includeDetails = (args.include_details as boolean) ?? true;
 
     const agents = agentRegistry.list(filter);
 
     const response = {
       total_agents: agents.length,
-      agents: agents.map(agent => {
+      agents: agents.map((agent) => {
         if (includeDetails) {
           return agent;
         }
@@ -229,7 +230,7 @@ export const ragDiscoverAgents: RAGTool = {
           agent_id: agent.agent_id,
           display_name: agent.display_name,
           description: agent.description,
-          capabilities: agent.capabilities.map(c => c.name),
+          capabilities: agent.capabilities.map((c) => c.name),
           is_default: agent.is_default,
         };
       }),
@@ -285,17 +286,22 @@ export const ragRouteToAgent: RAGTool = {
     const targetAgent = args.target_agent as string | undefined;
     const intent = args.intent as string | undefined;
     const context = args.context as Record<string, unknown> | undefined;
-    const returnToRag = args.return_to_rag as boolean ?? false;
-    const async_mode = args.async as boolean ?? false;
+    const returnToRag = (args.return_to_rag as boolean) ?? false;
+    const async_mode = (args.async as boolean) ?? false;
 
     // Find target agent
     let agent: AgentInfo | undefined;
-    
+
     if (targetAgent) {
       agent = agentRegistry.get(targetAgent);
       if (!agent) {
         return {
-          content: [{ type: 'text', text: JSON.stringify({ error: `Agent not found: ${targetAgent}` }, null, 2) }],
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({ error: `Agent not found: ${targetAgent}` }, null, 2),
+            },
+          ],
           isError: true,
         };
       }
@@ -303,7 +309,12 @@ export const ragRouteToAgent: RAGTool = {
       agent = agentRegistry.findBest(query, intent);
       if (!agent) {
         return {
-          content: [{ type: 'text', text: JSON.stringify({ error: 'No suitable agent found for query' }, null, 2) }],
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({ error: 'No suitable agent found for query' }, null, 2),
+            },
+          ],
           isError: true,
         };
       }
@@ -318,33 +329,45 @@ export const ragRouteToAgent: RAGTool = {
     if (async_mode) {
       // For async, we'd register a callback and return immediately
       return {
-        content: [{ 
-          type: 'text', 
-          text: JSON.stringify({
-            request_id: requestId,
-            status: 'queued',
-            target_agent: agent.agent_id,
-            query,
-            message: 'Request queued for async processing',
-          }, null, 2),
-        }],
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                request_id: requestId,
+                status: 'queued',
+                target_agent: agent.agent_id,
+                query,
+                message: 'Request queued for async processing',
+              },
+              null,
+              2,
+            ),
+          },
+        ],
       };
     }
 
     // Sync response
     return {
-      content: [{ 
-        type: 'text', 
-        text: JSON.stringify({
-          request_id: requestId,
-          status: 'completed',
-          target_agent: agent.agent_id,
-          agent_name: agent.display_name,
-          query,
-          response: simulatedResponse,
-          return_to_rag: returnToRag,
-        }, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              request_id: requestId,
+              status: 'completed',
+              target_agent: agent.agent_id,
+              agent_name: agent.display_name,
+              query,
+              response: simulatedResponse,
+              return_to_rag: returnToRag,
+            },
+            null,
+            2,
+          ),
+        },
+      ],
     };
   },
 };
@@ -373,7 +396,7 @@ export const ragGetAgentCapabilities: RAGTool = {
     const capabilityName = args.capability_name as string | undefined;
 
     let agents: AgentInfo[];
-    
+
     if (agentId) {
       const agent = agentRegistry.get(agentId);
       agents = agent ? [agent] : [];
@@ -381,14 +404,14 @@ export const ragGetAgentCapabilities: RAGTool = {
       agents = agentRegistry.list();
     }
 
-    const capabilities = agents.flatMap(agent => {
+    const capabilities = agents.flatMap((agent) => {
       let caps = agent.capabilities;
-      
+
       if (capabilityName) {
-        caps = caps.filter(c => c.name === capabilityName);
+        caps = caps.filter((c) => c.name === capabilityName);
       }
-      
-      return caps.map(cap => ({
+
+      return caps.map((cap) => ({
         agent_id: agent.agent_id,
         agent_name: agent.display_name,
         ...cap,
@@ -396,13 +419,19 @@ export const ragGetAgentCapabilities: RAGTool = {
     });
 
     return {
-      content: [{ 
-        type: 'text', 
-        text: JSON.stringify({
-          total_capabilities: capabilities.length,
-          capabilities,
-        }, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              total_capabilities: capabilities.length,
+              capabilities,
+            },
+            null,
+            2,
+          ),
+        },
+      ],
     };
   },
 };
@@ -439,69 +468,109 @@ export const ragRegisterCallback: RAGTool = {
       case 'register': {
         const requestId = args.request_id as string;
         const callbackUrl = args.callback_url as string;
-        
+
         if (!requestId || !callbackUrl) {
           return {
-            content: [{ type: 'text', text: JSON.stringify({ error: 'request_id and callback_url are required' }, null, 2) }],
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(
+                  { error: 'request_id and callback_url are required' },
+                  null,
+                  2,
+                ),
+              },
+            ],
             isError: true,
           };
         }
 
-        try { new URL(callbackUrl); } catch { return { content: [{ type: 'text', text: JSON.stringify({ error: 'callback_url must be a valid URL' }) }], isError: true }; }
+        try {
+          new URL(callbackUrl);
+        } catch {
+          return {
+            content: [
+              { type: 'text', text: JSON.stringify({ error: 'callback_url must be a valid URL' }) },
+            ],
+            isError: true,
+          };
+        }
 
         // In production, this would store the callback URL
         return {
-          content: [{ 
-            type: 'text', 
-            text: JSON.stringify({
-              success: true,
-              message: 'Callback registered',
-              request_id: requestId,
-              callback_url: callbackUrl,
-            }, null, 2),
-          }],
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  success: true,
+                  message: 'Callback registered',
+                  request_id: requestId,
+                  callback_url: callbackUrl,
+                },
+                null,
+                2,
+              ),
+            },
+          ],
         };
       }
 
       case 'unregister': {
         const requestId = args.request_id as string;
-        
+
         if (!requestId) {
           return {
-            content: [{ type: 'text', text: JSON.stringify({ error: 'request_id is required' }, null, 2) }],
+            content: [
+              { type: 'text', text: JSON.stringify({ error: 'request_id is required' }, null, 2) },
+            ],
             isError: true,
           };
         }
 
         agentRegistry.removeCallback(requestId);
-        
+
         return {
-          content: [{ 
-            type: 'text', 
-            text: JSON.stringify({
-              success: true,
-              message: 'Callback unregistered',
-              request_id: requestId,
-            }, null, 2),
-          }],
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  success: true,
+                  message: 'Callback unregistered',
+                  request_id: requestId,
+                },
+                null,
+                2,
+              ),
+            },
+          ],
         };
       }
 
       case 'list': {
         // Return registered callbacks (simplified)
         return {
-          content: [{ 
-            type: 'text', 
-            text: JSON.stringify({
-              message: 'Callback listing not implemented in demo mode',
-            }, null, 2),
-          }],
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  message: 'Callback listing not implemented in demo mode',
+                },
+                null,
+                2,
+              ),
+            },
+          ],
         };
       }
 
       default:
         return {
-          content: [{ type: 'text', text: JSON.stringify({ error: `Unknown action: ${action}` }, null, 2) }],
+          content: [
+            { type: 'text', text: JSON.stringify({ error: `Unknown action: ${action}` }, null, 2) },
+          ],
           isError: true,
         };
     }
@@ -511,27 +580,31 @@ export const ragRegisterCallback: RAGTool = {
 /**
  * Simulate agent response based on agent type
  */
-function simulateAgentResponse(agent: AgentInfo, query: string, context?: Record<string, unknown>): unknown {
+function simulateAgentResponse(
+  agent: AgentInfo,
+  query: string,
+  context?: Record<string, unknown>,
+): unknown {
   // In production, this would make an actual API call to the agent
   switch (agent.agent_id) {
     case 'calculator':
       return {
-        message: `Calculator agent would process: ${  query}`,
+        message: `Calculator agent would process: ${query}`,
         note: 'This is a simulated response',
       };
-    
+
     case 'data-analyst':
       return {
-        message: `Data analyst agent would analyze: ${  query}`,
+        message: `Data analyst agent would analyze: ${query}`,
         note: 'This is a simulated response',
       };
-    
+
     case 'hybrid-rag-qdrant':
       return {
-        message: `RAG agent would search for: ${  query}`,
+        message: `RAG agent would search for: ${query}`,
         note: 'This is a simulated response',
       };
-    
+
     default:
       return {
         message: `Agent ${agent.display_name} received: ${query}`,

@@ -93,7 +93,7 @@ export const AblationConfigSchema = z.object({
   baseline: z.object({
     chunking: z.string().default('fixed-size'),
     chunkSize: z.number().int().positive().default(512),
-  overlap: z.number().int().nonnegative().default(50),
+    overlap: z.number().int().nonnegative().default(50),
     retrieval: z.string().default('hybrid'),
     vectorWeight: z.number().min(0).max(1).default(0.7),
     bm25Weight: z.number().min(0).max(1).default(0.3),

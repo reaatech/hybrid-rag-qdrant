@@ -83,7 +83,7 @@ export class ChunkingEngine {
    * Chunk multiple documents
    */
   chunkBatch(documents: Document[], config: ChunkingConfig): ChunkingResult[] {
-    return documents.map(doc => this.chunk(doc.content, doc.id, config));
+    return documents.map((doc) => this.chunk(doc.content, doc.id, config));
   }
 
   /**
@@ -101,7 +101,7 @@ export class ChunkingEngine {
       };
     }
 
-    const sizes = chunks.map(c => c.characterCount);
+    const sizes = chunks.map((c) => c.characterCount);
     const totalTokens = chunks.reduce((sum, c) => sum + c.tokenCount, 0);
 
     return {
@@ -192,7 +192,7 @@ export async function chunkDocument(
   content: string,
   documentId: string,
   config: ChunkingConfig,
-  _metadata?: Record<string, unknown>
+  _metadata?: Record<string, unknown>,
 ): Promise<Chunk[]> {
   const result = chunkingEngine.chunk(content, documentId, config);
   return result.chunks;

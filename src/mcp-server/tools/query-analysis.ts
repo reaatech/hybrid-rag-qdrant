@@ -1,6 +1,6 @@
 /**
  * MCP Query Analysis Tools
- * 
+ *
  * Tools for query intent analysis, decomposition, and classification
  * to optimize retrieval strategy selection.
  */
@@ -11,7 +11,7 @@ import type { RAGPipeline } from '../../pipeline.js';
 /**
  * Query intent categories
  */
-export type QueryIntent = 
+export type QueryIntent =
   | 'factual'
   | 'procedural'
   | 'comparative'
@@ -52,7 +52,10 @@ const INTENT_PATTERNS: Record<QueryIntent, RegExp[]> = {
 /**
  * Recommended retrieval strategies per intent
  */
-const INTENT_STRATEGIES: Record<QueryIntent, { vectorWeight: number; bm25Weight: number; useReranker: boolean; topK: number }> = {
+const INTENT_STRATEGIES: Record<
+  QueryIntent,
+  { vectorWeight: number; bm25Weight: number; useReranker: boolean; topK: number }
+> = {
   factual: { vectorWeight: 0.8, bm25Weight: 0.2, useReranker: true, topK: 5 },
   procedural: { vectorWeight: 0.5, bm25Weight: 0.5, useReranker: true, topK: 10 },
   comparative: { vectorWeight: 0.6, bm25Weight: 0.4, useReranker: true, topK: 15 },
@@ -65,21 +68,21 @@ const INTENT_STRATEGIES: Record<QueryIntent, { vectorWeight: number; bm25Weight:
  * Classify query intent based on patterns
  */
 function classifyIntent(query: string, candidates?: QueryIntent[]): QueryIntent {
-  const candidateIntents = candidates || Object.keys(INTENT_PATTERNS) as QueryIntent[];
-  
+  const candidateIntents = candidates || (Object.keys(INTENT_PATTERNS) as QueryIntent[]);
+
   let bestIntent: QueryIntent = 'factual';
   let bestScore = 0;
 
   for (const intent of candidateIntents) {
     const patterns = INTENT_PATTERNS[intent];
     let score = 0;
-    
+
     for (const pattern of patterns) {
       if (pattern.test(query)) {
         score++;
       }
     }
-    
+
     if (score > bestScore) {
       bestScore = score;
       bestIntent = intent;
@@ -92,14 +95,21 @@ function classifyIntent(query: string, candidates?: QueryIntent[]): QueryIntent 
 /**
  * Decompose a complex query into sub-queries
  */
-function decomposeQuery(query: string): { subQueries: string[]; strategy: 'parallel' | 'sequential'; aggregation: 'concatenate' | 'merge' | 'vote' } {
+function decomposeQuery(query: string): {
+  subQueries: string[];
+  strategy: 'parallel' | 'sequential';
+  aggregation: 'concatenate' | 'merge' | 'vote';
+} {
   // Simple decomposition based on conjunctions
   const conjunctions = [' and ', ' or ', ' but ', '; '];
   let parts = [query];
-  
+
   for (const conjunction of conjunctions) {
     if (query.toLowerCase().includes(conjunction)) {
-      parts = query.split(new RegExp(conjunction, 'i')).map(p => p.trim()).filter(p => p.length > 0);
+      parts = query
+        .split(new RegExp(conjunction, 'i'))
+        .map((p) => p.trim())
+        .filter((p) => p.length > 0);
       break;
     }
   }
@@ -145,8 +155,8 @@ export const ragAnalyzeQuery: RAGTool = {
         description: 'Optional context about the user or conversation',
         properties: {
           user_tier: { type: 'string', description: 'User tier (e.g., enterprise, free)' },
-          previous_queries: { 
-            type: 'array', 
+          previous_queries: {
+            type: 'array',
             items: { type: 'string' },
             description: 'Previous queries in the conversation',
           },
@@ -170,20 +180,25 @@ export const ragAnalyzeQuery: RAGTool = {
       content: [
         {
           type: 'text',
-          text: JSON.stringify({
-            query,
-            intent,
-            confidence,
-            isComplex: decomposition.subQueries.length > 1,
-            recommended_config: {
-              vectorWeight: strategy.vectorWeight,
-              bm25Weight: strategy.bm25Weight,
-              useReranker: strategy.useReranker,
-              topK: strategy.topK,
+          text: JSON.stringify(
+            {
+              query,
+              intent,
+              confidence,
+              isComplex: decomposition.subQueries.length > 1,
+              recommended_config: {
+                vectorWeight: strategy.vectorWeight,
+                bm25Weight: strategy.bm25Weight,
+                useReranker: strategy.useReranker,
+                topK: strategy.topK,
+              },
+              sub_queries:
+                decomposition.subQueries.length > 1 ? decomposition.subQueries : undefined,
+              context_used: context ? Object.keys(context) : [],
             },
-            sub_queries: decomposition.subQueries.length > 1 ? decomposition.subQueries : undefined,
-            context_used: context ? Object.keys(context) : [],
-          }, null, 2),
+            null,
+            2,
+          ),
         },
       ],
     };
@@ -218,13 +233,13 @@ export const ragDecomposeQuery: RAGTool = {
   },
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
     const query = args.query as string;
-    const _maxDepth = args.maxDepth as number ?? 3;
-    const minConfidence = args.minSubQueryConfidence as number ?? 0.7;
+    const _maxDepth = (args.maxDepth as number) ?? 3;
+    const minConfidence = (args.minSubQueryConfidence as number) ?? 0.7;
 
     const decomposition = decomposeQuery(query);
-    
+
     // Analyze each sub-query for confidence
-    const subQueriesWithConfidence = decomposition.subQueries.map(sq => {
+    const subQueriesWithConfidence = decomposition.subQueries.map((sq) => {
       const intent = classifyIntent(sq);
       // Simple confidence based on query length and intent clarity
       const confidence = sq.length > 10 ? 0.9 : 0.6;
@@ -232,24 +247,30 @@ export const ragDecomposeQuery: RAGTool = {
     });
 
     // Filter by confidence threshold
-    const confidentQueries = subQueriesWithConfidence.filter(sq => sq.confidence >= minConfidence);
+    const confidentQueries = subQueriesWithConfidence.filter(
+      (sq) => sq.confidence >= minConfidence,
+    );
 
     return {
       content: [
         {
           type: 'text',
-          text: JSON.stringify({
-            original_query: query,
-            sub_queries: confidentQueries.map(sq => ({
-              query: sq.query,
-              intent: sq.intent,
-              confidence: sq.confidence,
-            })),
-            strategy: decomposition.strategy,
-            aggregation: decomposition.aggregation,
-            total_sub_queries: confidentQueries.length,
-            filtered_count: subQueriesWithConfidence.length - confidentQueries.length,
-          }, null, 2),
+          text: JSON.stringify(
+            {
+              original_query: query,
+              sub_queries: confidentQueries.map((sq) => ({
+                query: sq.query,
+                intent: sq.intent,
+                confidence: sq.confidence,
+              })),
+              strategy: decomposition.strategy,
+              aggregation: decomposition.aggregation,
+              total_sub_queries: confidentQueries.length,
+              filtered_count: subQueriesWithConfidence.length - confidentQueries.length,
+            },
+            null,
+            2,
+          ),
         },
       ],
     };
@@ -271,9 +292,16 @@ export const ragClassifyIntent: RAGTool = {
       },
       candidates: {
         type: 'array',
-        items: { 
+        items: {
           type: 'string',
-          enum: ['factual', 'procedural', 'comparative', 'exploratory', 'troubleshooting', 'definitional'],
+          enum: [
+            'factual',
+            'procedural',
+            'comparative',
+            'exploratory',
+            'troubleshooting',
+            'definitional',
+          ],
         },
         description: 'Optional list of candidate intents to choose from',
       },
@@ -291,18 +319,22 @@ export const ragClassifyIntent: RAGTool = {
       content: [
         {
           type: 'text',
-          text: JSON.stringify({
-            query,
-            intent,
-            description: getIntentDescription(intent),
-            recommended_strategy: {
-              vectorWeight: strategy.vectorWeight,
-              bm25Weight: strategy.bm25Weight,
-              useReranker: strategy.useReranker,
-              topK: strategy.topK,
+          text: JSON.stringify(
+            {
+              query,
+              intent,
+              description: getIntentDescription(intent),
+              recommended_strategy: {
+                vectorWeight: strategy.vectorWeight,
+                bm25Weight: strategy.bm25Weight,
+                useReranker: strategy.useReranker,
+                topK: strategy.topK,
+              },
+              all_intents: candidates || Object.keys(INTENT_PATTERNS),
             },
-            all_intents: candidates || Object.keys(INTENT_PATTERNS),
-          }, null, 2),
+            null,
+            2,
+          ),
         },
       ],
     };

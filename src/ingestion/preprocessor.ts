@@ -114,7 +114,7 @@ export class TextPreprocessor {
     // Remove trailing whitespace on each line
     text = text
       .split('\n')
-      .map(line => line.trimEnd())
+      .map((line) => line.trimEnd())
       .join('\n');
 
     return text;
@@ -142,13 +142,19 @@ export class TextPreprocessor {
     let result = text;
 
     // Remove header pattern from each page-like section
-    if (headerPattern && this.countOccurrences(lines, headerPattern) >= this.headerFooterMinOccurrences) {
+    if (
+      headerPattern &&
+      this.countOccurrences(lines, headerPattern) >= this.headerFooterMinOccurrences
+    ) {
       result = this.removePatternFromLines(result, headerPattern);
       removed = true;
     }
 
     // Remove footer pattern from each page-like section
-    if (footerPattern && this.countOccurrences(lines, footerPattern) >= this.headerFooterMinOccurrences) {
+    if (
+      footerPattern &&
+      this.countOccurrences(lines, footerPattern) >= this.headerFooterMinOccurrences
+    ) {
       result = this.removePatternFromLines(result, footerPattern);
       removed = true;
     }
@@ -160,15 +166,17 @@ export class TextPreprocessor {
    * Find repeating pattern in lines
    */
   private findRepeatingPattern(lines: string[]): string | null {
-    if (lines.length === 0) {return null;}
+    if (lines.length === 0) {
+      return null;
+    }
 
     // Check if all lines are similar
     const firstLine = lines[0]?.trim().toLowerCase() ?? '';
-    if (!firstLine) {return null;}
+    if (!firstLine) {
+      return null;
+    }
 
-    const matchCount = lines.filter(line =>
-      line.trim().toLowerCase() === firstLine,
-    ).length;
+    const matchCount = lines.filter((line) => line.trim().toLowerCase() === firstLine).length;
 
     if (matchCount === lines.length) {
       return firstLine;
@@ -176,7 +184,7 @@ export class TextPreprocessor {
 
     // Check for common patterns (page numbers, etc.)
     const pagePattern = /^\s*\d+\s*$/;
-    if (lines.every(line => pagePattern.test(line.trim()))) {
+    if (lines.every((line) => pagePattern.test(line.trim()))) {
       return 'PAGE_NUMBER';
     }
 
@@ -189,10 +197,10 @@ export class TextPreprocessor {
   private countOccurrences(lines: string[], pattern: string): number {
     if (pattern === 'PAGE_NUMBER') {
       const pagePattern = /^\s*\d+\s*$/;
-      return lines.filter(line => pagePattern.test(line.trim())).length;
+      return lines.filter((line) => pagePattern.test(line.trim())).length;
     }
 
-    return lines.filter(line => line.trim().toLowerCase() === pattern).length;
+    return lines.filter((line) => line.trim().toLowerCase() === pattern).length;
   }
 
   /**
@@ -202,7 +210,7 @@ export class TextPreprocessor {
     const lines = text.split('\n');
 
     return lines
-      .filter(line => {
+      .filter((line) => {
         const trimmed = line.trim().toLowerCase();
         if (pattern === 'PAGE_NUMBER') {
           return !/^\s*\d+\s*$/.test(trimmed);
@@ -227,7 +235,7 @@ export class TextPreprocessor {
     for (const line of lines) {
       // Detect tab-separated or pipe-separated tables
       const tabColumns = line.split('\t');
-      const pipeColumns = line.split('|').filter(c => c.trim() !== '');
+      const pipeColumns = line.split('|').filter((c) => c.trim() !== '');
 
       if (tabColumns.length >= 2 || pipeColumns.length >= 2) {
         if (!inTable) {
@@ -236,7 +244,7 @@ export class TextPreprocessor {
         }
 
         const columns = tabColumns.length >= 2 ? tabColumns : pipeColumns;
-        tableRows.push(columns.map(c => c.trim()));
+        tableRows.push(columns.map((c) => c.trim()));
       } else {
         if (inTable && tableRows.length >= 2) {
           // End of table, format as markdown
@@ -270,13 +278,15 @@ export class TextPreprocessor {
    * Format table rows as markdown
    */
   private formatTableAsMarkdown(rows: string[][]): string {
-    if (rows.length === 0) {return '';}
+    if (rows.length === 0) {
+      return '';
+    }
 
     // Determine column count
-    const colCount = Math.max(...rows.map(r => r.length));
+    const colCount = Math.max(...rows.map((r) => r.length));
 
     // Normalize rows to same column count
-    const normalizedRows = rows.map(row => {
+    const normalizedRows = rows.map((row) => {
       while (row.length < colCount) {
         row.push('');
       }

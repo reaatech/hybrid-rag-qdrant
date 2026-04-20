@@ -2,10 +2,7 @@
  * OpenTelemetry metrics for hybrid-rag-qdrant
  */
 
-import {
-  MeterProvider,
-  PeriodicExportingMetricReader,
-} from '@opentelemetry/sdk-metrics';
+import { MeterProvider, PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
 import { ConsoleMetricExporter } from '@opentelemetry/sdk-metrics';
 import { Counter, Histogram, Meter } from '@opentelemetry/api';

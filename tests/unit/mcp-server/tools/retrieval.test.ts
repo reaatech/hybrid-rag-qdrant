@@ -14,7 +14,7 @@ import type { RAGPipeline } from '../../../../src/pipeline.js';
 
 const mockResults = [
   { chunkId: 'chunk-1', score: 0.95, content: 'Result one', metadata: { source: 'doc-a' } },
-  { chunkId: 'chunk-2', score: 0.80, content: 'Result two', metadata: { source: 'doc-b' } },
+  { chunkId: 'chunk-2', score: 0.8, content: 'Result two', metadata: { source: 'doc-b' } },
 ];
 
 const mockPipeline = {
@@ -60,7 +60,10 @@ describe('Retrieval Tools', () => {
     it('should pass useReranker option to pipeline.query', async () => {
       await ragRetrieve.handler({ query: 'test', useReranker: true }, mockPipeline);
 
-      expect(mockPipeline.query).toHaveBeenCalledWith('test', expect.objectContaining({ useReranker: true }));
+      expect(mockPipeline.query).toHaveBeenCalledWith(
+        'test',
+        expect.objectContaining({ useReranker: true }),
+      );
     });
 
     it('should pass vector and bm25 weights', async () => {
@@ -198,10 +201,7 @@ describe('Retrieval Tools', () => {
     });
 
     it('should return error when documents is empty', async () => {
-      const result = await ragRerank.handler(
-        { query: 'test', documents: [] },
-        mockPipeline,
-      );
+      const result = await ragRerank.handler({ query: 'test', documents: [] }, mockPipeline);
 
       expect(result.isError).toBe(true);
     });
@@ -213,10 +213,7 @@ describe('Retrieval Tools', () => {
     });
 
     it('should return error when query is missing', async () => {
-      const result = await ragRerank.handler(
-        { documents: ['doc one'] },
-        mockPipeline,
-      );
+      const result = await ragRerank.handler({ documents: ['doc one'] }, mockPipeline);
 
       expect(result.isError).toBe(true);
     });

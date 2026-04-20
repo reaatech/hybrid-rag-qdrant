@@ -12,7 +12,9 @@ export type NormalizationMethod = 'minmax' | 'zscore' | 'rank';
  * normalized = (value - min) / (max - min)
  */
 export function minMaxNormalize(scores: number[]): number[] {
-  if (scores.length === 0) {return [];}
+  if (scores.length === 0) {
+    return [];
+  }
 
   const min = scores.reduce((a, b) => Math.min(a, b), Infinity);
   const max = scores.reduce((a, b) => Math.max(a, b), -Infinity);
@@ -22,7 +24,7 @@ export function minMaxNormalize(scores: number[]): number[] {
     return scores.map(() => 0.5);
   }
 
-  return scores.map(s => (s - min) / range);
+  return scores.map((s) => (s - min) / range);
 }
 
 /**
@@ -30,7 +32,9 @@ export function minMaxNormalize(scores: number[]): number[] {
  * normalized = (value - mean) / stdDev
  */
 export function zScoreNormalize(scores: number[]): number[] {
-  if (scores.length === 0) {return [];}
+  if (scores.length === 0) {
+    return [];
+  }
 
   const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
   const variance = scores.reduce((sum, s) => sum + (s - mean) ** 2, 0) / scores.length;
@@ -40,7 +44,7 @@ export function zScoreNormalize(scores: number[]): number[] {
     return scores.map(() => 0);
   }
 
-  return scores.map(s => (s - mean) / stdDev);
+  return scores.map((s) => (s - mean) / stdDev);
 }
 
 /**
@@ -48,7 +52,9 @@ export function zScoreNormalize(scores: number[]): number[] {
  * normalized = 1 - (rank / total)
  */
 export function rankNormalize(scores: number[]): number[] {
-  if (scores.length === 0) {return [];}
+  if (scores.length === 0) {
+    return [];
+  }
 
   // Get sorted indices
   const indexed = scores.map((s, i) => ({ score: s, index: i }));

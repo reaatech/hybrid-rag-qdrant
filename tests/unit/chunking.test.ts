@@ -108,7 +108,8 @@ describe('SemanticChunker', () => {
   });
 
   it('should respect similarity threshold', () => {
-    const content = 'Topic A content here. More about topic A. Now topic B content. More about topic B.';
+    const content =
+      'Topic A content here. More about topic A. Now topic B content. More about topic B.';
     const chunks = chunker.chunk(content, 'test-doc', {
       strategy: ChunkingStrategy.SEMANTIC,
       chunkSize: 200,

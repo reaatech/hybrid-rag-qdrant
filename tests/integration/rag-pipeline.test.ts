@@ -10,14 +10,24 @@ import type { Document } from '../../src/types/domain.js';
 vi.mock('../../src/retrieval/vector/embedding.js', () => ({
   EmbeddingService: class MockEmbeddingService {
     async embed(texts: string[]) {
-      return texts.map(() => Array(1536).fill(0).map(() => Math.random()));
+      return texts.map(() =>
+        Array(1536)
+          .fill(0)
+          .map(() => Math.random()),
+      );
     }
     async embedBatch(texts: string[]) {
-      return Promise.all(texts.map(text => this.embed(text)));
+      return Promise.all(texts.map((text) => this.embed(text)));
     }
-    getTokenCount(text: string) { return Math.ceil(text.length / 4); }
-    getCost(tokens: number) { return tokens * 0.00002; }
-    static getDimension(_model: string) { return 1536; }
+    getTokenCount(text: string) {
+      return Math.ceil(text.length / 4);
+    }
+    getCost(tokens: number) {
+      return tokens * 0.00002;
+    }
+    static getDimension(_model: string) {
+      return 1536;
+    }
   },
   EmbeddingConfig: {},
   EmbeddingResult: {},
@@ -30,7 +40,8 @@ describe('RAGPipeline Integration', () => {
   const testDocuments: Document[] = [
     {
       id: 'doc-1',
-      content: 'The quick brown fox jumps over the lazy dog. This is a test document about animals.',
+      content:
+        'The quick brown fox jumps over the lazy dog. This is a test document about animals.',
       source: 'test',
       contentHash: 'hash1',
       fileSize: 80,
@@ -39,7 +50,8 @@ describe('RAGPipeline Integration', () => {
     },
     {
       id: 'doc-2',
-      content: 'Machine learning is a subset of artificial intelligence. It uses algorithms to learn from data.',
+      content:
+        'Machine learning is a subset of artificial intelligence. It uses algorithms to learn from data.',
       source: 'test',
       contentHash: 'hash2',
       fileSize: 100,

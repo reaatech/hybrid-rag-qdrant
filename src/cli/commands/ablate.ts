@@ -15,13 +15,21 @@ export interface AblateOptions {
   collection: string;
 }
 
-export async function ablateCommand(configPath: string, datasetPath: string, options: AblateOptions, pipeline: RAGPipeline): Promise<void> {
+export async function ablateCommand(
+  configPath: string,
+  datasetPath: string,
+  options: AblateOptions,
+  pipeline: RAGPipeline,
+): Promise<void> {
   console.log(`Running ablation study...`);
   console.log(`  Config: ${configPath}`);
   console.log(`  Dataset: ${datasetPath}`);
 
   const configContent = await readFile(configPath, 'utf-8');
-  const config = load(configContent) as { baseline: AblationConfig['baseline']; variants: AblationConfig['variants'] };
+  const config = load(configContent) as {
+    baseline: AblationConfig['baseline'];
+    variants: AblationConfig['variants'];
+  };
 
   const evalDataset = loadEvaluationDataset(datasetPath);
 

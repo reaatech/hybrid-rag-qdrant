@@ -125,7 +125,9 @@ export class FixedSizeChunker {
       chunks.push(chunk.trim());
       start = end - overlap;
 
-      if (start >= content.length) {break;}
+      if (start >= content.length) {
+        break;
+      }
     }
 
     return chunks;
@@ -145,7 +147,9 @@ export class FixedSizeChunker {
       chunks.push(chunk);
 
       start = end - overlap;
-      if (start >= words.length) {break;}
+      if (start >= words.length) {
+        break;
+      }
     }
 
     return chunks;
@@ -167,7 +171,9 @@ export class FixedSizeChunker {
       chunks.push(chunk);
 
       start = end - overlap;
-      if (start >= tokens.length) {break;}
+      if (start >= tokens.length) {
+        break;
+      }
     }
 
     return chunks;

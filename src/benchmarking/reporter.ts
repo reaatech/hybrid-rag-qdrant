@@ -56,7 +56,9 @@ export function generateMarkdownReport(report: BenchmarkReport): string {
   lines.push('| Concurrency | QPS | Total Queries | Time (ms) |');
   lines.push('|-------------|-----|---------------|-----------|');
   for (const result of report.throughput) {
-    lines.push(`| ${result.concurrency} | ${result.qps.toFixed(2)} | ${result.totalQueries} | ${result.totalTime.toFixed(0)} |`);
+    lines.push(
+      `| ${result.concurrency} | ${result.qps.toFixed(2)} | ${result.totalQueries} | ${result.totalTime.toFixed(0)} |`,
+    );
   }
   lines.push('');
 

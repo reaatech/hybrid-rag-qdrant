@@ -69,21 +69,14 @@ export function createLogger(config: LoggerConfig = {}): pino.Logger {
 /**
  * Create a child logger with query context
  */
-export function createQueryLogger(
-  parent: pino.Logger,
-  queryId: string,
-): pino.Logger {
+export function createQueryLogger(parent: pino.Logger, queryId: string): pino.Logger {
   return parent.child({ queryId });
 }
 
 /**
  * Log a query start
  */
-export function logQueryStart(
-  logger: pino.Logger,
-  queryId: string,
-  query: string,
-): void {
+export function logQueryStart(logger: pino.Logger, queryId: string, query: string): void {
   logger.info(
     {
       queryId,
@@ -97,11 +90,7 @@ export function logQueryStart(
 /**
  * Log a query completion
  */
-export function logQueryComplete(
-  logger: pino.Logger,
-  queryId: string,
-  fields: LogFields,
-): void {
+export function logQueryComplete(logger: pino.Logger, queryId: string, fields: LogFields): void {
   logger.info(
     {
       queryId,
@@ -115,11 +104,7 @@ export function logQueryComplete(
 /**
  * Log a query error
  */
-export function logQueryError(
-  logger: pino.Logger,
-  queryId: string,
-  error: Error,
-): void {
+export function logQueryError(logger: pino.Logger, queryId: string, error: Error): void {
   logger.error(
     {
       queryId,
@@ -134,10 +119,7 @@ export function logQueryError(
 /**
  * Log ingestion start
  */
-export function logIngestionStart(
-  logger: pino.Logger,
-  documentCount: number,
-): void {
+export function logIngestionStart(logger: pino.Logger, documentCount: number): void {
   logger.info(
     {
       operation: 'ingestion_start',
@@ -170,10 +152,7 @@ export function logIngestionComplete(
 /**
  * Log evaluation results
  */
-export function logEvaluationResults(
-  logger: pino.Logger,
-  metrics: Record<string, number>,
-): void {
+export function logEvaluationResults(logger: pino.Logger, metrics: Record<string, number>): void {
   logger.info(
     {
       operation: 'evaluation_complete',

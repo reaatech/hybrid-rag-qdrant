@@ -125,10 +125,38 @@ describe('reranker', () => {
       });
 
       const retrievalResults: RetrievalResult[] = [
-        { chunkId: 'c1', documentId: 'd1', content: 'doc1', score: 0.9, source: 'vector', metadata: {} },
-        { chunkId: 'c2', documentId: 'd2', content: 'doc2', score: 0.8, source: 'vector', metadata: {} },
-        { chunkId: 'c3', documentId: 'd3', content: 'doc3', score: 0.7, source: 'vector', metadata: {} },
-        { chunkId: 'c4', documentId: 'd4', content: 'doc4', score: 0.6, source: 'vector', metadata: {} },
+        {
+          chunkId: 'c1',
+          documentId: 'd1',
+          content: 'doc1',
+          score: 0.9,
+          source: 'vector',
+          metadata: {},
+        },
+        {
+          chunkId: 'c2',
+          documentId: 'd2',
+          content: 'doc2',
+          score: 0.8,
+          source: 'vector',
+          metadata: {},
+        },
+        {
+          chunkId: 'c3',
+          documentId: 'd3',
+          content: 'doc3',
+          score: 0.7,
+          source: 'vector',
+          metadata: {},
+        },
+        {
+          chunkId: 'c4',
+          documentId: 'd4',
+          content: 'doc4',
+          score: 0.6,
+          source: 'vector',
+          metadata: {},
+        },
       ];
 
       const results = await engine.rerankResults('test', retrievalResults);

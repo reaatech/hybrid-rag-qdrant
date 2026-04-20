@@ -82,7 +82,10 @@ export function weightedSumFusion(
   vectorWeight: number = 0.7,
   bm25Weight: number = 0.3,
 ): RetrievalResult[] {
-  const scoreMap = new Map<string, { result: RetrievalResult; vectorScore: number; bm25Score: number }>();
+  const scoreMap = new Map<
+    string,
+    { result: RetrievalResult; vectorScore: number; bm25Score: number }
+  >();
 
   // Process vector results
   vectorResults.forEach((result) => {
@@ -129,14 +132,16 @@ export function normalizedFusion(
   // Normalize scores to [0, 1] range
   const normalizeScores = (results: RetrievalResult[]): Map<string, number> => {
     const map = new Map<string, number>();
-    if (results.length === 0) {return map;}
+    if (results.length === 0) {
+      return map;
+    }
 
-    const scores = results.map(r => r.score);
+    const scores = results.map((r) => r.score);
     const minScore = scores.reduce((a, b) => Math.min(a, b), Infinity);
     const maxScore = scores.reduce((a, b) => Math.max(a, b), -Infinity);
     const range = maxScore - minScore || 1;
 
-    results.forEach(r => {
+    results.forEach((r) => {
       map.set(r.chunkId, (r.score - minScore) / range);
     });
 
@@ -149,12 +154,14 @@ export function normalizedFusion(
   // Combine all unique chunk IDs
   const allChunkIds = new Set([...normalizedVector.keys(), ...normalizedBM25.keys()]);
 
-  const combinedScores = [...allChunkIds].map(chunkId => {
+  const combinedScores = [...allChunkIds].map((chunkId) => {
     const vectorNorm = normalizedVector.get(chunkId) ?? 0;
     const bm25Norm = normalizedBM25.get(chunkId) ?? 0;
 
     // Find original result
-    const result = vectorResults.find(r => r.chunkId === chunkId) ?? bm25Results.find(r => r.chunkId === chunkId)!;
+    const result =
+      vectorResults.find((r) => r.chunkId === chunkId) ??
+      bm25Results.find((r) => r.chunkId === chunkId)!;
 
     return {
       ...result,

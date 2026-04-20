@@ -60,7 +60,7 @@ class SessionStore {
   create(userId: string, metadata?: Record<string, unknown>): SessionData {
     const id = `session-${randomUUID()}`;
     const now = new Date().toISOString();
-    
+
     const session: SessionData = {
       id,
       userId,
@@ -94,7 +94,9 @@ class SessionStore {
    */
   update(sessionId: string, updates: Partial<SessionData>): SessionData | null {
     const session = this.sessions.get(sessionId);
-    if (!session) {return null;}
+    if (!session) {
+      return null;
+    }
 
     Object.assign(session, updates, { updatedAt: new Date().toISOString() });
     this.sessions.set(sessionId, session);
@@ -106,14 +108,16 @@ class SessionStore {
    */
   addQuery(sessionId: string, record: QueryRecord): SessionData | null {
     const session = this.sessions.get(sessionId);
-    if (!session) {return null;}
+    if (!session) {
+      return null;
+    }
 
     session.queryHistory.push(record);
     session.updatedAt = new Date().toISOString();
-    
+
     // Update context with last query
     session.context.lastQuery = record.query;
-    
+
     this.sessions.set(sessionId, session);
     return session;
   }
@@ -124,7 +128,7 @@ class SessionStore {
   getUserSessions(userId: string): SessionData[] {
     const sessionIds = this.userSessions.get(userId) || [];
     return sessionIds
-      .map(id => this.sessions.get(id))
+      .map((id) => this.sessions.get(id))
       .filter((s): s is SessionData => s !== undefined);
   }
 
@@ -133,7 +137,9 @@ class SessionStore {
    */
   delete(sessionId: string): boolean {
     const session = this.sessions.get(sessionId);
-    if (!session) {return false;}
+    if (!session) {
+      return false;
+    }
 
     // Remove from user sessions
     const userSessions = this.userSessions.get(session.userId) || [];
@@ -198,7 +204,12 @@ export const ragSessionManage: RAGTool = {
           const userId = args.user_id as string;
           if (!userId) {
             return {
-              content: [{ type: 'text', text: JSON.stringify({ error: 'user_id is required for create action' }, null, 2) }],
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify({ error: 'user_id is required for create action' }, null, 2),
+                },
+              ],
               isError: true,
             };
           }
@@ -213,14 +224,21 @@ export const ragSessionManage: RAGTool = {
           const sessionId = args.session_id as string;
           if (!sessionId) {
             return {
-              content: [{ type: 'text', text: JSON.stringify({ error: 'session_id is required for get action' }, null, 2) }],
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify({ error: 'session_id is required for get action' }, null, 2),
+                },
+              ],
               isError: true,
             };
           }
           const session = sessionStore.get(sessionId);
           if (!session) {
             return {
-              content: [{ type: 'text', text: JSON.stringify({ error: 'Session not found' }, null, 2) }],
+              content: [
+                { type: 'text', text: JSON.stringify({ error: 'Session not found' }, null, 2) },
+              ],
               isError: true,
             };
           }
@@ -233,21 +251,41 @@ export const ragSessionManage: RAGTool = {
           const sessionId = args.session_id as string;
           if (!sessionId) {
             return {
-              content: [{ type: 'text', text: JSON.stringify({ error: 'session_id is required for update action' }, null, 2) }],
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    { error: 'session_id is required for update action' },
+                    null,
+                    2,
+                  ),
+                },
+              ],
               isError: true,
             };
           }
           const updates = args.metadata as Record<string, unknown> | undefined;
           if (!updates) {
             return {
-              content: [{ type: 'text', text: JSON.stringify({ error: 'metadata is required for update action' }, null, 2) }],
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    { error: 'metadata is required for update action' },
+                    null,
+                    2,
+                  ),
+                },
+              ],
               isError: true,
             };
           }
           const session = sessionStore.update(sessionId, { metadata: { ...updates } });
           if (!session) {
             return {
-              content: [{ type: 'text', text: JSON.stringify({ error: 'Session not found' }, null, 2) }],
+              content: [
+                { type: 'text', text: JSON.stringify({ error: 'Session not found' }, null, 2) },
+              ],
               isError: true,
             };
           }
@@ -260,7 +298,16 @@ export const ragSessionManage: RAGTool = {
           const sessionId = args.session_id as string;
           if (!sessionId) {
             return {
-              content: [{ type: 'text', text: JSON.stringify({ error: 'session_id is required for delete action' }, null, 2) }],
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    { error: 'session_id is required for delete action' },
+                    null,
+                    2,
+                  ),
+                },
+              ],
               isError: true,
             };
           }
@@ -274,25 +321,39 @@ export const ragSessionManage: RAGTool = {
           const userId = args.user_id as string;
           if (!userId) {
             return {
-              content: [{ type: 'text', text: JSON.stringify({ error: 'user_id is required for list action' }, null, 2) }],
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify({ error: 'user_id is required for list action' }, null, 2),
+                },
+              ],
               isError: true,
             };
           }
           const sessions = sessionStore.getUserSessions(userId);
           return {
-            content: [{ type: 'text', text: JSON.stringify({ sessions, count: sessions.length }, null, 2) }],
+            content: [
+              { type: 'text', text: JSON.stringify({ sessions, count: sessions.length }, null, 2) },
+            ],
           };
         }
 
         default:
           return {
-            content: [{ type: 'text', text: JSON.stringify({ error: `Unknown action: ${action}` }, null, 2) }],
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({ error: `Unknown action: ${action}` }, null, 2),
+              },
+            ],
             isError: true,
           };
       }
     } catch (error) {
       return {
-        content: [{ type: 'text', text: JSON.stringify({ error: (error as Error).message }, null, 2) }],
+        content: [
+          { type: 'text', text: JSON.stringify({ error: (error as Error).message }, null, 2) },
+        ],
         isError: true,
       };
     }
@@ -327,13 +388,18 @@ export const ragGetContext: RAGTool = {
   },
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
     const sessionId = args.session_id as string;
-    const includeHistory = args.include_history as boolean ?? false;
-    const maxHistory = args.max_history as number ?? 5;
+    const includeHistory = (args.include_history as boolean) ?? false;
+    const maxHistory = (args.max_history as number) ?? 5;
 
     const session = sessionStore.get(sessionId);
     if (!session) {
       return {
-        content: [{ type: 'text', text: JSON.stringify({ error: 'Session not found', session_id: sessionId }, null, 2) }],
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({ error: 'Session not found', session_id: sessionId }, null, 2),
+          },
+        ],
         isError: true,
       };
     }
@@ -348,7 +414,20 @@ export const ragGetContext: RAGTool = {
     if (includeHistory) {
       const recentHistory = session.queryHistory.slice(-maxHistory);
       return {
-        content: [{ type: 'text', text: JSON.stringify({ ...context, recent_history: recentHistory, total_queries: session.queryHistory.length }, null, 2) }],
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                ...context,
+                recent_history: recentHistory,
+                total_queries: session.queryHistory.length,
+              },
+              null,
+              2,
+            ),
+          },
+        ],
       };
     }
 
@@ -386,13 +465,18 @@ export const ragSessionHistory: RAGTool = {
   },
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
     const sessionId = args.session_id as string;
-    const limit = args.limit as number ?? 20;
-    const offset = args.offset as number ?? 0;
+    const limit = (args.limit as number) ?? 20;
+    const offset = (args.offset as number) ?? 0;
 
     const session = sessionStore.get(sessionId);
     if (!session) {
       return {
-        content: [{ type: 'text', text: JSON.stringify({ error: 'Session not found', session_id: sessionId }, null, 2) }],
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({ error: 'Session not found', session_id: sessionId }, null, 2),
+          },
+        ],
         isError: true,
       };
     }
@@ -403,14 +487,18 @@ export const ragSessionHistory: RAGTool = {
       content: [
         {
           type: 'text',
-          text: JSON.stringify({
-            session_id: sessionId,
-            total_queries: session.queryHistory.length,
-            returned: paginatedHistory.length,
-            offset,
-            limit,
-            history: paginatedHistory,
-          }, null, 2),
+          text: JSON.stringify(
+            {
+              session_id: sessionId,
+              total_queries: session.queryHistory.length,
+              returned: paginatedHistory.length,
+              offset,
+              limit,
+              history: paginatedHistory,
+            },
+            null,
+            2,
+          ),
         },
       ],
     };

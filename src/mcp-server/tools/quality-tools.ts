@@ -1,6 +1,6 @@
 /**
  * MCP Quality & Evaluation Tools
- * 
+ *
  * Tools for LLM-as-judge quality assessment, hallucination detection,
  * result validation, and A/B testing of RAG configurations.
  */
@@ -62,7 +62,10 @@ export interface ABTestResult {
  */
 class QualityMetrics {
   private static readonly MAX_ENTRIES = 10000;
-  private metrics: Map<string, { timestamp: string; score: number; metadata: Record<string, unknown> }[]> = new Map();
+  private metrics: Map<
+    string,
+    { timestamp: string; score: number; metadata: Record<string, unknown> }[]
+  > = new Map();
 
   /**
    * Record a quality metric
@@ -85,7 +88,10 @@ class QualityMetrics {
   /**
    * Get metrics for a metric name
    */
-  get(metricName: string, limit: number = 100): Array<{ timestamp: string; score: number; metadata: Record<string, unknown> }> {
+  get(
+    metricName: string,
+    limit: number = 100,
+  ): Array<{ timestamp: string; score: number; metadata: Record<string, unknown> }> {
     const data = this.metrics.get(metricName) || [];
     return data.slice(-limit);
   }
@@ -95,7 +101,9 @@ class QualityMetrics {
    */
   getAverage(metricName: string): number | null {
     const data = this.metrics.get(metricName) || [];
-    if (data.length === 0) {return null;}
+    if (data.length === 0) {
+      return null;
+    }
     return data.reduce((sum, d) => sum + d.score, 0) / data.length;
   }
 }
@@ -151,29 +159,29 @@ export const ragJudgeQuality: RAGTool = {
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
     const query = args.query as string;
     const results = args.results as Array<{ chunk_id: string; content: string; score?: number }>;
-    const judgeModel = args.judge_model as string ?? 'claude-sonnet';
-    const criteria = args.criteria as string[] ?? ['relevance', 'completeness', 'accuracy'];
-    const consensusCount = args.consensus_count as number ?? 1;
+    const judgeModel = (args.judge_model as string) ?? 'claude-sonnet';
+    const criteria = (args.criteria as string[]) ?? ['relevance', 'completeness', 'accuracy'];
+    const consensusCount = (args.consensus_count as number) ?? 1;
 
     // Simulate LLM-as-judge evaluation
     // In production, this would call the actual LLM API
-    const judgedResults = results.map(result => {
+    const judgedResults = results.map((result) => {
       const scores: Record<string, number> = {};
-      
+
       for (const criterion of criteria) {
         // Simulate scoring based on content length and position
         let baseScore = 0.7 + Math.random() * 0.3;
-        
+
         // Longer content tends to be more complete
         if (criterion === 'completeness' && result.content.length > 200) {
           baseScore = Math.min(1, baseScore + 0.1);
         }
-        
+
         // First results tend to be more relevant
         if (criterion === 'relevance' && result.score && result.score > 0.8) {
           baseScore = Math.min(1, baseScore + 0.1);
         }
-        
+
         scores[criterion] = parseFloat(baseScore.toFixed(3));
       }
 
@@ -181,35 +189,46 @@ export const ragJudgeQuality: RAGTool = {
 
       return {
         chunk_id: result.chunk_id,
-        content: `${result.content.substring(0, 100)  }...`,
+        content: `${result.content.substring(0, 100)}...`,
         scores,
         overall_score: parseFloat(overallScore.toFixed(3)),
       };
     });
 
-    const consensusScore = judgedResults.reduce((sum, r) => sum + r.overall_score, 0) / judgedResults.length;
+    const consensusScore =
+      judgedResults.reduce((sum, r) => sum + r.overall_score, 0) / judgedResults.length;
 
     // Record metrics
     qualityMetrics.record('quality_score', consensusScore, { query, judge_model: judgeModel });
 
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify({
-          query,
-          judge_model: judgeModel,
-          criteria,
-          consensus_count: consensusCount,
-          results: judgedResults,
-          consensus_score: parseFloat(consensusScore.toFixed(3)),
-          judgments_count: consensusCount,
-          recommendations: consensusScore < 0.7 
-            ? ['Consider using different retrieval strategy', 'Try hybrid retrieval with reranking']
-            : consensusScore < 0.85
-            ? ['Results are acceptable but could be improved']
-            : ['Results are high quality'],
-        }, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              query,
+              judge_model: judgeModel,
+              criteria,
+              consensus_count: consensusCount,
+              results: judgedResults,
+              consensus_score: parseFloat(consensusScore.toFixed(3)),
+              judgments_count: consensusCount,
+              recommendations:
+                consensusScore < 0.7
+                  ? [
+                      'Consider using different retrieval strategy',
+                      'Try hybrid retrieval with reranking',
+                    ]
+                  : consensusScore < 0.85
+                    ? ['Results are acceptable but could be improved']
+                    : ['Results are high quality'],
+            },
+            null,
+            2,
+          ),
+        },
+      ],
     };
   },
 };
@@ -255,7 +274,12 @@ export const ragValidateResults: RAGTool = {
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
     const query = args.query as string;
     const results = args.results as Array<{ chunk_id: string; content: string; score?: number }>;
-    const thresholds = args.thresholds as { min_relevance?: number; min_completeness?: number; min_results?: number } ?? {};
+    const thresholds =
+      (args.thresholds as {
+        min_relevance?: number;
+        min_completeness?: number;
+        min_results?: number;
+      }) ?? {};
 
     const minRelevance = thresholds.min_relevance ?? 0.6;
     const _minCompleteness = thresholds.min_completeness ?? 0.5;
@@ -265,36 +289,48 @@ export const ragValidateResults: RAGTool = {
     const validations = {
       has_results: results.length > 0,
       meets_min_results: results.length >= minResults,
-      has_high_scoring: results.some(r => (r.score ?? 0) >= minRelevance),
-      avg_score: results.length > 0 
-        ? results.reduce((sum, r) => sum + (r.score ?? 0), 0) / results.length 
-        : 0,
+      has_high_scoring: results.some((r) => (r.score ?? 0) >= minRelevance),
+      avg_score:
+        results.length > 0
+          ? results.reduce((sum, r) => sum + (r.score ?? 0), 0) / results.length
+          : 0,
     };
 
-    const passed = validations.has_results && 
-                   validations.meets_min_results && 
-                   validations.has_high_scoring &&
-                   validations.avg_score >= minRelevance;
+    const passed =
+      validations.has_results &&
+      validations.meets_min_results &&
+      validations.has_high_scoring &&
+      validations.avg_score >= minRelevance;
 
     const qualityScore = passed ? 0.8 + Math.random() * 0.2 : 0.3 + Math.random() * 0.3;
     qualityMetrics.record('validation_score', qualityScore, { query, passed });
 
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify({
-          query,
-          passed,
-          validations,
-          quality_score: parseFloat(qualityScore.toFixed(3)),
-          recommendations: passed 
-            ? ['Results meet quality criteria']
-            : [
-                !validations.meets_min_results ? `Need at least ${minResults} results (got ${results.length})` : null,
-                !validations.has_high_scoring ? `No results meet minimum relevance threshold (${minRelevance})` : null,
-              ].filter(Boolean),
-        }, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              query,
+              passed,
+              validations,
+              quality_score: parseFloat(qualityScore.toFixed(3)),
+              recommendations: passed
+                ? ['Results meet quality criteria']
+                : [
+                    !validations.meets_min_results
+                      ? `Need at least ${minResults} results (got ${results.length})`
+                      : null,
+                    !validations.has_high_scoring
+                      ? `No results meet minimum relevance threshold (${minRelevance})`
+                      : null,
+                  ].filter(Boolean),
+            },
+            null,
+            2,
+          ),
+        },
+      ],
     };
   },
 };
@@ -304,7 +340,8 @@ export const ragValidateResults: RAGTool = {
  */
 export const ragDetectHallucination: RAGTool = {
   name: 'rag.detect_hallucination',
-  description: 'Detect potential hallucinations by comparing generated answers with retrieved context',
+  description:
+    'Detect potential hallucinations by comparing generated answers with retrieved context',
   inputSchema: {
     type: 'object',
     properties: {
@@ -340,13 +377,13 @@ export const ragDetectHallucination: RAGTool = {
     const query = args.query as string;
     const generatedAnswer = args.generated_answer as string;
     const retrievedChunks = args.retrieved_chunks as Array<{ content: string; source?: string }>;
-    const threshold = args.threshold as number ?? 0.7;
+    const threshold = (args.threshold as number) ?? 0.7;
 
     // Extract key claims from the generated answer
     const claims = extractClaims(generatedAnswer);
-    
+
     // Check each claim against retrieved chunks
-    const contradictions = claims.map(claim => {
+    const contradictions = claims.map((claim) => {
       const support = checkClaimSupport(claim, retrievedChunks);
       return {
         claim,
@@ -355,36 +392,46 @@ export const ragDetectHallucination: RAGTool = {
     });
 
     // Determine if hallucination detected
-    const unsupportedClaims = contradictions.filter(c => c.contradiction_type !== 'none');
-    const hallucinationDetected = claims.length > 0 && unsupportedClaims.length > 0 &&
-                                  (unsupportedClaims.length / claims.length) > (1 - threshold);
+    const unsupportedClaims = contradictions.filter((c) => c.contradiction_type !== 'none');
+    const hallucinationDetected =
+      claims.length > 0 &&
+      unsupportedClaims.length > 0 &&
+      unsupportedClaims.length / claims.length > 1 - threshold;
 
-    const supportScore = claims.length > 0
-      ? (claims.length - unsupportedClaims.length) / claims.length
-      : 0;
+    const supportScore =
+      claims.length > 0 ? (claims.length - unsupportedClaims.length) / claims.length : 0;
 
-    qualityMetrics.record('hallucination_score', supportScore, { query, detected: hallucinationDetected });
+    qualityMetrics.record('hallucination_score', supportScore, {
+      query,
+      detected: hallucinationDetected,
+    });
 
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify({
-          query,
-          generated_answer: `${generatedAnswer.substring(0, 200)  }...`,
-          hallucination_detected: hallucinationDetected,
-          confidence: parseFloat(supportScore.toFixed(3)),
-          support_score: parseFloat(supportScore.toFixed(3)),
-          contradictions: unsupportedClaims.map(c => ({
-            claim: c.claim,
-            source_chunk: c.source || 'unknown',
-            contradiction_type: c.contradiction_type,
-          })),
-          total_claims: claims.length,
-          supported_claims: claims.length - unsupportedClaims.length,
-          unsupported_claims: unsupportedClaims.length,
-          threshold,
-        }, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              query,
+              generated_answer: `${generatedAnswer.substring(0, 200)}...`,
+              hallucination_detected: hallucinationDetected,
+              confidence: parseFloat(supportScore.toFixed(3)),
+              support_score: parseFloat(supportScore.toFixed(3)),
+              contradictions: unsupportedClaims.map((c) => ({
+                claim: c.claim,
+                source_chunk: c.source || 'unknown',
+                contradiction_type: c.contradiction_type,
+              })),
+              total_claims: claims.length,
+              supported_claims: claims.length - unsupportedClaims.length,
+              unsupported_claims: unsupportedClaims.length,
+              threshold,
+            },
+            null,
+            2,
+          ),
+        },
+      ],
     };
   },
 };
@@ -433,9 +480,19 @@ export const ragCompareConfigs: RAGTool = {
   },
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
     const query = args.query as string;
-    const configA = args.config_a as { vectorWeight?: number; bm25Weight?: number; topK?: number; useReranker?: boolean };
-    const configB = args.config_b as { vectorWeight?: number; bm25Weight?: number; topK?: number; useReranker?: boolean };
-    const metric = args.metric as string ?? 'relevance';
+    const configA = args.config_a as {
+      vectorWeight?: number;
+      bm25Weight?: number;
+      topK?: number;
+      useReranker?: boolean;
+    };
+    const configB = args.config_b as {
+      vectorWeight?: number;
+      bm25Weight?: number;
+      topK?: number;
+      useReranker?: boolean;
+    };
+    const metric = (args.metric as string) ?? 'relevance';
 
     // Simulate A/B test results
     // In production, this would actually run both configurations
@@ -454,36 +511,47 @@ export const ragCompareConfigs: RAGTool = {
     // Determine winner based on metric
     let winner: 'a' | 'b' | 'tie';
     const scoreDiff = Math.abs(resultsA.avg_score - resultsB.avg_score);
-    
+
     if (scoreDiff < 0.05) {
       winner = 'tie';
     } else {
       winner = resultsA.avg_score > resultsB.avg_score ? 'a' : 'b';
     }
 
-    const confidence = winner === 'tie' ? 0.5 : 0.5 + (scoreDiff * 2);
+    const confidence = winner === 'tie' ? 0.5 : 0.5 + scoreDiff * 2;
 
-    qualityMetrics.record('ab_test', winner === 'tie' ? 0.5 : Math.max(resultsA.avg_score, resultsB.avg_score), {
-      query,
-      winner,
-      metric,
-    });
+    qualityMetrics.record(
+      'ab_test',
+      winner === 'tie' ? 0.5 : Math.max(resultsA.avg_score, resultsB.avg_score),
+      {
+        query,
+        winner,
+        metric,
+      },
+    );
 
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify({
-          query,
-          metric,
-          config_a: resultsA,
-          config_b: resultsB,
-          winner,
-          confidence: parseFloat(confidence.toFixed(3)),
-          recommendation: winner === 'tie'
-            ? 'Both configurations perform similarly - prefer simpler/cheaper option'
-            : `Configuration ${winner.toUpperCase()} performs better on ${metric}`,
-        }, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              query,
+              metric,
+              config_a: resultsA,
+              config_b: resultsB,
+              winner,
+              confidence: parseFloat(confidence.toFixed(3)),
+              recommendation:
+                winner === 'tie'
+                  ? 'Both configurations perform similarly - prefer simpler/cheaper option'
+                  : `Configuration ${winner.toUpperCase()} performs better on ${metric}`,
+            },
+            null,
+            2,
+          ),
+        },
+      ],
     };
   },
 };
@@ -511,7 +579,7 @@ export const ragGetQualityMetrics: RAGTool = {
   },
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
     const metricNames = (args.metric_names ?? args.metricNames) as string[] | undefined;
-    const limit = args.limit as number ?? 100;
+    const limit = (args.limit as number) ?? 100;
 
     const metrics = ['quality_score', 'validation_score', 'hallucination_score', 'ab_test'];
     const requestedMetrics = metricNames || metrics;
@@ -528,20 +596,26 @@ export const ragGetQualityMetrics: RAGTool = {
     }
 
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify({
-          generated_at: new Date().toISOString(),
-          metrics: dashboard,
-          summary: {
-            total_evaluations: metrics.reduce((sum, m) => {
-              const data = qualityMetrics.get(m, limit);
-              return sum + data.length;
-            }, 0),
-            overall_quality: qualityMetrics.getAverage('quality_score'),
-          },
-        }, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              generated_at: new Date().toISOString(),
+              metrics: dashboard,
+              summary: {
+                total_evaluations: metrics.reduce((sum, m) => {
+                  const data = qualityMetrics.get(m, limit);
+                  return sum + data.length;
+                }, 0),
+                overall_quality: qualityMetrics.getAverage('quality_score'),
+              },
+            },
+            null,
+            2,
+          ),
+        },
+      ],
     };
   },
 };
@@ -583,10 +657,15 @@ export const ragRunQualityCheck: RAGTool = {
     },
   },
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
-    const sampleSize = args.sample_size as number ?? 100;
-    const frequency = args.frequency as string ?? 'daily';
-    const thresholds = args.thresholds as { min_relevance?: number; min_completeness?: number; max_hallucination_rate?: number } ?? {};
-    const alertOnFailure = args.alert_on_failure as boolean ?? true;
+    const sampleSize = (args.sample_size as number) ?? 100;
+    const frequency = (args.frequency as string) ?? 'daily';
+    const thresholds =
+      (args.thresholds as {
+        min_relevance?: number;
+        min_completeness?: number;
+        max_hallucination_rate?: number;
+      }) ?? {};
+    const alertOnFailure = (args.alert_on_failure as boolean) ?? true;
 
     // Simulate quality check results
     const minRelevance = thresholds.min_relevance ?? 0.7;
@@ -598,39 +677,55 @@ export const ragRunQualityCheck: RAGTool = {
     const avgCompleteness = 0.65 + Math.random() * 0.25;
     const hallucinationRate = Math.random() * 0.1;
 
-    const passed = avgRelevance >= minRelevance && 
-                   avgCompleteness >= minCompleteness && 
-                   hallucinationRate <= maxHallucinationRate;
+    const passed =
+      avgRelevance >= minRelevance &&
+      avgCompleteness >= minCompleteness &&
+      hallucinationRate <= maxHallucinationRate;
 
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify({
-          check_id: `qc-${Date.now()}`,
-          frequency,
-          sample_size: sampleSize,
-          passed,
-          metrics: {
-            avg_relevance: parseFloat(avgRelevance.toFixed(3)),
-            avg_completeness: parseFloat(avgCompleteness.toFixed(3)),
-            hallucination_rate: parseFloat(hallucinationRate.toFixed(3)),
-          },
-          thresholds: {
-            min_relevance: minRelevance,
-            min_completeness: minCompleteness,
-            max_hallucination_rate: maxHallucinationRate,
-          },
-          alerts_triggered: !passed && alertOnFailure,
-          recommendations: passed
-            ? ['Quality metrics are within acceptable ranges']
-            : [
-                avgRelevance < minRelevance ? 'Relevance below threshold - consider improving retrieval strategy' : null,
-                avgCompleteness < minCompleteness ? 'Completeness below threshold - consider using larger chunks or more results' : null,
-                hallucinationRate > maxHallucinationRate ? 'Hallucination rate too high - enable hallucination detection' : null,
-              ].filter(Boolean),
-          next_check: new Date(Date.now() + (frequency === 'hourly' ? 3600000 : frequency === 'daily' ? 86400000 : 604800000)).toISOString(),
-        }, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              check_id: `qc-${Date.now()}`,
+              frequency,
+              sample_size: sampleSize,
+              passed,
+              metrics: {
+                avg_relevance: parseFloat(avgRelevance.toFixed(3)),
+                avg_completeness: parseFloat(avgCompleteness.toFixed(3)),
+                hallucination_rate: parseFloat(hallucinationRate.toFixed(3)),
+              },
+              thresholds: {
+                min_relevance: minRelevance,
+                min_completeness: minCompleteness,
+                max_hallucination_rate: maxHallucinationRate,
+              },
+              alerts_triggered: !passed && alertOnFailure,
+              recommendations: passed
+                ? ['Quality metrics are within acceptable ranges']
+                : [
+                    avgRelevance < minRelevance
+                      ? 'Relevance below threshold - consider improving retrieval strategy'
+                      : null,
+                    avgCompleteness < minCompleteness
+                      ? 'Completeness below threshold - consider using larger chunks or more results'
+                      : null,
+                    hallucinationRate > maxHallucinationRate
+                      ? 'Hallucination rate too high - enable hallucination detection'
+                      : null,
+                  ].filter(Boolean),
+              next_check: new Date(
+                Date.now() +
+                  (frequency === 'hourly' ? 3600000 : frequency === 'daily' ? 86400000 : 604800000),
+              ).toISOString(),
+            },
+            null,
+            2,
+          ),
+        },
+      ],
     };
   },
 };
@@ -640,23 +735,29 @@ export const ragRunQualityCheck: RAGTool = {
  */
 function extractClaims(text: string): string[] {
   // Simple claim extraction based on sentences
-  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 10);
-  return sentences.map(s => s.trim()).slice(0, 5); // Limit to 5 claims
+  const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 10);
+  return sentences.map((s) => s.trim()).slice(0, 5); // Limit to 5 claims
 }
 
 /**
  * Check if a claim is supported by retrieved chunks
  */
-function checkClaimSupport(claim: string, chunks: Array<{ content: string; source?: string }>): {
+function checkClaimSupport(
+  claim: string,
+  chunks: Array<{ content: string; source?: string }>,
+): {
   contradiction_type: 'none' | 'direct' | 'partial' | 'missing';
   source?: string;
 } {
   // Simple keyword matching for support detection
-  const claimWords = claim.toLowerCase().split(/\s+/).filter(w => w.length > 3);
-  
+  const claimWords = claim
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length > 3);
+
   for (const chunk of chunks) {
     const chunkText = chunk.content.toLowerCase();
-    const matchCount = claimWords.filter(w => chunkText.includes(w)).length;
+    const matchCount = claimWords.filter((w) => chunkText.includes(w)).length;
     const matchRatio = matchCount / claimWords.length;
 
     if (matchRatio > 0.7) {

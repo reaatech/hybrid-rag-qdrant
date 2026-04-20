@@ -86,12 +86,7 @@ export async function benchmarkThroughput(
 
   for (const concurrency of config.concurrency) {
     logger.info(`Testing concurrency level: ${concurrency}...`);
-    const result = await runConcurrencyTest(
-      queries,
-      queryFn,
-      concurrency,
-      config.queriesPerLevel,
-    );
+    const result = await runConcurrencyTest(queries, queryFn, concurrency, config.queriesPerLevel);
     results.push(result);
   }
 

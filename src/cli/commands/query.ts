@@ -13,7 +13,11 @@ export interface QueryCommandOptions {
   collection: string;
 }
 
-export async function queryCommand(query: string, options: QueryCommandOptions, pipeline: RAGPipeline): Promise<void> {
+export async function queryCommand(
+  query: string,
+  options: QueryCommandOptions,
+  pipeline: RAGPipeline,
+): Promise<void> {
   console.log(`Querying: "${query}"`);
 
   const queryOptions: QueryOptions = {

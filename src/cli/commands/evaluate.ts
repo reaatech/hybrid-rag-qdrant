@@ -16,7 +16,11 @@ export interface EvaluateOptions {
   collection: string;
 }
 
-export async function evaluateCommand(datasetPath: string, options: EvaluateOptions, pipeline: RAGPipeline): Promise<void> {
+export async function evaluateCommand(
+  datasetPath: string,
+  options: EvaluateOptions,
+  pipeline: RAGPipeline,
+): Promise<void> {
   console.log(`Running evaluation on dataset: ${datasetPath}`);
 
   const evalDataset = loadEvaluationDataset(datasetPath);

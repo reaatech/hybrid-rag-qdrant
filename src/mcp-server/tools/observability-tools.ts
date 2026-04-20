@@ -1,6 +1,6 @@
 /**
  * MCP Observability Tools
- * 
+ *
  * Tools for system monitoring, metrics collection, health checks,
  * and performance analytics with OpenTelemetry integration.
  */
@@ -50,7 +50,10 @@ export interface ComponentHealth {
  * Simple metrics collector
  */
 class MetricsCollector {
-  private metrics: Map<string, Array<{ timestamp: string; value: number; labels?: Record<string, string> }>> = new Map();
+  private metrics: Map<
+    string,
+    Array<{ timestamp: string; value: number; labels?: Record<string, string> }>
+  > = new Map();
   private queryCount = 0;
   private errorCount = 0;
   private startTime = Date.now();
@@ -88,7 +91,10 @@ class MetricsCollector {
   /**
    * Get recent metrics
    */
-  getRecent(name: string, limit: number = 100): Array<{ timestamp: string; value: number; labels?: Record<string, string> }> {
+  getRecent(
+    name: string,
+    limit: number = 100,
+  ): Array<{ timestamp: string; value: number; labels?: Record<string, string> }> {
     const data = this.metrics.get(name) || [];
     return data.slice(-limit);
   }
@@ -97,7 +103,9 @@ class MetricsCollector {
    * Calculate percentile from data
    */
   percentile(data: number[], p: number): number {
-    if (data.length === 0) {return 0;}
+    if (data.length === 0) {
+      return 0;
+    }
     const sorted = [...data].sort((a, b) => a - b);
     const index = Math.ceil((p / 100) * sorted.length) - 1;
     return sorted[Math.max(0, index)] ?? 0;
@@ -107,8 +115,8 @@ class MetricsCollector {
    * Get system metrics summary
    */
   getSystemMetrics(): SystemMetrics {
-    const latencies = this.getRecent('query_latency', 1000).map(d => d.value);
-    
+    const latencies = this.getRecent('query_latency', 1000).map((d) => d.value);
+
     return {
       timestamp: new Date().toISOString(),
       latency: {
@@ -167,39 +175,47 @@ export const ragGetMetrics: RAGTool = {
   },
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
     const _metricNames = args.metric_names as string[] | undefined;
-    const _timeRange = args.time_range as string ?? '5m';
-    const format = args.format as string ?? 'summary';
+    const _timeRange = (args.time_range as string) ?? '5m';
+    const format = (args.format as string) ?? 'summary';
 
     const systemMetrics = metricsCollector.getSystemMetrics();
 
     if (format === 'summary') {
       return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify({
-            timestamp: systemMetrics.timestamp,
-            latency: {
-              avg_ms: Math.round(systemMetrics.latency.avg),
-              p95_ms: Math.round(systemMetrics.latency.p95),
-              p99_ms: Math.round(systemMetrics.latency.p99),
-            },
-            throughput: {
-              qps: Math.round(systemMetrics.throughput.queries_per_second * 100) / 100,
-            },
-            errors: {
-              total: systemMetrics.errors.total,
-              rate_percent: Math.round(systemMetrics.errors.rate * 10000) / 100,
-            },
-          }, null, 2),
-        }],
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                timestamp: systemMetrics.timestamp,
+                latency: {
+                  avg_ms: Math.round(systemMetrics.latency.avg),
+                  p95_ms: Math.round(systemMetrics.latency.p95),
+                  p99_ms: Math.round(systemMetrics.latency.p99),
+                },
+                throughput: {
+                  qps: Math.round(systemMetrics.throughput.queries_per_second * 100) / 100,
+                },
+                errors: {
+                  total: systemMetrics.errors.total,
+                  rate_percent: Math.round(systemMetrics.errors.rate * 10000) / 100,
+                },
+              },
+              null,
+              2,
+            ),
+          },
+        ],
       };
     }
 
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify(systemMetrics, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(systemMetrics, null, 2),
+        },
+      ],
     };
   },
 };
@@ -227,7 +243,7 @@ export const ragGetTrace: RAGTool = {
   },
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
     const queryId = args.query_id as string;
-    const includeSpans = args.include_spans as boolean ?? true;
+    const includeSpans = (args.include_spans as boolean) ?? true;
 
     // Simulate trace retrieval
     // In production, this would query the actual tracing backend
@@ -236,50 +252,54 @@ export const ragGetTrace: RAGTool = {
       start_time: new Date(Date.now() - Math.random() * 1000).toISOString(),
       duration_ms: Math.random() * 200 + 50,
       status: 'OK',
-      spans: includeSpans ? [
-        {
-          span_id: 'span-1',
-          name: 'query_analysis',
-          start_time: new Date().toISOString(),
-          duration_ms: Math.random() * 20 + 5,
-          status: 'OK',
-        },
-        {
-          span_id: 'span-2',
-          name: 'vector_search',
-          start_time: new Date().toISOString(),
-          duration_ms: Math.random() * 50 + 20,
-          status: 'OK',
-        },
-        {
-          span_id: 'span-3',
-          name: 'bm25_search',
-          start_time: new Date().toISOString(),
-          duration_ms: Math.random() * 30 + 10,
-          status: 'OK',
-        },
-        {
-          span_id: 'span-4',
-          name: 'fusion',
-          start_time: new Date().toISOString(),
-          duration_ms: Math.random() * 15 + 5,
-          status: 'OK',
-        },
-        {
-          span_id: 'span-5',
-          name: 'reranking',
-          start_time: new Date().toISOString(),
-          duration_ms: Math.random() * 100 + 50,
-          status: 'OK',
-        },
-      ] : [],
+      spans: includeSpans
+        ? [
+            {
+              span_id: 'span-1',
+              name: 'query_analysis',
+              start_time: new Date().toISOString(),
+              duration_ms: Math.random() * 20 + 5,
+              status: 'OK',
+            },
+            {
+              span_id: 'span-2',
+              name: 'vector_search',
+              start_time: new Date().toISOString(),
+              duration_ms: Math.random() * 50 + 20,
+              status: 'OK',
+            },
+            {
+              span_id: 'span-3',
+              name: 'bm25_search',
+              start_time: new Date().toISOString(),
+              duration_ms: Math.random() * 30 + 10,
+              status: 'OK',
+            },
+            {
+              span_id: 'span-4',
+              name: 'fusion',
+              start_time: new Date().toISOString(),
+              duration_ms: Math.random() * 15 + 5,
+              status: 'OK',
+            },
+            {
+              span_id: 'span-5',
+              name: 'reranking',
+              start_time: new Date().toISOString(),
+              duration_ms: Math.random() * 100 + 50,
+              status: 'OK',
+            },
+          ]
+        : [],
     };
 
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify(trace, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(trace, null, 2),
+        },
+      ],
     };
   },
 };
@@ -307,48 +327,57 @@ export const ragHealthCheck: RAGTool = {
   },
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
     const components = args.components as string[] | undefined;
-    const detailed = args.detailed as boolean ?? false;
+    const detailed = (args.detailed as boolean) ?? false;
 
     const allComponents = components || ['qdrant', 'embeddings', 'bm25', 'reranker', 'database'];
-    
-    const healthChecks: ComponentHealth[] = allComponents.map(name => {
+
+    const healthChecks: ComponentHealth[] = allComponents.map((name) => {
       // Simulate health check
-      const status = Math.random() > 0.1 ? 'healthy' : Math.random() > 0.5 ? 'degraded' : 'unhealthy';
-      
+      const status =
+        Math.random() > 0.1 ? 'healthy' : Math.random() > 0.5 ? 'degraded' : 'unhealthy';
+
       return {
         name,
         status,
         latency_ms: Math.random() * 100 + 10,
         last_check: new Date().toISOString(),
-        details: detailed ? {
-          connections: Math.floor(Math.random() * 100),
-          queue_depth: Math.floor(Math.random() * 10),
-          error_rate: Math.random() * 0.05,
-        } : undefined,
+        details: detailed
+          ? {
+              connections: Math.floor(Math.random() * 100),
+              queue_depth: Math.floor(Math.random() * 10),
+              error_rate: Math.random() * 0.05,
+            }
+          : undefined,
       };
     });
 
-    const overallStatus = healthChecks.every(c => c.status === 'healthy')
+    const overallStatus = healthChecks.every((c) => c.status === 'healthy')
       ? 'healthy'
-      : healthChecks.some(c => c.status === 'unhealthy')
-      ? 'unhealthy'
-      : 'degraded';
+      : healthChecks.some((c) => c.status === 'unhealthy')
+        ? 'unhealthy'
+        : 'degraded';
 
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify({
-          status: overallStatus,
-          timestamp: new Date().toISOString(),
-          components: healthChecks,
-          summary: {
-            healthy: healthChecks.filter(c => c.status === 'healthy').length,
-            degraded: healthChecks.filter(c => c.status === 'degraded').length,
-            unhealthy: healthChecks.filter(c => c.status === 'unhealthy').length,
-            total: healthChecks.length,
-          },
-        }, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              status: overallStatus,
+              timestamp: new Date().toISOString(),
+              components: healthChecks,
+              summary: {
+                healthy: healthChecks.filter((c) => c.status === 'healthy').length,
+                degraded: healthChecks.filter((c) => c.status === 'degraded').length,
+                unhealthy: healthChecks.filter((c) => c.status === 'unhealthy').length,
+                total: healthChecks.length,
+              },
+            },
+            null,
+            2,
+          ),
+        },
+      ],
     };
   },
 };
@@ -383,13 +412,22 @@ export const ragGetPerformance: RAGTool = {
     },
   },
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
-    const metric = args.metric as string ?? 'all';
-    const timeRange = args.time_range as string ?? '24h';
-    const granularity = args.granularity as string ?? '5m';
+    const metric = (args.metric as string) ?? 'all';
+    const timeRange = (args.time_range as string) ?? '24h';
+    const granularity = (args.granularity as string) ?? '5m';
 
     // Generate simulated trend data
-    const dataPoints = timeRange === '1h' ? 12 : timeRange === '6h' ? 72 : timeRange === '24h' ? 288 : timeRange === '7d' ? 2016 : 8640;
-    
+    const dataPoints =
+      timeRange === '1h'
+        ? 12
+        : timeRange === '6h'
+          ? 72
+          : timeRange === '24h'
+            ? 288
+            : timeRange === '7d'
+              ? 2016
+              : 8640;
+
     const trends = {
       latency: Array.from({ length: Math.min(dataPoints, 100) }, () => ({
         timestamp: new Date(Date.now() - Math.random() * 86400000).toISOString(),
@@ -423,20 +461,34 @@ export const ragGetPerformance: RAGTool = {
     };
 
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify({
-          time_range: timeRange,
-          granularity,
-          metric: metric === 'all' ? ['latency', 'throughput', 'errors'] : [metric],
-          trends: metric === 'all' ? trends : { [metric]: trends[metric as keyof typeof trends] },
-          analysis: metric === 'all' ? analysis : { [metric]: analysis[metric as keyof typeof analysis] },
-          recommendations: [
-            analysis.latency.change_percent > 10 ? 'Latency increasing - consider scaling resources' : null,
-            analysis.errors.spikes > 0 ? 'Error spikes detected - investigate recent deployments' : null,
-          ].filter(Boolean),
-        }, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              time_range: timeRange,
+              granularity,
+              metric: metric === 'all' ? ['latency', 'throughput', 'errors'] : [metric],
+              trends:
+                metric === 'all' ? trends : { [metric]: trends[metric as keyof typeof trends] },
+              analysis:
+                metric === 'all'
+                  ? analysis
+                  : { [metric]: analysis[metric as keyof typeof analysis] },
+              recommendations: [
+                analysis.latency.change_percent > 10
+                  ? 'Latency increasing - consider scaling resources'
+                  : null,
+                analysis.errors.spikes > 0
+                  ? 'Error spikes detected - investigate recent deployments'
+                  : null,
+              ].filter(Boolean),
+            },
+            null,
+            2,
+          ),
+        },
+      ],
     };
   },
 };
@@ -463,17 +515,31 @@ export const ragGetCollectionStats: RAGTool = {
   },
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
     const collectionName = args.collection_name as string | undefined;
-    const includeVectors = args.include_vectors as boolean ?? true;
+    const includeVectors = (args.include_vectors as boolean) ?? true;
 
     // Simulate collection statistics
-    const collections = collectionName 
-      ? [{ name: collectionName, points: Math.floor(Math.random() * 100000) + 1000, vectors: Math.floor(Math.random() * 100000) + 1000 }]
+    const collections = collectionName
+      ? [
+          {
+            name: collectionName,
+            points: Math.floor(Math.random() * 100000) + 1000,
+            vectors: Math.floor(Math.random() * 100000) + 1000,
+          },
+        ]
       : [
-          { name: 'documents', points: Math.floor(Math.random() * 50000) + 10000, vectors: Math.floor(Math.random() * 50000) + 10000 },
-          { name: 'embeddings', points: Math.floor(Math.random() * 30000) + 5000, vectors: Math.floor(Math.random() * 30000) + 5000 },
+          {
+            name: 'documents',
+            points: Math.floor(Math.random() * 50000) + 10000,
+            vectors: Math.floor(Math.random() * 50000) + 10000,
+          },
+          {
+            name: 'embeddings',
+            points: Math.floor(Math.random() * 30000) + 5000,
+            vectors: Math.floor(Math.random() * 30000) + 5000,
+          },
         ];
 
-    const stats = collections.map(col => ({
+    const stats = collections.map((col) => ({
       name: col.name,
       points_count: col.points,
       vectors_count: includeVectors ? col.vectors : undefined,
@@ -483,14 +549,20 @@ export const ragGetCollectionStats: RAGTool = {
     }));
 
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify({
-          collections: stats,
-          total_points: stats.reduce((sum, s) => sum + s.points_count, 0),
-          total_size_mb: stats.reduce((sum, s) => sum + (s.index_size_mb || 0), 0),
-        }, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              collections: stats,
+              total_points: stats.reduce((sum, s) => sum + s.points_count, 0),
+              total_size_mb: stats.reduce((sum, s) => sum + (s.index_size_mb || 0), 0),
+            },
+            null,
+            2,
+          ),
+        },
+      ],
     };
   },
 };
@@ -523,9 +595,9 @@ export const ragMonitorAlerts: RAGTool = {
     },
   },
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
-    const status = args.status as string ?? 'active';
+    const status = (args.status as string) ?? 'active';
     const severity = args.severity as string | undefined;
-    const limit = args.limit as number ?? 50;
+    const limit = (args.limit as number) ?? 50;
 
     // Generate simulated alerts
     const severities = ['critical', 'warning', 'info'] as const;
@@ -537,41 +609,54 @@ export const ragMonitorAlerts: RAGTool = {
       'connection_pool',
     ];
 
-    const alerts = Array.from({ length: Math.min(Math.floor(Math.random() * 5) + 1, limit) }, (_, i) => {
-      const sev = severity === 'all' ? severities[Math.floor(Math.random() * 3)] : (severity as typeof severities[number] ?? severities[Math.floor(Math.random() * 3)]);
-      
-      return {
-        id: `alert-${Date.now()}-${i}`,
-        type: alertTypes[Math.floor(Math.random() * alertTypes.length)],
-        severity: sev,
-        status: status === 'all' ? (Math.random() > 0.5 ? 'active' : 'resolved') : status,
-        message: `Alert: ${alertTypes[Math.floor(Math.random() * alertTypes.length)]} detected`,
-        timestamp: new Date(Date.now() - Math.random() * 3600000).toISOString(),
-        acknowledged: Math.random() > 0.7,
-        metadata: {
-          value: Math.random() * 100,
-          threshold: Math.random() * 80 + 20,
-        },
-      };
-    });
+    const alerts = Array.from(
+      { length: Math.min(Math.floor(Math.random() * 5) + 1, limit) },
+      (_, i) => {
+        const sev =
+          severity === 'all'
+            ? severities[Math.floor(Math.random() * 3)]
+            : ((severity as (typeof severities)[number]) ??
+              severities[Math.floor(Math.random() * 3)]);
+
+        return {
+          id: `alert-${Date.now()}-${i}`,
+          type: alertTypes[Math.floor(Math.random() * alertTypes.length)],
+          severity: sev,
+          status: status === 'all' ? (Math.random() > 0.5 ? 'active' : 'resolved') : status,
+          message: `Alert: ${alertTypes[Math.floor(Math.random() * alertTypes.length)]} detected`,
+          timestamp: new Date(Date.now() - Math.random() * 3600000).toISOString(),
+          acknowledged: Math.random() > 0.7,
+          metadata: {
+            value: Math.random() * 100,
+            threshold: Math.random() * 80 + 20,
+          },
+        };
+      },
+    );
 
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify({
-          total_alerts: alerts.length,
-          by_severity: {
-            critical: alerts.filter(a => a.severity === 'critical').length,
-            warning: alerts.filter(a => a.severity === 'warning').length,
-            info: alerts.filter(a => a.severity === 'info').length,
-          },
-          by_status: {
-            active: alerts.filter(a => a.status === 'active').length,
-            resolved: alerts.filter(a => a.status === 'resolved').length,
-          },
-          alerts: alerts.slice(0, limit),
-        }, null, 2),
-      }],
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              total_alerts: alerts.length,
+              by_severity: {
+                critical: alerts.filter((a) => a.severity === 'critical').length,
+                warning: alerts.filter((a) => a.severity === 'warning').length,
+                info: alerts.filter((a) => a.severity === 'info').length,
+              },
+              by_status: {
+                active: alerts.filter((a) => a.status === 'active').length,
+                resolved: alerts.filter((a) => a.status === 'resolved').length,
+              },
+              alerts: alerts.slice(0, limit),
+            },
+            null,
+            2,
+          ),
+        },
+      ],
     };
   },
 };

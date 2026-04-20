@@ -16,7 +16,10 @@ describe('generation metrics', () => {
     });
 
     it('returns 1 when all query words are in answer', () => {
-      const score = relevanceScore('machine learning algorithms', 'This is about machine learning algorithms and their applications');
+      const score = relevanceScore(
+        'machine learning algorithms',
+        'This is about machine learning algorithms and their applications',
+      );
       expect(score).toBe(1);
     });
 
@@ -38,7 +41,9 @@ describe('generation metrics', () => {
     });
 
     it('returns higher score for well-formatted text', () => {
-      const score = fluencyScore('This is a well-written sentence. It has proper capitalization and punctuation.');
+      const score = fluencyScore(
+        'This is a well-written sentence. It has proper capitalization and punctuation.',
+      );
       expect(score).toBeGreaterThan(0.5);
     });
 
@@ -54,7 +59,9 @@ describe('generation metrics', () => {
     });
 
     it('returns higher score with transition words', () => {
-      const score = coherenceScore('First, we consider the input. However, the output is different. Therefore, we need to adjust.');
+      const score = coherenceScore(
+        'First, we consider the input. However, the output is different. Therefore, we need to adjust.',
+      );
       expect(score).toBeGreaterThan(0.7);
     });
   });
@@ -65,7 +72,9 @@ describe('generation metrics', () => {
     });
 
     it('returns 1 when answer is fully contained in source', () => {
-      const source = ['Machine learning is a subset of artificial intelligence. It uses algorithms to learn from data.'];
+      const source = [
+        'Machine learning is a subset of artificial intelligence. It uses algorithms to learn from data.',
+      ];
       const answer = 'Machine learning is a subset of artificial intelligence.';
       const score = faithfulnessScore(answer, source);
       expect(score).toBe(1);
@@ -86,12 +95,18 @@ describe('generation metrics', () => {
     });
 
     it('returns 1 for exact match', () => {
-      const score = answerCorrectnessScore('The capital of France is Paris', 'The capital of France is Paris');
+      const score = answerCorrectnessScore(
+        'The capital of France is Paris',
+        'The capital of France is Paris',
+      );
       expect(score).toBe(1);
     });
 
     it('returns partial score for partial match', () => {
-      const score = answerCorrectnessScore('Paris is capital of France', 'The capital of France is Paris');
+      const score = answerCorrectnessScore(
+        'Paris is capital of France',
+        'The capital of France is Paris',
+      );
       expect(score).toBeGreaterThan(0);
       expect(score).toBeLessThanOrEqual(1);
     });
@@ -104,7 +119,7 @@ describe('generation metrics', () => {
         'What is machine learning?',
         'Machine learning is a subset of AI.',
         ['Machine learning is a field of AI that uses statistical techniques.'],
-        'Machine learning is a subset of artificial intelligence.'
+        'Machine learning is a subset of artificial intelligence.',
       );
 
       expect(result.queryId).toBe('q1');
@@ -116,12 +131,7 @@ describe('generation metrics', () => {
     });
 
     it('omits answerCorrectness when ground truth not provided', () => {
-      const result = evaluateGeneration(
-        'q1',
-        'What is ML?',
-        'ML is great.',
-        ['Some source text.']
-      );
+      const result = evaluateGeneration('q1', 'What is ML?', 'ML is great.', ['Some source text.']);
 
       expect(result.answerCorrectness).toBeUndefined();
     });

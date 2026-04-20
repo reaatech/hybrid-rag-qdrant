@@ -46,7 +46,9 @@ async function readPackageVersion(): Promise<string> {
  * Initialize pipeline from config
  */
 async function initPipeline(options: GlobalOptions): Promise<RAGPipeline> {
-  if (pipeline) {return pipeline;}
+  if (pipeline) {
+    return pipeline;
+  }
 
   let config: RAGPipelineConfig = {
     qdrantUrl: options.qdrantUrl || 'http://localhost:6333',

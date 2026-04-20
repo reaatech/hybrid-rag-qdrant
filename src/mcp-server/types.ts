@@ -8,7 +8,10 @@ import type { RAGPipeline } from '../pipeline.js';
 export type { RAGPipeline };
 
 export interface ToolHandler {
-  (args: Record<string, unknown>, pipeline: RAGPipeline): Promise<{
+  (
+    args: Record<string, unknown>,
+    pipeline: RAGPipeline,
+  ): Promise<{
     content: Array<{ type: string; text: string; isError?: boolean }>;
   }>;
 }

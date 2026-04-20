@@ -1,6 +1,6 @@
 /**
  * Unit tests for observability/metrics
- * 
+ *
  * Note: These tests verify the MetricsCollector class behavior without
  * requiring full OpenTelemetry infrastructure setup.
  */
@@ -8,7 +8,8 @@
 import { describe, it, expect } from 'vitest';
 
 describe('observability/metrics', async () => {
-  const { MetricsCollector, getMetricsCollector } = await import('../../../src/observability/metrics.js');
+  const { MetricsCollector, getMetricsCollector } =
+    await import('../../../src/observability/metrics.js');
 
   describe('MetricsCollector', () => {
     it('should be defined as a class', () => {
@@ -34,11 +35,14 @@ describe('observability/metrics', async () => {
     });
 
     it('should create instance with config', () => {
-      expect(() => new MetricsCollector({
-        otlpEndpoint: 'http://localhost:4318',
-        exportInterval: 30000,
-        consoleExport: false,
-      })).not.toThrow();
+      expect(
+        () =>
+          new MetricsCollector({
+            otlpEndpoint: 'http://localhost:4318',
+            exportInterval: 30000,
+            consoleExport: false,
+          }),
+      ).not.toThrow();
     });
 
     it('should accept optional otlpEndpoint', () => {

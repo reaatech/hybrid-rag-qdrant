@@ -5,7 +5,11 @@
 import { ChunkingStrategy, type Chunk, type ChunkingConfig } from './types/domain.js';
 import type { RetrievalResult } from './types/domain.js';
 import { chunkDocument } from './chunking/engine.js';
-import { HybridRetriever, type HybridRetrieverConfig, type HybridRetrievalOptions } from './retrieval/fusion/hybrid-retriever.js';
+import {
+  HybridRetriever,
+  type HybridRetrieverConfig,
+  type HybridRetrievalOptions,
+} from './retrieval/fusion/hybrid-retriever.js';
 import { RerankerEngine, type RerankerConfig } from './retrieval/reranker/engine.js';
 
 /**
@@ -114,7 +118,6 @@ export class RAGPipeline {
   }
 
   private async _initialize(): Promise<void> {
-
     const retrievalConfig: HybridRetrieverConfig = {
       vector: {
         qdrant: {
@@ -161,7 +164,9 @@ export class RAGPipeline {
   /**
    * Ingest documents
    */
-  async ingest(documents: { id: string; content: string; metadata?: Record<string, unknown> }[]): Promise<Chunk[]> {
+  async ingest(
+    documents: { id: string; content: string; metadata?: Record<string, unknown> }[],
+  ): Promise<Chunk[]> {
     await this.initialize();
 
     const allChunks: Chunk[] = [];
@@ -197,7 +202,7 @@ export class RAGPipeline {
     }
 
     const topK = options?.topK ?? this.config.topK;
-    const useReranker = options?.useReranker ?? (this.reranker !== null);
+    const useReranker = options?.useReranker ?? this.reranker !== null;
     const rerankTopK = options?.rerankTopK ?? this.config.rerankTopK;
     const rerankFinalK = options?.rerankFinalK ?? this.config.rerankFinalK;
 

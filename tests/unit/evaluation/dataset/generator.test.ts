@@ -49,10 +49,7 @@ describe('generateDataset', () => {
 
     await generateDataset(config);
 
-    expect(writeFile).toHaveBeenCalledWith(
-      '/tmp/test-dataset.jsonl',
-      expect.any(String),
-    );
+    expect(writeFile).toHaveBeenCalledWith('/tmp/test-dataset.jsonl', expect.any(String));
   });
 
   it('should generate queries with required fields', async () => {
@@ -217,9 +214,9 @@ describe('generateDataset', () => {
     expect(queryText).toBeDefined();
     expect(
       queryText?.includes('?') ||
-      queryText?.toLowerCase().includes('what') ||
-      queryText?.toLowerCase().includes('how') ||
-      queryText?.toLowerCase().includes('explain'),
+        queryText?.toLowerCase().includes('what') ||
+        queryText?.toLowerCase().includes('how') ||
+        queryText?.toLowerCase().includes('explain'),
     ).toBe(true);
   });
 
@@ -282,10 +279,7 @@ describe('generateAndSaveDataset', () => {
       seed: 42,
     });
 
-    expect(writeFile).toHaveBeenCalledWith(
-      '/tmp/test.jsonl',
-      expect.any(String),
-    );
+    expect(writeFile).toHaveBeenCalledWith('/tmp/test.jsonl', expect.any(String));
   });
 
   it('should log generated dataset info', async () => {

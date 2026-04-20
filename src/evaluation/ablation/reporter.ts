@@ -64,23 +64,33 @@ export function generateSummary(results: AblationResults): string {
   lines.push('\n');
 
   // Find best variant
-  const bestVariant = results.variants.length > 0
-    ? results.variants.reduce((best, v) => v.metrics.ndcgAtK > best.metrics.ndcgAtK ? v : best)
-    : null;
+  const bestVariant =
+    results.variants.length > 0
+      ? results.variants.reduce((best, v) => (v.metrics.ndcgAtK > best.metrics.ndcgAtK ? v : best))
+      : null;
 
   lines.push('## Key Findings\n');
   if (bestVariant) {
-    lines.push(`- **Best performing variant:** ${bestVariant.variant.name} (NDCG@K: ${bestVariant.metrics.ndcgAtK.toFixed(4)})`);
-    lines.push(`- **Biggest improvement over baseline:** +${bestVariant.delta.ndcgAtK.toFixed(4)} NDCG@K`);
+    lines.push(
+      `- **Best performing variant:** ${bestVariant.variant.name} (NDCG@K: ${bestVariant.metrics.ndcgAtK.toFixed(4)})`,
+    );
+    lines.push(
+      `- **Biggest improvement over baseline:** +${bestVariant.delta.ndcgAtK.toFixed(4)} NDCG@K`,
+    );
   }
 
   // Find worst variant
-  const worstVariant = results.variants.length > 0
-    ? results.variants.reduce((worst, v) => v.metrics.ndcgAtK < worst.metrics.ndcgAtK ? v : worst)
-    : null;
+  const worstVariant =
+    results.variants.length > 0
+      ? results.variants.reduce((worst, v) =>
+          v.metrics.ndcgAtK < worst.metrics.ndcgAtK ? v : worst,
+        )
+      : null;
 
   if (worstVariant) {
-    lines.push(`- **Worst performing variant:** ${worstVariant.variant.name} (NDCG@K: ${worstVariant.metrics.ndcgAtK.toFixed(4)})`);
+    lines.push(
+      `- **Worst performing variant:** ${worstVariant.variant.name} (NDCG@K: ${worstVariant.metrics.ndcgAtK.toFixed(4)})`,
+    );
   }
 
   return lines.join('\n');

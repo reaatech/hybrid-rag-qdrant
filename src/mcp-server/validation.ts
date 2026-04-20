@@ -9,13 +9,18 @@ export interface ValidationError {
   details?: string[];
 }
 
-export function validateInput<T>(schema: ZodSchema<T>, args: Record<string, unknown>): {
-  success: true;
-  data: T;
-} | {
-  success: false;
-  error: ValidationError;
-} {
+export function validateInput<T>(
+  schema: ZodSchema<T>,
+  args: Record<string, unknown>,
+):
+  | {
+      success: true;
+      data: T;
+    }
+  | {
+      success: false;
+      error: ValidationError;
+    } {
   const result = schema.safeParse(args);
   if (result.success) {
     return { success: true, data: result.data };
@@ -30,7 +35,7 @@ export function validateInput<T>(schema: ZodSchema<T>, args: Record<string, unkn
 }
 
 function formatZodErrors(error: ZodError): string[] {
-  return error.issues.map(issue => {
+  return error.issues.map((issue) => {
     const path = issue.path.join('.');
     return path ? `${path}: ${issue.message}` : issue.message;
   });

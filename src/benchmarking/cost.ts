@@ -65,8 +65,10 @@ export function calculateEmbeddingCost(
   outputTokens: number,
   pricing: PricingConfig = DEFAULT_PRICING,
 ): number {
-  return (inputTokens * pricing.embeddingInputPerMillion) / 1_000_000 +
-         (outputTokens * pricing.embeddingOutputPerMillion) / 1_000_000;
+  return (
+    (inputTokens * pricing.embeddingInputPerMillion) / 1_000_000 +
+    (outputTokens * pricing.embeddingOutputPerMillion) / 1_000_000
+  );
 }
 
 /**
@@ -77,8 +79,9 @@ export function calculateRerankerCost(
   inputTokens: number = 0,
   pricing: PricingConfig = DEFAULT_PRICING,
 ): number {
-  return (calls * pricing.rerankerPerCall) +
-         (inputTokens * pricing.rerankerInputPerMillion) / 1_000_000;
+  return (
+    calls * pricing.rerankerPerCall + (inputTokens * pricing.rerankerInputPerMillion) / 1_000_000
+  );
 }
 
 /**

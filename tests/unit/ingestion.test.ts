@@ -60,7 +60,8 @@ describe('ingestion', () => {
     });
 
     it('should reject unsupported formats', async () => {
-      const { DocumentLoader, UnsupportedFormatError } = await import('../../src/ingestion/loader.js');
+      const { DocumentLoader, UnsupportedFormatError } =
+        await import('../../src/ingestion/loader.js');
 
       const loader = new DocumentLoader();
       const content = 'binary content';
@@ -137,7 +138,9 @@ describe('ingestion', () => {
       const result = validator.validate(doc2);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Document content is a duplicate of a previously ingested document');
+      expect(result.errors).toContain(
+        'Document content is a duplicate of a previously ingested document',
+      );
     });
 
     it('should reset duplicate tracking', async () => {
@@ -170,7 +173,12 @@ describe('ingestion', () => {
       const validator = new DocumentValidator({ minContentLength: 10 });
 
       const docs = [
-        { id: 'doc-1', content: 'Valid content here for document one that is long enough', source: 'test', metadata: {} },
+        {
+          id: 'doc-1',
+          content: 'Valid content here for document one that is long enough',
+          source: 'test',
+          metadata: {},
+        },
         { id: 'doc-2', content: '', source: 'test', metadata: {} },
       ];
 
@@ -184,7 +192,7 @@ describe('ingestion', () => {
     it('should detect encoding from buffer', async () => {
       const { DocumentValidator } = await import('../../src/ingestion/validator.js');
 
-      const utf8Buffer = Buffer.from([0xEF, 0xBB, 0xBF, 0x74, 0x65, 0x73, 0x74]);
+      const utf8Buffer = Buffer.from([0xef, 0xbb, 0xbf, 0x74, 0x65, 0x73, 0x74]);
       const encoding = DocumentValidator.detectEncoding(utf8Buffer);
 
       expect(encoding).toBe('utf-8');

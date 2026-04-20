@@ -80,9 +80,7 @@ export class DocumentValidator {
 
     // Validate file size
     if (document.fileSize !== undefined && document.fileSize > this.maxFileSize) {
-      errors.push(
-        `File size ${document.fileSize} bytes exceeds maximum ${this.maxFileSize} bytes`,
-      );
+      errors.push(`File size ${document.fileSize} bytes exceeds maximum ${this.maxFileSize} bytes`);
     }
 
     // Validate content length
@@ -100,18 +98,14 @@ export class DocumentValidator {
     }
 
     // Validate content type
-    if (
-      document.contentType &&
-      !this.allowedContentTypes.has(document.contentType)
-    ) {
+    if (document.contentType && !this.allowedContentTypes.has(document.contentType)) {
       errors.push(`Content type '${document.contentType}' is not allowed`);
     }
 
     // Check for duplicates
     if (this.checkDuplicates) {
       const contentHash =
-        document.contentHash ??
-        createHash('sha256').update(document.content).digest('hex');
+        document.contentHash ?? createHash('sha256').update(document.content).digest('hex');
 
       if (this.seenContentHashes.has(contentHash)) {
         errors.push('Document content is a duplicate of a previously ingested document');
@@ -119,8 +113,15 @@ export class DocumentValidator {
         this.seenContentHashes.add(contentHash);
         if (this.seenContentHashes.size > DocumentValidator.MAX_SEEN_HASHES) {
           const iter = this.seenContentHashes.values();
-          for (let i = 0; i < DocumentValidator.MAX_SEEN_HASHES / 2; i++) { iter.next(); }
-          for (let i = 0; i < DocumentValidator.MAX_SEEN_HASHES / 2; i++) { const v = iter.next().value; if (v) { this.seenContentHashes.delete(v); } }
+          for (let i = 0; i < DocumentValidator.MAX_SEEN_HASHES / 2; i++) {
+            iter.next();
+          }
+          for (let i = 0; i < DocumentValidator.MAX_SEEN_HASHES / 2; i++) {
+            const v = iter.next().value;
+            if (v) {
+              this.seenContentHashes.delete(v);
+            }
+          }
         }
       }
     }
@@ -153,7 +154,7 @@ export class DocumentValidator {
    * Validate multiple documents
    */
   validateBatch(documents: Document[]): Array<{ document: Document; result: ValidationResult }> {
-    return documents.map(document => ({
+    return documents.map((document) => ({
       document,
       result: this.validate(document),
     }));

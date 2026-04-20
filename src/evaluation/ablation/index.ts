@@ -10,12 +10,7 @@ export {
   type PipelineBuilderFn,
 } from './runner.js';
 
-export {
-  generateMarkdownTable,
-  generateSummary,
-  sortByNDCG,
-  sortByDelta,
-} from './reporter.js';
+export { generateMarkdownTable, generateSummary, sortByNDCG, sortByDelta } from './reporter.js';
 
 export {
   validateAblationConfig,

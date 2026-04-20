@@ -32,7 +32,7 @@ class MockEncoder implements MockTiktoken {
   }
 
   decode(tokens: number[]): Uint8Array {
-    const chars = tokens.map(t => String.fromCharCode((t % 26) + 97));
+    const chars = tokens.map((t) => String.fromCharCode((t % 26) + 97));
     return new TextEncoder().encode(chars.join(''));
   }
 

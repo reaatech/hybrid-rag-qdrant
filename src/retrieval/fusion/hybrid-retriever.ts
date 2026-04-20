@@ -72,10 +72,7 @@ export class HybridRetriever {
    * Index chunks in both vector and BM25 indexes
    */
   async indexChunks(chunks: Chunk[]): Promise<void> {
-    await Promise.all([
-      this.vectorSearch.indexChunks(chunks),
-      this.bm25Search.indexChunks(chunks),
-    ]);
+    await Promise.all([this.vectorSearch.indexChunks(chunks), this.bm25Search.indexChunks(chunks)]);
   }
 
   /**
@@ -118,7 +115,11 @@ export class HybridRetriever {
       avgDocLength: number;
     };
   }> {
-    const bm25Stats = this.bm25Search.getStats?.() ?? { totalDocuments: 0, totalTerms: 0, avgDocLength: 0 };
+    const bm25Stats = this.bm25Search.getStats?.() ?? {
+      totalDocuments: 0,
+      totalTerms: 0,
+      avgDocLength: 0,
+    };
     return {
       totalChunks: bm25Stats.totalDocuments,
       vectorIndexSize: bm25Stats.totalDocuments,

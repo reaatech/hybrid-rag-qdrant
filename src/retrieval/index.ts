@@ -2,7 +2,11 @@
  * Retrieval module exports
  */
 
-export { HybridRetriever, type HybridRetrieverConfig, type HybridRetrievalOptions } from './fusion/hybrid-retriever.js';
+export {
+  HybridRetriever,
+  type HybridRetrieverConfig,
+  type HybridRetrievalOptions,
+} from './fusion/hybrid-retriever.js';
 export { HybridRetrievalEngine, type HybridRetrievalConfig } from './fusion/engine.js';
 export { VectorSearchEngine, type VectorSearchConfig } from './vector/search.js';
 export { BM25SearchEngine, type BM25SearchConfig } from './bm25/search.js';

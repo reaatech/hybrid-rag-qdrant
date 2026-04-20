@@ -73,7 +73,9 @@ export class DocumentLoader {
   constructor(options: DocumentLoaderOptions = {}) {
     this.maxFileSize = options.maxFileSize ?? 10 * 1024 * 1024; // 10MB default
     this.extractMetadata = options.extractMetadata ?? true;
-    this.supportedFormats = new Set(options.supportedFormats ?? ['pdf', 'md', 'html', 'htm', 'txt', 'text']);
+    this.supportedFormats = new Set(
+      options.supportedFormats ?? ['pdf', 'md', 'html', 'htm', 'txt', 'text'],
+    );
   }
 
   /**
@@ -176,9 +178,7 @@ export class DocumentLoader {
       const data = await pdfParse(buffer);
       return data.text;
     } catch (error) {
-      throw new DocumentParseError(
-        `Failed to parse PDF: ${(error as Error).message}`,
-      );
+      throw new DocumentParseError(`Failed to parse PDF: ${(error as Error).message}`);
     }
   }
 
@@ -232,14 +232,20 @@ export class DocumentLoader {
       switch (token.type) {
         case 'heading':
           if (token.depth <= 3) {
-            parts.push(`\n${'#'.repeat(token.depth)} ${this.extractTextFromTokens(token.tokens)}\n`);
+            parts.push(
+              `\n${'#'.repeat(token.depth)} ${this.extractTextFromTokens(token.tokens)}\n`,
+            );
           }
           break;
         case 'paragraph':
           parts.push(this.extractTextFromTokens(token.tokens));
           break;
         case 'list':
-          parts.push(this.extractTextFromTokens(token.items.flatMap((item: unknown) => (item as { tokens?: unknown[] }).tokens ?? [])));
+          parts.push(
+            this.extractTextFromTokens(
+              token.items.flatMap((item: unknown) => (item as { tokens?: unknown[] }).tokens ?? []),
+            ),
+          );
           break;
         case 'text':
           parts.push(token.text);
@@ -254,7 +260,10 @@ export class DocumentLoader {
       }
     }
 
-    return parts.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+    return parts
+      .join('\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
   }
 
   /**
@@ -262,9 +271,11 @@ export class DocumentLoader {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private extractTextFromTokens(tokens: any[] | undefined): string {
-    if (!tokens) {return '';}
+    if (!tokens) {
+      return '';
+    }
     return tokens
-      .map(token => ('text' in token ? (token.text as string) : ''))
+      .map((token) => ('text' in token ? (token.text as string) : ''))
       .filter(Boolean)
       .join(' ');
   }

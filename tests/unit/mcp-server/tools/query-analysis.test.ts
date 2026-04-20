@@ -110,10 +110,7 @@ describe('Query Analysis Tools', () => {
     });
 
     it('should return confidence score', async () => {
-      const result = await ragAnalyzeQuery.handler(
-        { query: 'What is 2+2?' },
-        mockPipeline,
-      );
+      const result = await ragAnalyzeQuery.handler({ query: 'What is 2+2?' }, mockPipeline);
 
       const response = JSON.parse((result.content[0] as { text: string }).text);
       expect(response.confidence).toBeDefined();
@@ -134,10 +131,7 @@ describe('Query Analysis Tools', () => {
     });
 
     it('should not decompose simple query', async () => {
-      const result = await ragDecomposeQuery.handler(
-        { query: 'What is Python?' },
-        mockPipeline,
-      );
+      const result = await ragDecomposeQuery.handler({ query: 'What is Python?' }, mockPipeline);
 
       const response = JSON.parse((result.content[0] as { text: string }).text);
       expect(response.sub_queries.length).toBe(1);
@@ -229,10 +223,7 @@ describe('Query Analysis Tools', () => {
     });
 
     it('should return all intents when no candidates specified', async () => {
-      const result = await ragClassifyIntent.handler(
-        { query: 'What is Python?' },
-        mockPipeline,
-      );
+      const result = await ragClassifyIntent.handler({ query: 'What is Python?' }, mockPipeline);
 
       const response = JSON.parse((result.content[0] as { text: string }).text);
       expect(response.all_intents.length).toBe(6);

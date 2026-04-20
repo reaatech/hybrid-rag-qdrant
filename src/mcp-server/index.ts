@@ -2,11 +2,7 @@
  * MCP Server module exports
  */
 
-export {
-  MCPServer,
-  createMCPServer,
-  type MCPServerConfig,
-} from './mcp-server.js';
+export { MCPServer, createMCPServer, type MCPServerConfig } from './mcp-server.js';
 
 export { retrievalTools } from './tools/retrieval.js';
 export { ingestionTools } from './tools/ingestion.js';

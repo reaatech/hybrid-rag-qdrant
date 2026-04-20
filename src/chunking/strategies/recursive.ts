@@ -52,7 +52,9 @@ export class RecursiveChunker {
 
     for (let i = 0; i < mergedSegments.length; i++) {
       const segment = mergedSegments[i] ?? '';
-      if (segment.trim().length === 0) {continue;}
+      if (segment.trim().length === 0) {
+        continue;
+      }
 
       const startIndex = content.indexOf(segment.slice(0, 50), position);
       const startPos = startIndex >= 0 ? startIndex : position;
@@ -104,7 +106,7 @@ export class RecursiveChunker {
 
         const parts = this.splitWithSeparator(item.content, separator);
 
-        if (parts.every(p => p.length <= chunkSize)) {
+        if (parts.every((p) => p.length <= chunkSize)) {
           for (const p of parts) {
             if (p.trim().length > 0) {
               result.push(p);
@@ -165,7 +167,7 @@ export class RecursiveChunker {
     let current = '';
 
     for (const segment of segments) {
-      const combined = current ? `${current  }\n${  segment}` : segment;
+      const combined = current ? `${current}\n${segment}` : segment;
 
       if (combined.length <= chunkSize) {
         current = combined;

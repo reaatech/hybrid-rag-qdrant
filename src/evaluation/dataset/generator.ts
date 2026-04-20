@@ -69,23 +69,47 @@ const DOCUMENT_TEMPLATES = [
 ];
 
 const TOPICS = [
-  'machine learning', 'natural language processing', 'vector databases',
-  'information retrieval', 'semantic search', 'neural networks',
-  'deep learning', 'knowledge graphs', 'data mining', 'text analytics',
-  'question answering', 'document understanding', 'embedding models',
-  'similarity search', 'hybrid search', 'ranking algorithms',
+  'machine learning',
+  'natural language processing',
+  'vector databases',
+  'information retrieval',
+  'semantic search',
+  'neural networks',
+  'deep learning',
+  'knowledge graphs',
+  'data mining',
+  'text analytics',
+  'question answering',
+  'document understanding',
+  'embedding models',
+  'similarity search',
+  'hybrid search',
+  'ranking algorithms',
 ];
 
 const FIELDS = [
-  'computer science', 'artificial intelligence', 'data science',
-  'software engineering', 'computational linguistics', 'information science',
+  'computer science',
+  'artificial intelligence',
+  'data science',
+  'software engineering',
+  'computational linguistics',
+  'information science',
 ];
 
 const CONCEPTS = [
-  'transformer architecture', 'attention mechanism', 'gradient descent',
-  'backpropagation', 'feature extraction', 'dimensionality reduction',
-  'clustering', 'classification', 'regression', 'optimization',
-  'tokenization', 'semantic similarity', 'contextual embedding',
+  'transformer architecture',
+  'attention mechanism',
+  'gradient descent',
+  'backpropagation',
+  'feature extraction',
+  'dimensionality reduction',
+  'clustering',
+  'classification',
+  'regression',
+  'optimization',
+  'tokenization',
+  'semantic similarity',
+  'contextual embedding',
 ];
 
 const QUERY_TEMPLATES = [
@@ -140,15 +164,15 @@ function generateQuery(
 
   // Select relevant documents (those that share keywords with the query)
   const queryKeywords = [topic.toLowerCase(), concept.toLowerCase(), field.toLowerCase()];
-  const scoredDocs = documents.map(doc => {
+  const scoredDocs = documents.map((doc) => {
     const contentLower = doc.content.toLowerCase();
-    const score = queryKeywords.filter(kw => contentLower.includes(kw)).length;
+    const score = queryKeywords.filter((kw) => contentLower.includes(kw)).length;
     return { id: doc.id, score };
   });
 
   // Sort by score and pick top relevant docs
   const sortedDocs = scoredDocs.sort((a, b) => b.score - a.score);
-  const relevantDocs = sortedDocs.slice(0, relevantCount).map(d => d.id);
+  const relevantDocs = sortedDocs.slice(0, relevantCount).map((d) => d.id);
 
   // If not enough relevant docs, add some random ones
   const targetCount = Math.min(relevantCount, documents.length);
@@ -187,7 +211,7 @@ export async function generateDataset(config: DatasetGeneratorConfig): Promise<{
   );
 
   // Write to file
-  const content = queries.map(q => JSON.stringify(q)).join('\n');
+  const content = queries.map((q) => JSON.stringify(q)).join('\n');
   await writeFile(config.outputPath, content);
 
   return { queries, documents };

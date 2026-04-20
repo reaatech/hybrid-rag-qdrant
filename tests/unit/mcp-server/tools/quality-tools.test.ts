@@ -137,10 +137,7 @@ describe('Quality Tools', () => {
     });
 
     it('should provide recommendations when failing', async () => {
-      const result = await ragValidateResults.handler(
-        { query: 'Test', results: [] },
-        mockPipeline,
-      );
+      const result = await ragValidateResults.handler({ query: 'Test', results: [] }, mockPipeline);
 
       const response = JSON.parse((result.content[0] as { text: string }).text);
       expect(response.recommendations).toBeDefined();
@@ -299,10 +296,7 @@ describe('Quality Tools', () => {
     });
 
     it('should respect limit parameter', async () => {
-      const result = await ragGetQualityMetrics.handler(
-        { limit: 50 },
-        mockPipeline,
-      );
+      const result = await ragGetQualityMetrics.handler({ limit: 50 }, mockPipeline);
 
       const response = JSON.parse((result.content[0] as { text: string }).text);
       expect(response.generated_at).toBeDefined();
@@ -327,20 +321,14 @@ describe('Quality Tools', () => {
     });
 
     it('should use custom sample size', async () => {
-      const result = await ragRunQualityCheck.handler(
-        { sample_size: 50 },
-        mockPipeline,
-      );
+      const result = await ragRunQualityCheck.handler({ sample_size: 50 }, mockPipeline);
 
       const response = JSON.parse((result.content[0] as { text: string }).text);
       expect(response.sample_size).toBe(50);
     });
 
     it('should use custom frequency', async () => {
-      const result = await ragRunQualityCheck.handler(
-        { frequency: 'hourly' },
-        mockPipeline,
-      );
+      const result = await ragRunQualityCheck.handler({ frequency: 'hourly' }, mockPipeline);
 
       const response = JSON.parse((result.content[0] as { text: string }).text);
       expect(response.frequency).toBe('hourly');
@@ -364,10 +352,7 @@ describe('Quality Tools', () => {
     });
 
     it('should calculate next check time', async () => {
-      const result = await ragRunQualityCheck.handler(
-        { frequency: 'weekly' },
-        mockPipeline,
-      );
+      const result = await ragRunQualityCheck.handler({ frequency: 'weekly' }, mockPipeline);
 
       const response = JSON.parse((result.content[0] as { text: string }).text);
       expect(response.next_check).toBeDefined();

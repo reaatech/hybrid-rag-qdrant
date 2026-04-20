@@ -4,7 +4,11 @@
 
 import { writeFile } from 'fs/promises';
 import type { RAGPipeline } from '../../pipeline.js';
-import { benchmarkLatency, benchmarkThroughput, getEnvironmentInfo } from '../../benchmarking/index.js';
+import {
+  benchmarkLatency,
+  benchmarkThroughput,
+  getEnvironmentInfo,
+} from '../../benchmarking/index.js';
 
 export interface BenchmarkOptions {
   output: string;
@@ -14,7 +18,11 @@ export interface BenchmarkOptions {
   collection: string;
 }
 
-export async function benchmarkCommand(_configPath: string, options: BenchmarkOptions, pipeline: RAGPipeline): Promise<void> {
+export async function benchmarkCommand(
+  _configPath: string,
+  options: BenchmarkOptions,
+  pipeline: RAGPipeline,
+): Promise<void> {
   console.log(`Running benchmark...`);
   console.log(`  Queries: ${options.queries}`);
   console.log(`  Iterations: ${options.iterations}`);
@@ -39,7 +47,10 @@ export async function benchmarkCommand(_configPath: string, options: BenchmarkOp
   const latencyResults = await benchmarkLatency(testQueries, queryFn);
 
   console.log(`  Running throughput benchmark...`);
-  const throughputResults = await benchmarkThroughput(testQueries, queryFn, { concurrency: [1, 5], queriesPerLevel: 10 });
+  const throughputResults = await benchmarkThroughput(testQueries, queryFn, {
+    concurrency: [1, 5],
+    queriesPerLevel: 10,
+  });
 
   const output = {
     benchmark: {
@@ -55,9 +66,11 @@ export async function benchmarkCommand(_configPath: string, options: BenchmarkOp
       min_ms: Math.round(latencyResults.min * 100) / 100,
       max_ms: Math.round(latencyResults.max * 100) / 100,
     },
-    throughput: throughputResults[0] ? {
-      queries_per_second: throughputResults[0].qps,
-    } : { queries_per_second: 0 },
+    throughput: throughputResults[0]
+      ? {
+          queries_per_second: throughputResults[0].qps,
+        }
+      : { queries_per_second: 0 },
     environment: getEnvironmentInfo(),
   };
 

@@ -24,7 +24,7 @@ export interface SemanticChunkingOptions {
 function defaultSentenceSplitter(text: string): string[] {
   // Split on sentence boundaries (. ! ? followed by space or newline)
   const sentences = text.split(/(?<=[.!?])\s+(?=[A-Z])/);
-  return sentences.filter(s => s.trim().length > 0);
+  return sentences.filter((s) => s.trim().length > 0);
 }
 
 /**
@@ -85,7 +85,7 @@ export class SemanticChunker {
       position = startPos + chunkContent.length;
     }
 
-    return chunks.filter(c => c.content.length > 0);
+    return chunks.filter((c) => c.content.length > 0);
   }
 
   /**
@@ -108,8 +108,7 @@ export class SemanticChunker {
       const similarity = this.computeTextSimilarity(currentText, sentence);
 
       const groupSize = currentText.length + sentence.length;
-      const shouldSplit =
-        similarity < this.similarityThreshold || groupSize > this.maxChunkSize;
+      const shouldSplit = similarity < this.similarityThreshold || groupSize > this.maxChunkSize;
 
       if (shouldSplit && currentGroup.length > 0) {
         groups.push(currentGroup);
@@ -140,7 +139,7 @@ export class SemanticChunker {
     }
 
     // Jaccard similarity
-    const intersection = new Set([...words1].filter(w => words2.has(w)));
+    const intersection = new Set([...words1].filter((w) => words2.has(w)));
     const union = new Set([...words1, ...words2]);
 
     return intersection.size / union.size;
@@ -151,16 +150,63 @@ export class SemanticChunker {
    */
   private getWordSet(text: string): Set<string> {
     const stopWords = new Set([
-      'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
-      'of', 'with', 'by', 'from', 'is', 'are', 'was', 'were', 'be', 'been',
-      'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would',
-      'could', 'should', 'may', 'might', 'shall', 'can', 'this', 'that',
-      'these', 'those', 'it', 'its', 'as', 'if', 'when', 'than', 'so',
-      'not', 'no', 'nor', 'too', 'very', 'just',
+      'the',
+      'a',
+      'an',
+      'and',
+      'or',
+      'but',
+      'in',
+      'on',
+      'at',
+      'to',
+      'for',
+      'of',
+      'with',
+      'by',
+      'from',
+      'is',
+      'are',
+      'was',
+      'were',
+      'be',
+      'been',
+      'being',
+      'have',
+      'has',
+      'had',
+      'do',
+      'does',
+      'did',
+      'will',
+      'would',
+      'could',
+      'should',
+      'may',
+      'might',
+      'shall',
+      'can',
+      'this',
+      'that',
+      'these',
+      'those',
+      'it',
+      'its',
+      'as',
+      'if',
+      'when',
+      'than',
+      'so',
+      'not',
+      'no',
+      'nor',
+      'too',
+      'very',
+      'just',
     ]);
 
     const words = text.split(/\s+/);
-    return new Set(words.filter(w => w.length > 2 && !stopWords.has(w)));
+    return new Set(words.filter((w) => w.length > 2 && !stopWords.has(w)));
   }
 
   /**

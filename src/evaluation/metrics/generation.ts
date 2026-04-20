@@ -31,13 +31,18 @@ export interface GenerationMetrics {
  * Uses simple keyword overlap as a proxy
  */
 export function relevanceScore(query: string, answer: string): number {
-  const queryWords = query.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+  const queryWords = query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length > 3);
   const answerWords = answer.toLowerCase().split(/\s+/);
-  
-  if (queryWords.length === 0) {return 0;}
-  
+
+  if (queryWords.length === 0) {
+    return 0;
+  }
+
   const answerSet = new Set(answerWords);
-  const matches = queryWords.filter(w => answerSet.has(w));
+  const matches = queryWords.filter((w) => answerSet.has(w));
   return matches.length / queryWords.length;
 }
 
@@ -47,21 +52,23 @@ export function relevanceScore(query: string, answer: string): number {
  */
 export function fluencyScore(answer: string): number {
   // Check for basic fluency indicators
-  const sentences = answer.split(/[.!?]+/).filter(s => s.trim().length > 0);
-  
-  if (sentences.length === 0) {return 0;}
-  
+  const sentences = answer.split(/[.!?]+/).filter((s) => s.trim().length > 0);
+
+  if (sentences.length === 0) {
+    return 0;
+  }
+
   // Check for proper capitalization
-  const capitalizedSentences = sentences.filter(s => /^[A-Z]/.test(s.trim()));
+  const capitalizedSentences = sentences.filter((s) => /^[A-Z]/.test(s.trim()));
   const capitalizationScore = capitalizedSentences.length / sentences.length;
-  
+
   // Check for reasonable sentence length
   const avgSentenceLength = answer.length / sentences.length;
   const lengthScore = avgSentenceLength > 10 && avgSentenceLength < 200 ? 1 : 0.5;
-  
+
   // Check for proper punctuation
   const hasPunctuation = /[.!?]/.test(answer);
-  
+
   return (capitalizationScore + lengthScore + (hasPunctuation ? 1 : 0)) / 3;
 }
 
@@ -69,19 +76,31 @@ export function fluencyScore(answer: string): number {
  * Calculate coherence score (logical flow and consistency)
  */
 export function coherenceScore(answer: string): number {
-  const sentences = answer.split(/[.!?]+/).filter(s => s.trim().length > 0);
+  const sentences = answer.split(/[.!?]+/).filter((s) => s.trim().length > 0);
 
-  if (sentences.length <= 1) {return 1;}
+  if (sentences.length <= 1) {
+    return 1;
+  }
 
-  const transitionWords = ['however', 'therefore', 'moreover', 'furthermore', 'additionally',
-                           'consequently', 'nevertheless', 'thus', 'hence', 'meanwhile'];
+  const transitionWords = [
+    'however',
+    'therefore',
+    'moreover',
+    'furthermore',
+    'additionally',
+    'consequently',
+    'nevertheless',
+    'thus',
+    'hence',
+    'meanwhile',
+  ];
   const answerLower = answer.toLowerCase();
-  const hasTransitions = transitionWords.some(w => answerLower.includes(w));
+  const hasTransitions = transitionWords.some((w) => answerLower.includes(w));
 
   const pronouns = ['it', 'they', 'he', 'she', 'we', 'you'];
-  const pronounCount = sentences.filter(s => {
+  const pronounCount = sentences.filter((s) => {
     const lower = s.toLowerCase();
-    return pronouns.some(p => lower.includes(p));
+    return pronouns.some((p) => lower.includes(p));
   }).length;
 
   const pronounRatio = pronounCount / sentences.length;
@@ -102,20 +121,30 @@ export function coherenceScore(answer: string): number {
  * Calculate faithfulness score (how well the answer is grounded in the source)
  */
 export function faithfulnessScore(answer: string, sourceChunks: string[]): number {
-  if (sourceChunks.length === 0) {return 0;}
-  
-  const answerWords = answer.toLowerCase().split(/\s+/).filter(w => w.length > 3);
-  
+  if (sourceChunks.length === 0) {
+    return 0;
+  }
+
+  const answerWords = answer
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length > 3);
+
   // Check word overlap with source chunks
-  const maxOverlap = sourceChunks.map(chunk => {
-    const chunkWords = chunk.toLowerCase().split(/\s+/).filter(w => w.length > 3);
-    if (chunkWords.length === 0) {return 0;}
-    
+  const maxOverlap = sourceChunks.map((chunk) => {
+    const chunkWords = chunk
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((w) => w.length > 3);
+    if (chunkWords.length === 0) {
+      return 0;
+    }
+
     const chunkSet = new Set(chunkWords);
-    const matches = answerWords.filter(w => chunkSet.has(w));
+    const matches = answerWords.filter((w) => chunkSet.has(w));
     return matches.length / answerWords.length;
   });
-  
+
   return Math.max(...maxOverlap, 0);
 }
 
@@ -123,12 +152,24 @@ export function faithfulnessScore(answer: string, sourceChunks: string[]): numbe
  * Calculate answer correctness (comparison with ground truth)
  */
 export function answerCorrectnessScore(answer: string, groundTruth: string): number {
-  const answerWords = new Set(answer.toLowerCase().split(/\s+/).filter(w => w.length > 3));
-  const truthWords = new Set(groundTruth.toLowerCase().split(/\s+/).filter(w => w.length > 3));
-  
-  if (truthWords.size === 0) {return 0;}
-  
-  const intersection = [...truthWords].filter(w => answerWords.has(w));
+  const answerWords = new Set(
+    answer
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((w) => w.length > 3),
+  );
+  const truthWords = new Set(
+    groundTruth
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((w) => w.length > 3),
+  );
+
+  if (truthWords.size === 0) {
+    return 0;
+  }
+
+  const intersection = [...truthWords].filter((w) => answerWords.has(w));
   return intersection.length / truthWords.size;
 }
 
@@ -149,18 +190,20 @@ export function evaluateGeneration(
     coherence: coherenceScore(answer),
     faithfulness: faithfulnessScore(answer, sourceChunks),
   };
-  
+
   if (groundTruth) {
     result.answerCorrectness = answerCorrectnessScore(answer, groundTruth);
   }
-  
+
   return result;
 }
 
 /**
  * Aggregate generation metrics across queries
  */
-export function aggregateGenerationMetrics(queryResults: QueryGenerationResult[]): GenerationMetrics {
+export function aggregateGenerationMetrics(
+  queryResults: QueryGenerationResult[],
+): GenerationMetrics {
   const n = queryResults.length;
   if (n === 0) {
     return {
@@ -171,7 +214,7 @@ export function aggregateGenerationMetrics(queryResults: QueryGenerationResult[]
       queryResults,
     };
   }
-  
+
   const metrics: GenerationMetrics = {
     avgRelevance: queryResults.reduce((sum, r) => sum + r.relevance, 0) / n,
     avgFluency: queryResults.reduce((sum, r) => sum + r.fluency, 0) / n,
@@ -179,11 +222,12 @@ export function aggregateGenerationMetrics(queryResults: QueryGenerationResult[]
     avgFaithfulness: queryResults.reduce((sum, r) => sum + r.faithfulness, 0) / n,
     queryResults,
   };
-  
+
   // Only include answer correctness if all results have it
-  if (queryResults.every(r => r.answerCorrectness !== undefined)) {
-    metrics.avgAnswerCorrectness = queryResults.reduce((sum, r) => sum + (r.answerCorrectness || 0), 0) / n;
+  if (queryResults.every((r) => r.answerCorrectness !== undefined)) {
+    metrics.avgAnswerCorrectness =
+      queryResults.reduce((sum, r) => sum + (r.answerCorrectness || 0), 0) / n;
   }
-  
+
   return metrics;
 }

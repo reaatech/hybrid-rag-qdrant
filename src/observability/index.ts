@@ -2,18 +2,9 @@
  * Observability module exports
  */
 
-export {
-  TracingManager,
-  withSpan,
-  getTracingManager,
-  type TracingConfig,
-} from './tracing.js';
+export { TracingManager, withSpan, getTracingManager, type TracingConfig } from './tracing.js';
 
-export {
-  MetricsCollector,
-  getMetricsCollector,
-  type MetricsConfig,
-} from './metrics.js';
+export { MetricsCollector, getMetricsCollector, type MetricsConfig } from './metrics.js';
 
 export {
   createLogger,

@@ -10,7 +10,10 @@ import {
   sortByNDCG,
   sortByDelta,
 } from '../../src/evaluation/ablation/reporter.js';
-import type { AblationResults, AblationVariantResult } from '../../src/evaluation/ablation/runner.js';
+import type {
+  AblationResults,
+  AblationVariantResult,
+} from '../../src/evaluation/ablation/runner.js';
 
 describe('ablation studies', () => {
   describe('ablation config', () => {
@@ -110,11 +113,11 @@ describe('ablation studies', () => {
               queryResults: [],
             },
             delta: {
-              precisionAtK: -0.10,
-              recallAtK: -0.10,
-              ndcgAtK: -0.10,
-              map: -0.10,
-              mrr: -0.10,
+              precisionAtK: -0.1,
+              recallAtK: -0.1,
+              ndcgAtK: -0.1,
+              map: -0.1,
+              mrr: -0.1,
             },
             executionTime: 1000,
           },
@@ -158,11 +161,11 @@ describe('ablation studies', () => {
               queryResults: [],
             },
             delta: {
-              precisionAtK: -0.10,
-              recallAtK: -0.10,
-              ndcgAtK: -0.10,
-              map: -0.10,
-              mrr: -0.10,
+              precisionAtK: -0.1,
+              recallAtK: -0.1,
+              ndcgAtK: -0.1,
+              map: -0.1,
+              mrr: -0.1,
             },
             executionTime: 1000,
           },
@@ -184,19 +187,40 @@ describe('ablation studies', () => {
       const variants: AblationVariantResult[] = [
         {
           variant: { name: 'low', changes: {} },
-          metrics: { precisionAtK: 0.5, recallAtK: 0.5, ndcgAtK: 0.5, map: 0.5, mrr: 0.5, queryResults: [] },
+          metrics: {
+            precisionAtK: 0.5,
+            recallAtK: 0.5,
+            ndcgAtK: 0.5,
+            map: 0.5,
+            mrr: 0.5,
+            queryResults: [],
+          },
           delta: { precisionAtK: 0, recallAtK: 0, ndcgAtK: 0, map: 0, mrr: 0 },
           executionTime: 100,
         },
         {
           variant: { name: 'high', changes: {} },
-          metrics: { precisionAtK: 0.8, recallAtK: 0.8, ndcgAtK: 0.8, map: 0.8, mrr: 0.8, queryResults: [] },
+          metrics: {
+            precisionAtK: 0.8,
+            recallAtK: 0.8,
+            ndcgAtK: 0.8,
+            map: 0.8,
+            mrr: 0.8,
+            queryResults: [],
+          },
           delta: { precisionAtK: 0, recallAtK: 0, ndcgAtK: 0, map: 0, mrr: 0 },
           executionTime: 100,
         },
         {
           variant: { name: 'medium', changes: {} },
-          metrics: { precisionAtK: 0.6, recallAtK: 0.6, ndcgAtK: 0.6, map: 0.6, mrr: 0.6, queryResults: [] },
+          metrics: {
+            precisionAtK: 0.6,
+            recallAtK: 0.6,
+            ndcgAtK: 0.6,
+            map: 0.6,
+            mrr: 0.6,
+            queryResults: [],
+          },
           delta: { precisionAtK: 0, recallAtK: 0, ndcgAtK: 0, map: 0, mrr: 0 },
           executionTime: 100,
         },
@@ -213,13 +237,27 @@ describe('ablation studies', () => {
       const variants: AblationVariantResult[] = [
         {
           variant: { name: 'negative', changes: {} },
-          metrics: { precisionAtK: 0.5, recallAtK: 0.5, ndcgAtK: 0.5, map: 0.5, mrr: 0.5, queryResults: [] },
+          metrics: {
+            precisionAtK: 0.5,
+            recallAtK: 0.5,
+            ndcgAtK: 0.5,
+            map: 0.5,
+            mrr: 0.5,
+            queryResults: [],
+          },
           delta: { precisionAtK: -0.1, recallAtK: -0.1, ndcgAtK: -0.2, map: -0.1, mrr: -0.1 },
           executionTime: 100,
         },
         {
           variant: { name: 'positive', changes: {} },
-          metrics: { precisionAtK: 0.8, recallAtK: 0.8, ndcgAtK: 0.8, map: 0.8, mrr: 0.8, queryResults: [] },
+          metrics: {
+            precisionAtK: 0.8,
+            recallAtK: 0.8,
+            ndcgAtK: 0.8,
+            map: 0.8,
+            mrr: 0.8,
+            queryResults: [],
+          },
           delta: { precisionAtK: 0.1, recallAtK: 0.1, ndcgAtK: 0.1, map: 0.1, mrr: 0.1 },
           executionTime: 100,
         },

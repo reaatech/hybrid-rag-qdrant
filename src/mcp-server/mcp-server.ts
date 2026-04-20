@@ -98,7 +98,7 @@ export class MCPServer {
       ...observabilityTools,
     ];
 
-    const toolMap = new Map(allTools.map(t => [t.name, t]));
+    const toolMap = new Map(allTools.map((t) => [t.name, t]));
 
     // Handle tool calls
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -106,10 +106,7 @@ export class MCPServer {
 
       const tool = toolMap.get(name);
       if (!tool) {
-        throw new McpError(
-          ErrorCode.MethodNotFound,
-          `Unknown tool: ${name}`,
-        );
+        throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
       }
 
       try {

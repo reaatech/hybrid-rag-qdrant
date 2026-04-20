@@ -46,8 +46,14 @@ export function calculateLatencyStats(latencies: number[]): LatencyResult {
   if (latencies.length === 0) {
     return {
       latencies: [],
-      p50: 0, p90: 0, p95: 0, p99: 0,
-      mean: 0, stdDev: 0, min: 0, max: 0,
+      p50: 0,
+      p90: 0,
+      p95: 0,
+      p99: 0,
+      mean: 0,
+      stdDev: 0,
+      min: 0,
+      max: 0,
     };
   }
 

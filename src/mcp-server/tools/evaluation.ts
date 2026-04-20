@@ -37,12 +37,16 @@ export const ragEvaluate: RAGTool = {
       content: [
         {
           type: 'text',
-          text: JSON.stringify({
-            message: 'Evaluation tool - implementation requires dataset loading',
-            datasetPath: args.datasetPath,
-            metrics: args.metrics,
-            topK: args.topK,
-          }, null, 2),
+          text: JSON.stringify(
+            {
+              message: 'Evaluation tool - implementation requires dataset loading',
+              datasetPath: args.datasetPath,
+              metrics: args.metrics,
+              topK: args.topK,
+            },
+            null,
+            2,
+          ),
         },
       ],
     };
@@ -74,11 +78,15 @@ export const ragAblation: RAGTool = {
       content: [
         {
           type: 'text',
-          text: JSON.stringify({
-            message: 'Ablation study tool - implementation requires config loading',
-            configPath: args.configPath,
-            datasetPath: args.datasetPath,
-          }, null, 2),
+          text: JSON.stringify(
+            {
+              message: 'Ablation study tool - implementation requires config loading',
+              configPath: args.configPath,
+              datasetPath: args.datasetPath,
+            },
+            null,
+            2,
+          ),
         },
       ],
     };
@@ -122,21 +130,21 @@ export const ragBenchmark: RAGTool = {
       content: [
         {
           type: 'text',
-          text: JSON.stringify({
-            message: 'Benchmark tool - implementation requires query loading',
-            queriesPath: args.queriesPath,
-            warmupQueries: args.warmupQueries,
-            testQueries: args.testQueries,
-            concurrency: args.concurrency,
-          }, null, 2),
+          text: JSON.stringify(
+            {
+              message: 'Benchmark tool - implementation requires query loading',
+              queriesPath: args.queriesPath,
+              warmupQueries: args.warmupQueries,
+              testQueries: args.testQueries,
+              concurrency: args.concurrency,
+            },
+            null,
+            2,
+          ),
         },
       ],
     };
   },
 };
 
-export const evaluationTools: RAGTool[] = [
-  ragEvaluate,
-  ragAblation,
-  ragBenchmark,
-];
+export const evaluationTools: RAGTool[] = [ragEvaluate, ragAblation, ragBenchmark];

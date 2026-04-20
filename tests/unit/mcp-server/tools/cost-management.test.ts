@@ -48,10 +48,7 @@ describe('Cost Management Tools', () => {
     });
 
     it('should use default config values', async () => {
-      const result = await ragGetCostEstimate.handler(
-        { query: 'Test query' },
-        mockPipeline,
-      );
+      const result = await ragGetCostEstimate.handler({ query: 'Test query' }, mockPipeline);
 
       const response = JSON.parse((result.content[0] as { text: string }).text);
       expect(response.config.embedding_model).toBe('text-embedding-3-small');
@@ -200,10 +197,7 @@ describe('Cost Management Tools', () => {
   describe('ragGetBudgetStatus', () => {
     it('should return budget status when set', async () => {
       // Set budget first
-      await ragSetBudget.handler(
-        { budget_type: 'daily', limit: 100 },
-        mockPipeline,
-      );
+      await ragSetBudget.handler({ budget_type: 'daily', limit: 100 }, mockPipeline);
 
       // Then get status
       const result = await ragGetBudgetStatus.handler({}, mockPipeline);
@@ -384,10 +378,7 @@ describe('Cost Management Tools', () => {
 
   describe('ragSetCostControls', () => {
     it('should set max cost per query', async () => {
-      const result = await ragSetCostControls.handler(
-        { max_cost_per_query: 0.1 },
-        mockPipeline,
-      );
+      const result = await ragSetCostControls.handler({ max_cost_per_query: 0.1 }, mockPipeline);
 
       expect(result.isError).toBeFalsy();
       const response = JSON.parse((result.content[0] as { text: string }).text);
@@ -396,10 +387,7 @@ describe('Cost Management Tools', () => {
     });
 
     it('should set max cost per day', async () => {
-      const result = await ragSetCostControls.handler(
-        { max_cost_per_day: 50 },
-        mockPipeline,
-      );
+      const result = await ragSetCostControls.handler({ max_cost_per_day: 50 }, mockPipeline);
 
       expect(result.isError).toBeFalsy();
       const response = JSON.parse((result.content[0] as { text: string }).text);
@@ -417,10 +405,7 @@ describe('Cost Management Tools', () => {
     });
 
     it('should set hard limit', async () => {
-      const result = await ragSetCostControls.handler(
-        { hard_limit: true },
-        mockPipeline,
-      );
+      const result = await ragSetCostControls.handler({ hard_limit: true }, mockPipeline);
 
       const response = JSON.parse((result.content[0] as { text: string }).text);
       expect(response.configuration.hard_limit).toBe(true);

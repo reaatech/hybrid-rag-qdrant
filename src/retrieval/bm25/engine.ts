@@ -103,7 +103,9 @@ export class BM25Engine {
   /**
    * Add multiple documents to the index
    */
-  addDocuments(documents: { id: string; content: string; metadata?: Record<string, unknown> }[]): void {
+  addDocuments(
+    documents: { id: string; content: string; metadata?: Record<string, unknown> }[],
+  ): void {
     for (const doc of documents) {
       this.addDocument(doc.id, doc.content, doc.metadata ?? {});
     }
@@ -114,7 +116,9 @@ export class BM25Engine {
    */
   removeDocument(id: string): void {
     const entry = this.documents.get(id);
-    if (!entry) {return;}
+    if (!entry) {
+      return;
+    }
 
     // Remove from inverted index
     for (const [term, docIds] of this.invertedIndex) {
@@ -140,20 +144,26 @@ export class BM25Engine {
   search(query: string, topK: number = 10): BM25SearchResult[] {
     const queryTerms = this.tokenizer.tokenize(query);
 
-    if (this.totalDocs === 0 || this.avgDocLength === 0) {return [];}
+    if (this.totalDocs === 0 || this.avgDocLength === 0) {
+      return [];
+    }
 
     const scores: Map<string, number> = new Map();
 
     for (const term of queryTerms) {
       const docIds = this.invertedIndex.get(term);
-      if (!docIds || docIds.size === 0) {continue;}
+      if (!docIds || docIds.size === 0) {
+        continue;
+      }
 
       const df = this.documentFrequencies.get(term) ?? 0;
       const idf = this.calculateIDF(df);
 
       for (const docId of docIds) {
         const entry = this.documents.get(docId);
-        if (!entry) {continue;}
+        if (!entry) {
+          continue;
+        }
 
         const tf = entry.termFrequencies.get(term) ?? 0;
         const score = this.calculateBM25Score(tf, idf, entry.length);
@@ -171,7 +181,7 @@ export class BM25Engine {
         const entry = this.documents.get(docId);
         return {
           chunkId: docId,
-          documentId: entry?.metadata?.documentId as string ?? '',
+          documentId: (entry?.metadata?.documentId as string) ?? '',
           content: entry?.content ?? '',
           score,
           source: 'bm25' as const,
@@ -187,7 +197,7 @@ export class BM25Engine {
    */
   private calculateBM25Score(tf: number, idf: number, docLength: number): number {
     const numerator = idf * (this.k1 + 1) * tf;
-    const denominator = this.k1 * ((1 - this.b) + this.b * (docLength / this.avgDocLength)) + tf;
+    const denominator = this.k1 * (1 - this.b + this.b * (docLength / this.avgDocLength)) + tf;
     return numerator / denominator;
   }
 
@@ -202,7 +212,9 @@ export class BM25Engine {
    * Calculate average document length
    */
   private calculateAvgDocLength(): number {
-    if (this.totalDocs === 0) {return 0;}
+    if (this.totalDocs === 0) {
+      return 0;
+    }
 
     let totalLength = 0;
     for (const entry of this.documents.values()) {

@@ -3,7 +3,11 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { QdrantClientWrapper, VectorSearchEngine, EmbeddingService } from '../../src/retrieval/vector/index.js';
+import {
+  QdrantClientWrapper,
+  VectorSearchEngine,
+  EmbeddingService,
+} from '../../src/retrieval/vector/index.js';
 
 describe('vector retrieval', () => {
   describe('QdrantClientWrapper', () => {
