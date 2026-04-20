@@ -29,7 +29,6 @@ docs
 .prettierrc
 eslint.config.mjs
 vitest.config.ts
-tsconfig.json
 
 # IDE
 .vscode
