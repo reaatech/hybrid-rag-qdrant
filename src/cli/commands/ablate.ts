@@ -4,7 +4,7 @@
 
 import { readFile } from 'fs/promises';
 import { writeFile } from 'fs/promises';
-import { load } from 'js-yaml';
+import { parse as load } from 'yaml';
 import type { RAGPipeline } from '../../pipeline.js';
 import { AblationRunner, type AblationConfig } from '../../evaluation/ablation/index.js';
 import { loadEvaluationDataset, type EvaluationDataset } from '../../evaluation/dataset/loader.js';

@@ -6,7 +6,7 @@
 
 import { Command } from 'commander';
 import { readFile } from 'fs/promises';
-import { load } from 'js-yaml';
+import { parse as load } from 'yaml';
 import { RAGPipeline, type RAGPipelineConfig } from '../pipeline.js';
 import { createMCPServer } from '../mcp-server/index.js';
 import { ingestCommand, type IngestOptions } from './commands/ingest.js';
