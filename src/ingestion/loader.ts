@@ -5,7 +5,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { createHash } from 'node:crypto';
-import pdfParse from 'pdf-parse';
+import { PDFParse } from 'pdf-parse';
 import { marked } from 'marked';
 import * as cheerio from 'cheerio';
 import type { Document } from '../types/domain.js';
@@ -175,8 +175,9 @@ export class DocumentLoader {
    */
   private async parsePdf(buffer: Buffer): Promise<string> {
     try {
-      const data = await pdfParse(buffer);
-      return data.text;
+      const pdf = new PDFParse({ data: buffer });
+      const result = await pdf.getText();
+      return result.text;
     } catch (error) {
       throw new DocumentParseError(`Failed to parse PDF: ${(error as Error).message}`);
     }
