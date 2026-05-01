@@ -1,43 +1,29 @@
-# Build stage
 FROM node:22-alpine AS builder
+
+RUN corepack enable && corepack prepare pnpm@10.22.0 --activate
 
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json ./
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json .npmrc ./
+COPY packages ./packages
 
-# Install dependencies (including dev dependencies for build)
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
-# Copy source files
-COPY . .
+RUN pnpm run build
 
-# Build the project
-RUN npm run build
+RUN pnpm deploy --prod /app/prod
 
-# Remove dev dependencies
-RUN npm prune --production
-
-# Production stage
 FROM node:22-alpine AS production
 
 WORKDIR /app
 
-# Install dumb-init for proper signal handling
 RUN apk add --no-cache dumb-init
-
-# Create non-root user
 RUN addgroup -g 1001 -S appgroup && \
     adduser -u 1001 -S appuser -G appgroup
 
-# Copy built files and production dependencies from builder
-COPY --from=builder --chown=appuser:appgroup /app/dist ./dist
-COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
-COPY --from=builder --chown=appuser:appgroup /app/package.json ./
+COPY --from=builder --chown=appuser:appgroup /app/prod ./
 
-# Switch to non-root user
 USER appuser
 
-# Start the MCP server over stdio
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "dist/src/cli/index.js", "server"]
+CMD ["node", "node_modules/@reaatech/hybrid-rag-cli/dist/index.js", "server"]

@@ -4,8 +4,15 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'src/**'
+      - 'packages/**'
       - 'datasets/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 22
 
 jobs:
   evaluate:
@@ -29,38 +36,41 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           path: pr
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
 
       - name: Install dependencies (base)
         working-directory: base
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build (base)
         working-directory: base
-        run: npm run build
+        run: pnpm build
 
       - name: Run evaluation (base)
         working-directory: base
-        run: npm run evaluate -- --dataset datasets/examples/sample.jsonl --output base-eval.json
+        run: node packages/hybrid-rag-cli/dist/index.js evaluate --dataset datasets/examples/sample.jsonl --output base-eval.json
         env:
           QDRANT_URL: http://localhost:6333
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
       - name: Install dependencies (PR)
         working-directory: pr
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build (PR)
         working-directory: pr
-        run: npm run build
+        run: pnpm build
 
       - name: Run evaluation (PR)
         working-directory: pr
-        run: npm run evaluate -- --dataset datasets/examples/sample.jsonl --output pr-eval.json
+        run: node packages/hybrid-rag-cli/dist/index.js evaluate --dataset datasets/examples/sample.jsonl --output pr-eval.json
         env:
           QDRANT_URL: http://localhost:6333
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

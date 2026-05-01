@@ -1,0 +1,81 @@
+# Evaluation Configuration Example
+# This file defines the evaluation settings for hybrid-rag-qdrant
+
+# Baseline configuration
+baseline:
+  chunking:
+    strategy: fixed-size
+    chunk_size: 512
+    overlap: 50
+
+  retrieval:
+    mode: hybrid
+    vector_weight: 0.7
+    bm25_weight: 0.3
+    top_k: 10
+
+  reranker:
+    provider: cohere
+    model: rerank-english-v3.0
+    rerank_top_k: 10
+    rerank_final_k: 5
+
+# Evaluation metrics to compute
+metrics:
+  - precision@10
+  - recall@10
+  - ndcg@10
+  - map
+  - mrr
+
+# Dataset configuration
+dataset:
+  path: datasets/examples/sample.jsonl
+  format: jsonl
+  test_split: 1.0  # Use all data for testing
+
+# Ablation study variants
+ablation:
+  variants:
+    - name: no-reranker
+      description: "Remove reranking step"
+      changes:
+        reranker: null
+
+    - name: vector-only
+      description: "Vector retrieval only"
+      changes:
+        retrieval:
+          mode: vector
+          bm25_weight: 0
+
+    - name: bm25-only
+      description: "BM25 retrieval only"
+      changes:
+        retrieval:
+          mode: bm25
+          vector_weight: 0
+
+    - name: semantic-chunking
+      description: "Use semantic chunking"
+      changes:
+        chunking:
+          strategy: semantic
+
+    - name: large-chunks
+      description: "Larger chunk size (1024)"
+      changes:
+        chunking:
+          chunk_size: 1024
+
+    - name: small-chunks
+      description: "Smaller chunk size (256)"
+      changes:
+        chunking:
+          chunk_size: 256
+
+# Output configuration
+output:
+  format: json
+  include_per_query: true
+  include_confidence_intervals: true
