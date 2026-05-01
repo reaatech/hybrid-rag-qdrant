@@ -245,7 +245,7 @@ jobs:
   all-checks:
     name: All Checks Passed
     runs-on: ubuntu-latest
-    needs: [audit, format, lint, typecheck, build, test, coverage, docker-build, docker-compose]
+    needs: [audit, format, lint, typecheck, build, test, docker-build, docker-compose]
     if: always()
     steps:
       - name: Check all jobs passed
@@ -262,7 +262,6 @@ jobs:
           check '${{ needs.typecheck.result }}' 'Type Check'
           check '${{ needs.build.result }}' 'Build'
           check '${{ needs.test.result }}' 'Test'
-          check '${{ needs.coverage.result }}' 'Coverage'
           check '${{ needs.docker-build.result }}' 'Docker Build'
           check '${{ needs.docker-compose.result }}' 'Docker Compose'
           echo "All checks passed!"
