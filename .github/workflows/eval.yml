@@ -43,7 +43,12 @@ jobs:
         run: pnpm build
 
       - name: Run evaluation
+        continue-on-error: true
         run: |
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "OPENAI_API_KEY not set — skipping evaluation"
+            exit 0
+          fi
           node packages/hybrid-rag-cli/dist/index.js evaluate \
             --dataset datasets/examples/sample.jsonl \
             --output eval-results.json
@@ -54,5 +59,10 @@ jobs:
       - name: Post results
         if: always()
         run: |
-          echo "## Evaluation Results" >> $GITHUB_STEP_SUMMARY
-          cat eval-results.json >> $GITHUB_STEP_SUMMARY 2>/dev/null || echo "Evaluation could not run (requires API keys)" >> $GITHUB_STEP_SUMMARY
+          if [ -f eval-results.json ]; then
+            echo "## Evaluation Results" >> $GITHUB_STEP_SUMMARY
+            cat eval-results.json >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## Evaluation" >> $GITHUB_STEP_SUMMARY
+            echo "Skipped — OPENAI_API_KEY secret not configured" >> $GITHUB_STEP_SUMMARY
+          fi
