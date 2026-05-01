@@ -40,7 +40,7 @@
     "@reaatech/hybrid-rag-embedding": "workspace:*",
     "@reaatech/hybrid-rag-ingestion": "workspace:*",
     "@reaatech/hybrid-rag-observability": "workspace:*",
-    "openai": "^4.83.0"
+    "openai": "^6.35.0"
   },
   "devDependencies": {
     "tsup": "^8.4.0",
