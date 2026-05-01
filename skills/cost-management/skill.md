@@ -23,7 +23,7 @@ Track costs across all RAG components in real-time:
 Configure and enforce budget limits at multiple levels:
 
 ```typescript
-import { BudgetManager } from 'hybrid-rag-qdrant';
+import { BudgetManager } from '@reaatech/hybrid-rag-mcp-server';
 
 const budgetManager = new BudgetManager({
   budgets: {

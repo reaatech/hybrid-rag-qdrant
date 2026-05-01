@@ -24,7 +24,7 @@ Classify queries into intent categories to optimize retrieval strategy:
 Break complex queries into sub-queries for multi-step retrieval:
 
 ```typescript
-import { QueryDecomposer } from 'hybrid-rag-qdrant';
+import { QueryDecomposer } from '@reaatech/hybrid-rag-mcp-server';
 
 const decomposer = new QueryDecomposer({
   maxDepth: 3,

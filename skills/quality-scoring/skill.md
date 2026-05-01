@@ -11,7 +11,7 @@ Quality scoring provides LLM-as-judge capabilities for assessing and validating 
 Use LLMs to evaluate retrieval result quality across multiple criteria:
 
 ```typescript
-import { QualityJudge } from 'hybrid-rag-qdrant';
+import { QualityJudge } from '@reaatech/hybrid-rag-mcp-server';
 
 const judge = new QualityJudge({
   model: 'claude-opus',
@@ -44,7 +44,7 @@ const evaluation = await judge.evaluate({
 Detect when generated answers are not supported by retrieved context:
 
 ```typescript
-import { HallucinationDetector } from 'hybrid-rag-qdrant';
+import { HallucinationDetector } from '@reaatech/hybrid-rag-mcp-server';
 
 const detector = new HallucinationDetector({
   model: 'claude-opus',

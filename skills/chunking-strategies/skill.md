@@ -15,7 +15,7 @@ Split documents into retrievable chunks with configurable strategies.
 ## Usage
 
 ```typescript
-import { ChunkingEngine, ChunkingStrategy } from 'hybrid-rag-qdrant';
+import { ChunkingEngine, ChunkingStrategy } from '@reaatech/hybrid-rag-ingestion';
 
 const engine = new ChunkingEngine();
 
@@ -43,7 +43,7 @@ Deterministic IDs enable reproducible experiments and cache-friendly operations.
 Use the benchmarking framework to compare strategies on your data:
 
 ```bash
-npx hybrid-rag-qdrant benchmark chunking \
+from '@reaatech/hybrid-rag-ingestion' benchmark chunking \
   --documents docs/ \
   --dataset eval-queries.jsonl \
   --strategies fixed-size,semantic,recursive,sliding-window
