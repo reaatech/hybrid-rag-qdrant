@@ -190,7 +190,7 @@ export class DocumentValidator {
       return 'utf-8';
     }
     if (buffer.length >= 2 && buffer[0] === 0xff && buffer[1] === 0xfe) {
-      return 'utf-16le';
+      return 'utf16le' as BufferEncoding;
     }
     if (buffer.length >= 2 && buffer[0] === 0xfe && buffer[1] === 0xff) {
       return 'utf-16be' as BufferEncoding;
