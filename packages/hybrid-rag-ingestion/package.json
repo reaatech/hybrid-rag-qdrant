@@ -39,7 +39,7 @@
     "@reaatech/hybrid-rag-observability": "workspace:*",
     "pdf-parse": "^2.4.5",
     "cheerio": "^1.0.0",
-    "marked": "^15.0.6",
+    "marked": "^18.0.2",
     "compromise": "^14.15.0",
     "tiktoken": "^1.0.19"
   },
