@@ -40,7 +40,7 @@
     "@reaatech/hybrid-rag-evaluation": "workspace:*",
     "@reaatech/hybrid-rag-observability": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.6.1",
-    "zod": "^3.24.2"
+    "zod": "^4.4.1"
   },
   "devDependencies": {
     "tsup": "^8.4.0",
