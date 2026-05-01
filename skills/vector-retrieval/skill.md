@@ -15,7 +15,8 @@ Semantic search using Qdrant vector database with provider-agnostic embeddings.
 ## Usage
 
 ```typescript
-import { VectorRetriever, EmbeddingProvider } from 'hybrid-rdrant';
+import { VectorSearchEngine } from '@reaatech/hybrid-rag-retrieval';
+import { EmbeddingService } from '@reaatech/hybrid-rag-embedding';
 
 const retriever = new VectorRetriever({
   qdrantUrl: process.env.QDRANT_URL,

@@ -15,7 +15,7 @@ Cross-encoder reranking to improve retrieval quality.
 ## Usage
 
 ```typescript
-import { Reranker, RerankerProvider } from 'hybrid-rag-qdrant';
+import { Reranker, RerankerProvider } from '@reaatech/hybrid-rag-retrieval';
 
 const reranker = new Reranker({
   provider: RerankerProvider.COHERE,

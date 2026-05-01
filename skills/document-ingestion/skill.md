@@ -15,7 +15,7 @@ Multi-format document loading and preprocessing for RAG pipelines.
 ## Usage
 
 ```typescript
-import { DocumentLoader } from 'hybrid-rag-qdrant';
+import { DocumentLoader } from '@reaatech/hybrid-rag-ingestion';
 
 const loader = new DocumentLoader({
   maxFileSize: 10 * 1024 * 1024, // 10MB

@@ -1,0 +1,48 @@
+{
+  "name": "@reaatech/hybrid-rag-evaluation",
+  "version": "0.1.0",
+  "description": "Evaluation runner, ablation studies, and benchmarking for hybrid RAG systems",
+  "license": "MIT",
+  "author": "Rick Somers <rick@reaatech.com> (https://reaatech.com)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/reaatech/hybrid-rag-qdrant.git",
+    "directory": "packages/hybrid-rag-evaluation"
+  },
+  "homepage": "https://github.com/reaatech/hybrid-rag-qdrant/tree/main/packages/hybrid-rag-evaluation#readme",
+  "bugs": {
+    "url": "https://github.com/reaatech/hybrid-rag-qdrant/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist"],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "test": "vitest run --passWithNoTests",
+    "test:coverage": "vitest run --coverage --passWithNoTests",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@reaatech/hybrid-rag": "workspace:*",
+    "@reaatech/hybrid-rag-pipeline": "workspace:*",
+    "@reaatech/hybrid-rag-observability": "workspace:*",
+    "yaml": "^2.7.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.1"
+  }
+}

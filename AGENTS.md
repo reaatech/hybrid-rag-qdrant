@@ -11,9 +11,42 @@ confidence_threshold: 0.9
 
 ## What this is
 
-This document defines how to use `hybrid-rag-qdrant` to build production-grade RAG (Retrieval-Augmented Generation) systems with comprehensive MCP tool integration. It covers the complete pipeline: document ingestion, chunking strategies, hybrid retrieval (vector + BM25), reranking, evaluation frameworks, ablation studies, cost management, quality assurance, and multi-agent orchestration.
+This monorepo provides a complete hybrid RAG stack across 10 packages: core types, document ingestion with four chunking strategies, hybrid retrieval (vector + BM25 + cross-encoder reranker), evaluation with standard IR metrics, ablation studies, performance benchmarking, an MCP server with 41+ tools, and a CLI.
 
 **Target audience:** Engineers building enterprise RAG systems and AI agents who need reproducible results, benchmarked performance, cost-aware deployment, and seamless integration with multi-agent systems like agent-mesh.
+
+---
+
+## Monorepo Structure
+
+```
+packages/
+├── hybrid-rag/              @reaatech/hybrid-rag (core types, zod schemas)
+├── hybrid-rag-observability/ @reaatech/hybrid-rag-observability (pino, OTel)
+├── hybrid-rag-qdrant/       @reaatech/hybrid-rag-qdrant (Qdrant adapter)
+├── hybrid-rag-embedding/    @reaatech/hybrid-rag-embedding (OpenAI, Vertex, local)
+├── hybrid-rag-ingestion/    @reaatech/hybrid-rag-ingestion (loading + 4 chunking strategies)
+├── hybrid-rag-retrieval/    @reaatech/hybrid-rag-retrieval (BM25, reranker, fusion, hybrid retriever)
+├── hybrid-rag-pipeline/     @reaatech/hybrid-rag-pipeline (RAGPipeline orchestrator)
+├── hybrid-rag-evaluation/   @reaatech/hybrid-rag-evaluation (eval, ablation, benchmarking)
+├── hybrid-rag-mcp-server/   @reaatech/hybrid-rag-mcp-server (41 MCP tools)
+└── hybrid-rag-cli/          @reaatech/hybrid-rag-cli (commander CLI + healthcheck)
+```
+
+### Dependency Graph
+
+```
+hybrid-rag                         (core types, schemas — zod only)
+hybrid-rag-observability           (pino, OTel — standalone)
+  ├── hybrid-rag-qdrant            (Qdrant adapter → hybrid-rag)
+  ├── hybrid-rag-embedding         (embeddings → hybrid-rag)
+  │     └── hybrid-rag-ingestion   (loading + chunking → hybrid-rag, observability)
+  │           └── hybrid-rag-retrieval (BM25, reranker, fusion → hybrid-rag, qdrant, embedding, ingestion, observability)
+  │                 └── hybrid-rag-pipeline    (orchestrator → all above)
+  │                       ├── hybrid-rag-evaluation (eval + ablation + benchmarking → hybrid-rag, pipeline, observability)
+  │                       ├── hybrid-rag-mcp-server (MCP tools → hybrid-rag, pipeline, evaluation, observability)
+  │                       └── hybrid-rag-cli        (CLI → pipeline, mcp-server, evaluation, ingestion)
+```
 
 ---
 
@@ -28,7 +61,7 @@ This document defines how to use `hybrid-rag-qdrant` to build production-grade R
                                                           ▼
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
 │   AI Agents     │◀───▶│  MCP Server      │────▶│   Hybrid       │
-│  (agent-mesh)   │     │  (55 Tools)      │     │   Retrieval    │
+│  (agent-mesh)   │     │  (41 Tools)      │     │   Retrieval    │
 └─────────────────┘     └──────────────────┘     └─────────────────┘
                                  │
                                  ▼
@@ -40,17 +73,18 @@ This document defines how to use `hybrid-rag-qdrant` to build production-grade R
 
 ### Key Components
 
-| Component | Location | Purpose |
-|-----------|----------|---------|
-| **Document Ingestion** | `src/ingestion/` | Multi-format loading and preprocessing |
-| **Chunking Strategies** | `src/chunking/` | Fixed, semantic, recursive, sliding-window |
-| **Vector Retrieval** | `src/retrieval/vector/` | Qdrant + provider-agnostic embeddings |
-| **BM25 Retrieval** | `src/retrieval/bm25/` | Keyword-based sparse retrieval |
-| **Reranker** | `src/retrieval/reranker/` | Cross-encoder scoring (Cohere, Jina, local) |
-| **Hybrid Fusion** | `src/retrieval/fusion/` | RRF, weighted sum, normalized fusion |
-| **Evaluation** | `src/evaluation/` | Retrieval metrics, ablation studies |
-| **Benchmarking** | `src/benchmarking/` | Latency, throughput, cost measurement |
-| **MCP Server** | `src/mcp-server/` | 41 tools across 10 modules |
+| Component | Package | Purpose |
+|-----------|---------|---------|
+| **Core Types** | `@reaatech/hybrid-rag` | Domain types, Zod schemas, shared utilities |
+| **Observability** | `@reaatech/hybrid-rag-observability` | Pino logger, OTel tracing, metrics, dashboard |
+| **Qdrant Adapter** | `@reaatech/hybrid-rag-qdrant` | Qdrant client wrapper, collection management, vector search |
+| **Embedding** | `@reaatech/hybrid-rag-embedding` | Provider-agnostic embeddings (OpenAI, Vertex, local) |
+| **Document Ingestion** | `@reaatech/hybrid-rag-ingestion` | Multi-format loading, preprocessing, 4 chunking strategies |
+| **Retrieval** | `@reaatech/hybrid-rag-retrieval` | BM25, reranker, fusion strategies, hybrid retriever |
+| **Pipeline** | `@reaatech/hybrid-rag-pipeline` | Main RAGPipeline orchestrator |
+| **Evaluation** | `@reaatech/hybrid-rag-evaluation` | IR metrics, ablation studies, benchmarking |
+| **MCP Server** | `@reaatech/hybrid-rag-mcp-server` | 41 tools across 10 categories |
+| **CLI** | `@reaatech/hybrid-rag-cli` | Commander CLI with 7 commands |
 
 ---
 
@@ -143,39 +177,51 @@ The MCP server exposes **41 tools** across 10 categories:
 
 ## Skill System
 
-Skills represent the atomic capabilities of the RAG system. Each skill corresponds to a component of the pipeline.
+Skills represent the atomic capabilities of the RAG system. Each skill corresponds to a component of the pipeline or a cross-cutting concern.
 
 ### Core RAG Skills
 
-| Skill ID | File | Description |
-|----------|------|-------------|
-| `document-ingestion` | `skills/document-ingestion/skill.md` | Multi-format document loading |
-| `chunking-strategies` | `skills/chunking-strategies/skill.md` | Configurable chunking with benchmarks |
-| `vector-retrieval` | `skills/vector-retrieval/skill.md` | Qdrant vector search |
-| `bm25-retrieval` | `skills/bm25-retrieval/skill.md` | BM25 keyword search |
-| `reranker` | `skills/reranker/skill.md` | Cross-encoder reranking |
-| `hybrid-fusion` | `skills/hybrid-fusion/skill.md` | Score fusion strategies |
-| `rag-evaluation` | `skills/rag-evaluation/skill.md` | Retrieval quality metrics |
-| `ablation-studies` | `skills/ablation-studies/skill.md` | Component contribution analysis |
-| `benchmarking` | `skills/benchmarking/skill.md` | Performance measurement |
+| Skill ID | Package | File | Description |
+|----------|---------|------|-------------|
+| `document-ingestion` | `@reaatech/hybrid-rag-ingestion` | `skills/document-ingestion/skill.md` | Multi-format document loading |
+| `chunking-strategies` | `@reaatech/hybrid-rag-ingestion` | `skills/chunking-strategies/skill.md` | Configurable chunking with benchmarks |
+| `vector-retrieval` | `@reaatech/hybrid-rag-retrieval` | `skills/vector-retrieval/skill.md` | Vector search via Qdrant |
+| `bm25-retrieval` | `@reaatech/hybrid-rag-retrieval` | `skills/bm25-retrieval/skill.md` | BM25 keyword search |
+| `reranker` | `@reaatech/hybrid-rag-retrieval` | `skills/reranker/skill.md` | Cross-encoder reranking |
+| `hybrid-fusion` | `@reaatech/hybrid-rag-retrieval` | `skills/hybrid-fusion/skill.md` | Score fusion strategies |
+| `rag-evaluation` | `@reaatech/hybrid-rag-evaluation` | `skills/rag-evaluation/skill.md` | Retrieval quality metrics |
+| `ablation-studies` | `@reaatech/hybrid-rag-evaluation` | `skills/ablation-studies/skill.md` | Component contribution analysis |
+| `benchmarking` | `@reaatech/hybrid-rag-evaluation` | `skills/benchmarking/skill.md` | Performance measurement |
+| `vector-db-adapters` | `@reaatech/hybrid-rag-qdrant` | `skills/vector-db-adapters/skill.md` | Creating new vector DB adapters |
 
 ### Agent & MCP Skills
 
-| Skill ID | File | Description |
-|----------|------|-------------|
-| `query-analysis` | `skills/query-analysis/skill.md` | Query intent analysis and decomposition |
-| `cost-management` | `skills/cost-management/skill.md` | Cost tracking, budgeting, and optimization |
-| `agent-integration` | `skills/agent-integration/skill.md` | Multi-agent orchestration and agent-mesh integration |
-| `quality-scoring` | `skills/quality-scoring/skill.md` | LLM-as-judge for RAG quality assurance |
-| `session-management` | `skills/session-management/skill.md` | Multi-turn conversation context management |
+| Skill ID | Package | File | Description |
+|----------|---------|------|-------------|
+| `query-analysis` | `@reaatech/hybrid-rag-mcp-server` | `skills/query-analysis/skill.md` | Query intent analysis and decomposition |
+| `cost-management` | `@reaatech/hybrid-rag-mcp-server` | `skills/cost-management/skill.md` | Cost tracking, budgeting, and optimization |
+| `agent-integration` | `@reaatech/hybrid-rag-mcp-server` | `skills/agent-integration/skill.md` | Multi-agent orchestration and agent-mesh integration |
+| `quality-scoring` | `@reaatech/hybrid-rag-mcp-server` | `skills/quality-scoring/skill.md` | LLM-as-judge for RAG quality assurance |
+| `session-management` | `@reaatech/hybrid-rag-mcp-server` | `skills/session-management/skill.md` | Multi-turn conversation context management |
+| `scheduling-integration` | `@reaatech/hybrid-rag-mcp-server` | `skills/scheduling-integration/skill.md` | Scheduled evaluation and quality jobs |
 
 ---
+
+## Getting Started (Development)
+
+```bash
+git clone https://github.com/reaatech/hybrid-rag-qdrant.git
+cd hybrid-rag-qdrant
+pnpm install
+pnpm build
+pnpm test
+pnpm lint
+pnpm typecheck
+```
 
 ## MCP Integration
 
 ### Basic Retrieval
-
-Execute hybrid retrieval with full configuration:
 
 ```json
 {
@@ -195,8 +241,6 @@ Execute hybrid retrieval with full configuration:
 
 ### Query Analysis & Intent Classification
 
-Analyze query intent before retrieval:
-
 ```json
 {
   "name": "rag.analyze_query",
@@ -210,15 +254,9 @@ Analyze query intent before retrieval:
 }
 ```
 
-Response includes:
-- Detected intent (e.g., "technical_documentation", "troubleshooting")
-- Recommended retrieval strategy
-- Suggested filters and weights
-- Confidence score
+Response includes: detected intent, recommended retrieval strategy, suggested filters and weights, confidence score.
 
 ### Multi-Turn Conversation Management
-
-Maintain context across multiple queries:
 
 ```json
 {
@@ -249,8 +287,6 @@ Subsequent queries with session context:
 
 ### Cost Management
 
-Set and monitor budgets:
-
 ```json
 {
   "name": "rag.set_budget",
@@ -267,22 +303,7 @@ Set and monitor budgets:
 }
 ```
 
-Check budget status:
-
-```json
-{
-  "name": "rag.get_budget_status",
-  "arguments": {
-    "scope": {
-      "user_id": "team-alpha"
-    }
-  }
-}
-```
-
 ### Quality Assurance with LLM-as-Judge
-
-Validate retrieval quality:
 
 ```json
 {
@@ -301,8 +322,6 @@ Validate retrieval quality:
 ```
 
 ### Hallucination Detection
-
-Detect potential hallucinations in results:
 
 ```json
 {
@@ -395,19 +414,6 @@ Example: RAG system delegating to a calculator agent:
 }
 ```
 
-### Discovering Available Agents
-
-```json
-{
-  "name": "rag.discover_agents",
-  "arguments": {
-    "filter": {
-      "capabilities": ["calculation", "data_analysis"]
-    }
-  }
-}
-```
-
 ---
 
 ## Agent Workflow Patterns
@@ -415,21 +421,18 @@ Example: RAG system delegating to a calculator agent:
 ### Pattern 1: Query Analysis → Retrieval → Quality Check
 
 ```typescript
-// Step 1: Analyze query intent
 const analysis = await agent.call('rag.analyze_query', {
   query: 'How do I integrate with Slack?',
 });
 
-// Step 2: Execute retrieval with optimized parameters
 const results = await agent.call('rag.retrieve', {
   query: 'How do I integrate with Slack?',
   ...analysis.recommended_config,
 });
 
-// Step 3: Validate quality
 const quality = await agent.call('rag.judge_quality', {
   query: 'How do I integrate with Slack?',
-  results: results,
+  results,
 });
 
 if (quality.score < 0.8) {
@@ -440,19 +443,16 @@ if (quality.score < 0.8) {
 ### Pattern 2: Multi-Turn Conversation with Context
 
 ```typescript
-// Create session
 const session = await agent.call('rag.session_manage', {
   action: 'create',
   user_id: 'user-456',
 });
 
-// First query
 const r1 = await agent.call('rag.retrieve', {
   query: 'What are the API rate limits?',
   session_id: session.id,
 });
 
-// Follow-up query (context-aware)
 const r2 = await agent.call('rag.retrieve', {
   query: 'What about enterprise plans?',
   session_id: session.id,
@@ -463,13 +463,11 @@ const r2 = await agent.call('rag.retrieve', {
 ### Pattern 3: Cost-Aware Retrieval
 
 ```typescript
-// Check budget before expensive operation
 const budget = await agent.call('rag.get_budget_status', {
   scope: { user_id: 'team-alpha' },
 });
 
 if (budget.remaining < 1.00) {
-  // Use cheaper retrieval strategy
   return await agent.call('rag.retrieve', {
     query: userQuery,
     useReranker: false,
@@ -477,7 +475,6 @@ if (budget.remaining < 1.00) {
   });
 }
 
-// Full-featured retrieval
 return await agent.call('rag.retrieve', {
   query: userQuery,
   useReranker: true,
@@ -489,7 +486,6 @@ return await agent.call('rag.retrieve', {
 ### Pattern 4: A/B Testing Configurations
 
 ```typescript
-// Compare two RAG configurations
 const configA = await agent.call('rag.retrieve', {
   query: testQuery,
   retrievalMode: 'hybrid',
@@ -536,8 +532,6 @@ budgets:
 
 ### Cost Estimation
 
-Before executing a query, estimate the cost:
-
 ```json
 {
   "name": "rag.get_cost_estimate",
@@ -549,23 +543,6 @@ Before executing a query, estimate the cost:
       "topK": 10,
       "embeddingModel": "text-embedding-3-small"
     }
-  }
-}
-```
-
-### Cost Optimization Recommendations
-
-```json
-{
-  "name": "rag.optimize_cost",
-  "arguments": {
-    "current_config": {
-      "useReranker": true,
-      "rerankerProvider": "cohere",
-      "topK": 20
-    },
-    "target_quality": 0.8,
-    "budget_constraint": 0.05
   }
 }
 ```
@@ -630,8 +607,10 @@ judge:
 ### Cost Controls
 
 ```typescript
+import { RAGPipeline } from '@reaatech/hybrid-rag-pipeline';
+
 const pipeline = new RAGPipeline({
-  // ... config
+  qdrantUrl: process.env.QDRANT_URL,
   costControls: {
     maxCostPerQuery: 0.05,
     maxCostPerDay: 100.00,
@@ -708,9 +687,9 @@ Before deploying a RAG system to production:
 ## References
 
 - **ARCHITECTURE.md** — System design deep dive
-- **DEV_PLAN.md** — Development checklist
 - **README.md** — Quick start and overview
 - **skills/** — Skill definitions for each capability
+- **packages/** — Source code organized by package
 - **MCP Specification** — https://modelcontextprotocol.io/
 - **Qdrant Documentation** — https://qdrant.tech/documentation/
 - **agent-mesh/AGENTS.md** — Multi-agent orchestration patterns

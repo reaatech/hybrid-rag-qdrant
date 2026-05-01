@@ -1,7 +1,5 @@
-version: '3.8'
 
 services:
-  # Main application
   hybrid-rag-qdrant:
     build:
       context: .
@@ -15,16 +13,12 @@ services:
       - COHERE_API_KEY=${COHERE_API_KEY:-}
       - JINA_API_KEY=${JINA_API_KEY:-}
       - LOG_LEVEL=debug
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
     depends_on:
       - qdrant
-      - otel-collector
     volumes:
       - ./datasets:/app/datasets:ro
-      - ./benchmarks/results:/app/benchmarks/results
-    command: ["node", "dist/cli.js", "serve"]
+    command: ["node", "node_modules/@reaatech/hybrid-rag-cli/dist/index.js", "serve"]
 
-  # Qdrant vector database
   qdrant:
     image: qdrant/qdrant:latest
     ports:
@@ -39,27 +33,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # OpenTelemetry Collector
-  otel-collector:
-    image: otel/opentelemetry-collector:latest
-    ports:
-      - "4317:4317"   # OTLP gRPC
-      - "4318:4318"   # OTLP HTTP
-    volumes:
-      - ./otel-collector-config.yaml:/etc/otel/config.yaml:ro
-    command: ["--config=/etc/otel/config.yaml"]
-    depends_on:
-      - jaeger
-
-  # Jaeger for tracing visualization
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    ports:
-      - "16686:16686"  # Jaeger UI
-      - "14268:14268"  # Jaeger collector
-    environment:
-      - COLLECTOR_OTLP_ENABLED=true
 
 volumes:
   qdrant_storage:

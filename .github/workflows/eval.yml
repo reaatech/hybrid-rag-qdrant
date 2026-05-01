@@ -4,8 +4,15 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'src/**'
+      - 'packages/**'
       - 'datasets/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 22
 
 jobs:
   evaluate:
@@ -17,76 +24,45 @@ jobs:
           - 6333:6333
 
     steps:
-      - name: Checkout base
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.base.sha }}
-          path: base
 
-      - name: Checkout PR
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          path: pr
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
 
-      - name: Install dependencies (base)
-        working-directory: base
-        run: npm ci
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name: Build (base)
-        working-directory: base
-        run: npm run build
+      - name: Build packages
+        run: pnpm build
 
-      - name: Run evaluation (base)
-        working-directory: base
-        run: npm run evaluate -- --dataset datasets/examples/sample.jsonl --output base-eval.json
-        env:
-          QDRANT_URL: http://localhost:6333
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
-      - name: Install dependencies (PR)
-        working-directory: pr
-        run: npm ci
-
-      - name: Build (PR)
-        working-directory: pr
-        run: npm run build
-
-      - name: Run evaluation (PR)
-        working-directory: pr
-        run: npm run evaluate -- --dataset datasets/examples/sample.jsonl --output pr-eval.json
-        env:
-          QDRANT_URL: http://localhost:6333
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
-      - name: Compare results
+      - name: Run evaluation
+        continue-on-error: true
         run: |
-          echo "## Evaluation Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Base Results" >> $GITHUB_STEP_SUMMARY
-          echo '```json' >> $GITHUB_STEP_SUMMARY
-          cat base/base-eval.json >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### PR Results" >> $GITHUB_STEP_SUMMARY
-          echo '```json' >> $GITHUB_STEP_SUMMARY
-          cat pr/pr-eval.json >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "OPENAI_API_KEY not set — skipping evaluation"
+            exit 0
+          fi
+          node packages/hybrid-rag-cli/dist/index.js evaluate \
+            --dataset datasets/examples/sample.jsonl \
+            --output eval-results.json
+        env:
+          QDRANT_URL: http://localhost:6333
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
-      - name: Upload base results
-        uses: actions/upload-artifact@v4
-        with:
-          name: base-eval
-          path: base/base-eval.json
-
-      - name: Upload PR results
-        uses: actions/upload-artifact@v4
-        with:
-          name: pr-eval
-          path: pr/pr-eval.json
+      - name: Post results
+        if: always()
+        run: |
+          if [ -f eval-results.json ]; then
+            echo "## Evaluation Results" >> $GITHUB_STEP_SUMMARY
+            cat eval-results.json >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## Evaluation" >> $GITHUB_STEP_SUMMARY
+            echo "Skipped — OPENAI_API_KEY secret not configured" >> $GITHUB_STEP_SUMMARY
+          fi

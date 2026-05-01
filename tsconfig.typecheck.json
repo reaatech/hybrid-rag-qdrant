@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@reaatech/hybrid-rag": ["./packages/hybrid-rag/src/index.ts"],
+      "@reaatech/hybrid-rag-observability": ["./packages/hybrid-rag-observability/src/index.ts"],
+      "@reaatech/hybrid-rag-qdrant": ["./packages/hybrid-rag-qdrant/src/index.ts"],
+      "@reaatech/hybrid-rag-embedding": ["./packages/hybrid-rag-embedding/src/index.ts"],
+      "@reaatech/hybrid-rag-ingestion": ["./packages/hybrid-rag-ingestion/src/index.ts"],
+      "@reaatech/hybrid-rag-retrieval": ["./packages/hybrid-rag-retrieval/src/index.ts"],
+      "@reaatech/hybrid-rag-pipeline": ["./packages/hybrid-rag-pipeline/src/index.ts"],
+      "@reaatech/hybrid-rag-evaluation": ["./packages/hybrid-rag-evaluation/src/index.ts"],
+      "@reaatech/hybrid-rag-mcp-server": ["./packages/hybrid-rag-mcp-server/src/index.ts"],
+      "@reaatech/hybrid-rag-cli": ["./packages/hybrid-rag-cli/src/index.ts"]
+    }
+  }
+}

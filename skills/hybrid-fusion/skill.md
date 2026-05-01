@@ -14,7 +14,7 @@ Combine vector and BM25 retrieval results using various fusion strategies.
 ## Usage
 
 ```typescript
-import { HybridFusion, FusionStrategy } from 'hybrid-rag-qdrant';
+import { HybridFusion, FusionStrategy } from '@reaatech/hybrid-rag-retrieval';
 
 const fusion = new HybridFusion({
   strategy: FusionStrategy.RRF,

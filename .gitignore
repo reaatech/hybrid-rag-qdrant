@@ -4,6 +4,9 @@ node_modules/
 # Build output
 dist/
 
+# Turbo
+.turbo/
+
 # Environment variables
 .env
 .env.local
@@ -20,10 +23,9 @@ Thumbs.db
 *.log
 logs/
 
-# Data directories
-datasets/
-reports/
-models/
+# Data directories (except example datasets)
+datasets/*
+!datasets/examples/
 
 # IDE
 .idea/
@@ -36,15 +38,11 @@ tmp/
 temp/
 *.tmp
 
-# Test fixtures (generated)
-tests/fixtures/generated/
-
-# Benchmark results (large files)
-benchmarks/results/*.json
-
 # Cache
 .cache/
-.eslintcache
 
-# Development plan
-DEV_PLAN.md
+# Stray build artifacts in package source dirs
+packages/*/src/**/*.js
+packages/*/src/**/*.js.map
+packages/*/src/**/*.d.ts
+packages/*/src/**/*.d.ts.map

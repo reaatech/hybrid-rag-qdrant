@@ -57,7 +57,7 @@ variants:
 ## Usage
 
 ```typescript
-import { AblationRunner } from 'hybrid-rag-qdrant';
+import { AblationRunner } from '@reaatech/hybrid-rag-evaluation';
 
 const runner = new AblationRunner({
   configPath: './ablation.yaml',
@@ -101,7 +101,7 @@ console.log(results.significance);
 ## CLI Usage
 
 ```bash
-npx hybrid-rag-qdrant ablate \
+from '@reaatech/hybrid-rag-evaluation' ablate \
   --config ablation.yaml \
   --dataset eval-queries.jsonl \
   --output ablation-results.json \

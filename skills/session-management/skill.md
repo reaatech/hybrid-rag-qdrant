@@ -11,7 +11,7 @@ Session management provides multi-turn conversation context for RAG systems. Thi
 Create and configure conversation sessions:
 
 ```typescript
-import { SessionManager } from 'hybrid-rag-qdrant';
+import { SessionManager } from '@reaatech/hybrid-rag-mcp-server';
 
 const sessionManager = new SessionManager({
   storage: 'redis', // or 'memory', 'postgres'

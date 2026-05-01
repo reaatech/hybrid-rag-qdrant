@@ -16,7 +16,7 @@ Comprehensive evaluation framework for RAG retrieval quality.
 ## Usage
 
 ```typescript
-import { EvaluationRunner } from 'hybrid-rag-qdrant';
+import { EvaluationRunner } from '@reaatech/hybrid-rag-evaluation';
 
 const runner = new EvaluationRunner({
   ragPipeline: pipeline,

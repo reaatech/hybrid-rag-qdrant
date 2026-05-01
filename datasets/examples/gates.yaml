@@ -1,0 +1,51 @@
+# Quality Gates Configuration
+# Defines minimum quality thresholds for RAG system evaluation
+
+# Minimum acceptable metrics
+minimum_metrics:
+  precision@10: 0.60
+  recall@10: 0.70
+  ndcg@10: 0.65
+  map: 0.55
+  mrr: 0.70
+
+# Performance gates
+performance:
+  max_p50_latency_ms: 300
+  max_p90_latency_ms: 700
+  max_p99_latency_ms: 1500
+  max_cost_per_query: 0.01
+
+# Regression thresholds
+# Maximum allowed decrease from baseline (as percentage)
+regression_thresholds:
+  precision@10: -10   # Max 10% decrease allowed
+  recall@10: -10
+  ndcg@10: -10
+  map: -10
+  mrr: -10
+
+# Improvement thresholds
+# Minimum required increase to consider significant (as percentage)
+improvement_thresholds:
+  precision@10: 5     # Min 5% increase to be significant
+  recall@10: 5
+  ndcg@10: 5
+  map: 5
+  mrr: 5
+
+# Statistical significance
+significance:
+  method: paired_t_test
+  alpha: 0.05         # 95% confidence level
+  min_sample_size: 30
+
+# Gate actions
+actions:
+  on_fail:
+    - block_merge: true
+    - notify_team: true
+    - create_issue: true
+  on_regression:
+    - require_approval: true
+    - add_comment: true

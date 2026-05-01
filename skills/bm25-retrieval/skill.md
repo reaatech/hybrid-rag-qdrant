@@ -16,7 +16,7 @@ Default parameters: `k1 = 1.2`, `b = 0.75`
 ## Usage
 
 ```typescript
-import { BM25Retriever } from 'hybrid-rag-qdrant';
+import { BM25Retriever } from '@reaatech/hybrid-rag-retrieval';
 
 const retriever = new BM25Retriever({
   k1: 1.2,

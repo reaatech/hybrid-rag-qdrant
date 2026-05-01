@@ -15,7 +15,7 @@ Performance benchmarking for latency, throughput, and cost.
 ## Usage
 
 ```typescript
-import { BenchmarkRunner } from 'hybrid-rag-qdrant';
+import { BenchmarkRunner } from '@reaatech/hybrid-rag-evaluation';
 
 const runner = new BenchmarkRunner({
   warmupQueries: 50,
@@ -89,7 +89,7 @@ await runner.export(results, {
 
 ```bash
 # Full benchmark
-npx hybrid-rag-qdrant benchmark \
+from '@reaatech/hybrid-rag-evaluation' benchmark \
   --queries queries.jsonl \
   --concurrency 1,5,10,50 \
   --warmup 50 \
@@ -97,12 +97,12 @@ npx hybrid-rag-qdrant benchmark \
   --output benchmark-results.json
 
 # Latency only
-npx hybrid-rag-qdrant benchmark latency \
+from '@reaatech/hybrid-rag-evaluation' benchmark latency \
   --queries queries.jsonl \
   --output latency-results.json
 
 # Cost only
-npx hybrid-rag-qdrant benchmark cost \
+from '@reaatech/hybrid-rag-evaluation' benchmark cost \
   --queries queries.jsonl \
   --output cost-results.json
 ```
