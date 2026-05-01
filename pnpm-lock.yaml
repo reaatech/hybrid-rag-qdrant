@@ -151,8 +151,8 @@ importers:
         specifier: ^14.15.0
         version: 14.15.0
       marked:
-        specifier: ^15.0.6
-        version: 15.0.12
+        specifier: ^18.0.2
+        version: 18.0.2
       pdf-parse:
         specifier: ^2.4.5
         version: 2.4.5
@@ -1786,9 +1786,9 @@ packages:
     resolution: {integrity: sha512-hXdUTZYIVOt1Ex//jAQi+wTZZpUpwBj/0QsOzqegb3rGMMeJiSEu5xLHnYfBrRV4RH2+OCSOO95Is/7x1WJ4bw==}
     engines: {node: '>=10'}
 
-  marked@15.0.12:
-    resolution: {integrity: sha512-8dD6FusOQSrpv9Z1rdNMdlSgQOIP880DHqnohobOmYLElGEqAL/JvxvuxZO16r4HtjTlfPRDC1hbvxC9dPN2nA==}
-    engines: {node: '>= 18'}
+  marked@18.0.2:
+    resolution: {integrity: sha512-NsmlUYBS/Zg57rgDWMYdnre6OTj4e+qq/JS2ot3KrYLSoHLw+sDu0Nm1ZGpRgYAq6c+b1ekaY5NzVchMCQnzcg==}
+    engines: {node: '>= 20'}
     hasBin: true
 
   math-intrinsics@1.1.0:
@@ -3942,7 +3942,7 @@ snapshots:
     dependencies:
       semver: 7.7.4
 
-  marked@15.0.12: {}
+  marked@18.0.2: {}
 
   math-intrinsics@1.1.0: {}
 
