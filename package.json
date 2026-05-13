@@ -5,7 +5,7 @@
   "description": "Production-grade hybrid RAG reference implementation with vector + BM25 + reranker, benchmarked chunking strategies, evaluation frameworks, and ablation studies",
   "type": "module",
   "scripts": {
-    "build": "turbo run build",
+    "build": "pnpm install && turbo run build",
     "test": "turbo run test",
     "test:coverage": "turbo run test:coverage",
     "lint": "biome check .",
