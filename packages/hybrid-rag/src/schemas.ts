@@ -18,7 +18,7 @@ export const DocumentSchema = z.object({
   title: z.string().optional(),
   author: z.string().optional(),
   date: z.string().optional(),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
   contentHash: z.string().optional(),
   fileSize: z.number().positive().optional(),
   contentType: z.string().optional(),
@@ -43,7 +43,7 @@ export const ChunkSchema = z.object({
   characterCount: z.number().int().positive(),
   startPosition: z.number().int().nonnegative(),
   endPosition: z.number().int().positive(),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
   strategy: z.enum(['fixed-size', 'semantic', 'recursive', 'sliding-window']),
 });
 
@@ -131,7 +131,7 @@ export const VectorQuerySchema = z.object({
   vector: z.array(z.number()).min(1, 'Vector is required'),
   topK: z.number().int().positive().default(10),
   distance: z.enum(['cosine', 'euclidean', 'dot']).optional(),
-  filter: z.record(z.unknown()).optional(),
+  filter: z.record(z.string(), z.unknown()).optional(),
   collection: z.string().optional(),
 });
 
@@ -145,7 +145,7 @@ export const BM25QuerySchema = z.object({
   topK: z.number().int().positive().default(10),
   k1: z.number().positive().default(1.2),
   b: z.number().min(0).max(1).default(0.75),
-  filter: z.record(z.unknown()).optional(),
+  filter: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type BM25QueryInput = z.infer<typeof BM25QuerySchema>;
