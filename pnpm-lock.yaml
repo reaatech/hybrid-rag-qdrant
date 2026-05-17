@@ -29,8 +29,8 @@ importers:
         specifier: ^2.5.0
         version: 2.9.6
       typescript:
-        specifier: ^5.8.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
       vitest:
         specifier: ^3.1.1
         version: 3.2.4(@types/node@25.6.0)(yaml@2.8.3)
@@ -43,10 +43,10 @@ importers:
     devDependencies:
       tsup:
         specifier: ^8.4.0
-        version: 8.5.1(postcss@8.5.13)(typescript@5.9.3)(yaml@2.8.3)
+        version: 8.5.1(postcss@8.5.13)(typescript@6.0.3)(yaml@2.8.3)
       typescript:
-        specifier: ^5.8.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
       vitest:
         specifier: ^3.1.1
         version: 3.2.4(@types/node@25.6.0)(yaml@2.8.3)
@@ -86,10 +86,10 @@ importers:
         version: 25.6.0
       tsup:
         specifier: ^8.4.0
-        version: 8.5.1(postcss@8.5.13)(typescript@5.9.3)(yaml@2.8.3)
+        version: 8.5.1(postcss@8.5.13)(typescript@6.0.3)(yaml@2.8.3)
       typescript:
-        specifier: ^5.8.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
       vitest:
         specifier: ^3.1.1
         version: 3.2.4(@types/node@25.6.0)(yaml@2.8.3)
@@ -108,10 +108,10 @@ importers:
     devDependencies:
       tsup:
         specifier: ^8.4.0
-        version: 8.5.1(postcss@8.5.13)(typescript@5.9.3)(yaml@2.8.3)
+        version: 8.5.1(postcss@8.5.13)(typescript@6.0.3)(yaml@2.8.3)
       typescript:
-        specifier: ^5.8.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
       vitest:
         specifier: ^3.1.1
         version: 3.2.4(@types/node@25.6.0)(yaml@2.8.3)
@@ -133,10 +133,10 @@ importers:
     devDependencies:
       tsup:
         specifier: ^8.4.0
-        version: 8.5.1(postcss@8.5.13)(typescript@5.9.3)(yaml@2.8.3)
+        version: 8.5.1(postcss@8.5.13)(typescript@6.0.3)(yaml@2.8.3)
       typescript:
-        specifier: ^5.8.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
       vitest:
         specifier: ^3.1.1
         version: 3.2.4(@types/node@25.6.0)(yaml@2.8.3)
@@ -167,10 +167,10 @@ importers:
     devDependencies:
       tsup:
         specifier: ^8.4.0
-        version: 8.5.1(postcss@8.5.13)(typescript@5.9.3)(yaml@2.8.3)
+        version: 8.5.1(postcss@8.5.13)(typescript@6.0.3)(yaml@2.8.3)
       typescript:
-        specifier: ^5.8.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
       vitest:
         specifier: ^3.1.1
         version: 3.2.4(@types/node@25.6.0)(yaml@2.8.3)
@@ -198,10 +198,10 @@ importers:
     devDependencies:
       tsup:
         specifier: ^8.4.0
-        version: 8.5.1(postcss@8.5.13)(typescript@5.9.3)(yaml@2.8.3)
+        version: 8.5.1(postcss@8.5.13)(typescript@6.0.3)(yaml@2.8.3)
       typescript:
-        specifier: ^5.8.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
       vitest:
         specifier: ^3.1.1
         version: 3.2.4(@types/node@25.6.0)(yaml@2.8.3)
@@ -238,10 +238,10 @@ importers:
     devDependencies:
       tsup:
         specifier: ^8.4.0
-        version: 8.5.1(postcss@8.5.13)(typescript@5.9.3)(yaml@2.8.3)
+        version: 8.5.1(postcss@8.5.13)(typescript@6.0.3)(yaml@2.8.3)
       typescript:
-        specifier: ^5.8.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
       vitest:
         specifier: ^3.1.1
         version: 3.2.4(@types/node@25.6.0)(yaml@2.8.3)
@@ -266,10 +266,10 @@ importers:
     devDependencies:
       tsup:
         specifier: ^8.4.0
-        version: 8.5.1(postcss@8.5.13)(typescript@5.9.3)(yaml@2.8.3)
+        version: 8.5.1(postcss@8.5.13)(typescript@6.0.3)(yaml@2.8.3)
       typescript:
-        specifier: ^5.8.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
       vitest:
         specifier: ^3.1.1
         version: 3.2.4(@types/node@25.6.0)(yaml@2.8.3)
@@ -278,17 +278,17 @@ importers:
     dependencies:
       '@qdrant/js-client-rest':
         specifier: ^1.11.0
-        version: 1.17.0(typescript@5.9.3)
+        version: 1.17.0(typescript@6.0.3)
       '@reaatech/hybrid-rag':
         specifier: workspace:*
         version: link:../hybrid-rag
     devDependencies:
       tsup:
         specifier: ^8.4.0
-        version: 8.5.1(postcss@8.5.13)(typescript@5.9.3)(yaml@2.8.3)
+        version: 8.5.1(postcss@8.5.13)(typescript@6.0.3)(yaml@2.8.3)
       typescript:
-        specifier: ^5.8.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
       vitest:
         specifier: ^3.1.1
         version: 3.2.4(@types/node@25.6.0)(yaml@2.8.3)
@@ -316,10 +316,10 @@ importers:
     devDependencies:
       tsup:
         specifier: ^8.4.0
-        version: 8.5.1(postcss@8.5.13)(typescript@5.9.3)(yaml@2.8.3)
+        version: 8.5.1(postcss@8.5.13)(typescript@6.0.3)(yaml@2.8.3)
       typescript:
-        specifier: ^5.8.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
       vitest:
         specifier: ^3.1.1
         version: 3.2.4(@types/node@25.6.0)(yaml@2.8.3)
@@ -2352,8 +2352,8 @@ packages:
     resolution: {integrity: sha512-OZs6gsjF4vMp32qrCbiVSkrFmXtG/AZhY3t0iAMrMBiAZyV9oALtXO8hsrHbMXF9x6L3grlFuwW2oAz7cav+Gw==}
     engines: {node: '>= 0.6'}
 
-  typescript@5.9.3:
-    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+  typescript@6.0.3:
+    resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -3066,10 +3066,10 @@ snapshots:
 
   '@protobufjs/utf8@1.1.1': {}
 
-  '@qdrant/js-client-rest@1.17.0(typescript@5.9.3)':
+  '@qdrant/js-client-rest@1.17.0(typescript@6.0.3)':
     dependencies:
       '@qdrant/openapi-typescript-fetch': 1.2.6
-      typescript: 5.9.3
+      typescript: 6.0.3
       undici: 6.25.0
 
   '@qdrant/openapi-typescript-fetch@1.2.6': {}
@@ -4478,7 +4478,7 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  tsup@8.5.1(postcss@8.5.13)(typescript@5.9.3)(yaml@2.8.3):
+  tsup@8.5.1(postcss@8.5.13)(typescript@6.0.3)(yaml@2.8.3):
     dependencies:
       bundle-require: 5.1.0(esbuild@0.27.7)
       cac: 6.7.14
@@ -4499,7 +4499,7 @@ snapshots:
       tree-kill: 1.2.2
     optionalDependencies:
       postcss: 8.5.13
-      typescript: 5.9.3
+      typescript: 6.0.3
     transitivePeerDependencies:
       - jiti
       - supports-color
@@ -4521,7 +4521,7 @@ snapshots:
       media-typer: 1.1.0
       mime-types: 3.0.2
 
-  typescript@5.9.3: {}
+  typescript@6.0.3: {}
 
   ufo@1.6.4: {}
 
