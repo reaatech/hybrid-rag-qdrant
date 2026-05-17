@@ -39,7 +39,12 @@
   },
   "homepage": "https://github.com/reaatech/hybrid-rag-qdrant#readme",
   "pnpm": {
-    "onlyBuiltDependencies": ["@biomejs/biome", "esbuild", "protobufjs"]
+    "onlyBuiltDependencies": ["@biomejs/biome", "esbuild", "protobufjs"],
+    "overrides": {
+      "fast-uri": ">=3.1.2",
+      "hono": ">=4.12.18",
+      "ip-address": ">=10.1.1"
+    }
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
