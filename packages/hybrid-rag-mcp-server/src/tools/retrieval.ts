@@ -13,13 +13,13 @@ const retrieveSchema = z.object({
   useReranker: z.boolean().optional(),
   vectorWeight: z.number().min(0).max(1).optional(),
   bm25Weight: z.number().min(0).max(1).optional(),
-  filter: z.record(z.unknown()).optional(),
+  filter: z.record(z.string(), z.unknown()).optional(),
 });
 
 const vectorSearchSchema = z.object({
   query: z.string().min(1, 'query is required'),
   topK: z.number().positive().optional(),
-  filter: z.record(z.unknown()).optional(),
+  filter: z.record(z.string(), z.unknown()).optional(),
 });
 
 const bm25SearchSchema = z.object({

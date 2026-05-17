@@ -16,7 +16,7 @@ const ingestDocumentSchema = z.object({
   chunkingStrategy: z.enum(['fixed-size', 'semantic', 'recursive', 'sliding-window']).optional(),
   chunkSize: z.number().positive().optional(),
   overlap: z.number().nonnegative().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 const ingestBatchSchema = z.object({
@@ -25,7 +25,7 @@ const ingestBatchSchema = z.object({
       z.object({
         id: z.string().min(1),
         content: z.string().min(1),
-        metadata: z.record(z.unknown()).optional(),
+        metadata: z.record(z.string(), z.unknown()).optional(),
       }),
     )
     .min(1, 'documents must be a non-empty array')
