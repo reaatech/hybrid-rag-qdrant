@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@reaatech/hybrid-rag": "workspace:*",
-    "openai": "^4.83.0",
+    "openai": "^6.38.0",
     "@google/generative-ai": "^0.24.1"
   },
   "devDependencies": {
