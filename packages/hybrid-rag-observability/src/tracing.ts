@@ -48,23 +48,26 @@ export class TracingManager {
    * Initialize the tracing provider
    */
   initialize(): void {
-    this.provider = new NodeTracerProvider({
-      spanLimits: {
-        attributeValueLengthLimit: 4096,
-      },
-    });
+    const spanProcessors: import('@opentelemetry/sdk-trace-base').SpanProcessor[] = [];
 
     // Add exporters
     if (this.config.otlpEndpoint) {
       const exporter = new OTLPTraceExporter({
         url: this.config.otlpEndpoint,
       });
-      this.provider.addSpanProcessor(new BatchSpanProcessor(exporter));
+      spanProcessors.push(new BatchSpanProcessor(exporter));
     }
 
     if (this.config.consoleExport) {
-      this.provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
+      spanProcessors.push(new SimpleSpanProcessor(new ConsoleSpanExporter()));
     }
+
+    this.provider = new NodeTracerProvider({
+      spanLimits: {
+        attributeValueLengthLimit: 4096,
+      },
+      spanProcessors,
+    });
 
     this.provider.register();
     this.tracer = trace.getTracer(this.config.serviceName ?? 'hybrid-rag-qdrant');
