@@ -81,7 +81,7 @@ importers:
         specifier: ^14.0.3
         version: 14.0.3
       yaml:
-        specifier: ^2.7.0
+        specifier: ^2.8.4
         version: 2.9.0
     devDependencies:
       '@types/node':
