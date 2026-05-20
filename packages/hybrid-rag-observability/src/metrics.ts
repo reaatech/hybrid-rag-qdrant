@@ -4,8 +4,11 @@
 
 import type { Counter, Histogram, Meter } from '@opentelemetry/api';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
-import { MeterProvider, PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
-import { ConsoleMetricExporter } from '@opentelemetry/sdk-metrics';
+import {
+  ConsoleMetricExporter,
+  MeterProvider,
+  PeriodicExportingMetricReader,
+} from '@opentelemetry/sdk-metrics';
 
 /**
  * Metrics configuration

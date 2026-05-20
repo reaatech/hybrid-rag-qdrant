@@ -1,86 +1,76 @@
 export {
-  EvaluationRunner,
-  runEvaluation,
-  type QueryFunction,
-  type EvaluationConfig,
-  type EvaluationResults,
-} from './runner.js';
-
-export * from './metrics/retrieval.js';
-export * from './metrics/generation.js';
-
-export {
-  loadEvaluationDataset,
-  loadEvaluationConfig,
-  validateEvaluationSample,
-  splitDataset,
-  type EvaluationSample,
-  type EvaluationDataset,
-} from './dataset/loader.js';
-
-export {
-  generateDataset,
-  generateAndSaveDataset,
-  type DatasetGeneratorConfig,
-  type GeneratedQuery,
-} from './dataset/generator.js';
-
-export {
-  AblationRunner,
-  runAblation,
-  type AblationVariantResult,
-  type AblationResults,
-  type PipelineBuilderFn,
-} from './ablation/runner.js';
-
+  type AblationChunking,
+  type AblationConfig,
+  type AblationReranker,
+  type AblationRetrieval,
+  type AblationVariant,
+  DEFAULT_BASELINE,
+  validateAblationConfig,
+} from './ablation/config.js';
 export {
   generateMarkdownTable,
   generateSummary,
-  sortByNDCG,
   sortByDelta,
+  sortByNDCG,
 } from './ablation/reporter.js';
-
 export {
-  validateAblationConfig,
-  DEFAULT_BASELINE,
-  type AblationConfig,
-  type AblationVariant,
-  type AblationChunking,
-  type AblationRetrieval,
-  type AblationReranker,
-} from './ablation/config.js';
-
+  type AblationResults,
+  AblationRunner,
+  type AblationVariantResult,
+  type PipelineBuilderFn,
+  runAblation,
+} from './ablation/runner.js';
 export {
-  benchmarkLatency,
-  benchmarkComponentLatency,
-  calculateLatencyStats,
-  type LatencyResult,
-  type BenchmarkQueryFn,
-} from './benchmarking/latency.js';
-
-export {
-  benchmarkThroughput,
-  type ThroughputResult,
-  type ThroughputConfig,
-  type ThroughputQueryFn,
-} from './benchmarking/throughput.js';
-
-export {
-  calculateEmbeddingCost,
-  calculateRerankerCost,
-  calculateVectorSearchCost,
-  calculateQueryCost,
-  CostTracker,
-  DEFAULT_PRICING,
   type CostBreakdown,
   type CostPerQuery,
+  CostTracker,
+  calculateEmbeddingCost,
+  calculateQueryCost,
+  calculateRerankerCost,
+  calculateVectorSearchCost,
+  DEFAULT_PRICING,
   type PricingConfig,
 } from './benchmarking/cost.js';
-
 export {
-  generateMarkdownReport,
-  saveBenchmarkReport,
-  getEnvironmentInfo,
-  createBenchmarkReport,
+  type BenchmarkQueryFn,
+  benchmarkComponentLatency,
+  benchmarkLatency,
+  calculateLatencyStats,
+  type LatencyResult,
+} from './benchmarking/latency.js';
+export {
   type BenchmarkReport,
+  createBenchmarkReport,
+  generateMarkdownReport,
+  getEnvironmentInfo,
+  saveBenchmarkReport,
 } from './benchmarking/reporter.js';
+export {
+  benchmarkThroughput,
+  type ThroughputConfig,
+  type ThroughputQueryFn,
+  type ThroughputResult,
+} from './benchmarking/throughput.js';
+export {
+  type DatasetGeneratorConfig,
+  type GeneratedQuery,
+  generateAndSaveDataset,
+  generateDataset,
+} from './dataset/generator.js';
+export {
+  type EvaluationDataset,
+  type EvaluationSample,
+  loadEvaluationConfig,
+  loadEvaluationDataset,
+  splitDataset,
+  validateEvaluationSample,
+} from './dataset/loader.js';
+export * from './metrics/generation.js';
+export * from './metrics/retrieval.js';
+export {
+  type EvaluationConfig,
+  type EvaluationResults,
+  EvaluationRunner,
+  type QueryFunction,
+  runEvaluation,
+} from './runner.js';

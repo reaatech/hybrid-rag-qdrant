@@ -4,8 +4,8 @@
 
 import type { RetrievalResult } from '@reaatech/hybrid-rag';
 import { type RerankerConfig, RerankerEngine } from '../reranker.js';
-import { applyFusion } from './strategies.js';
 import type { FusionConfig } from './strategies.js';
+import { applyFusion } from './strategies.js';
 
 /**
  * Hybrid retrieval configuration

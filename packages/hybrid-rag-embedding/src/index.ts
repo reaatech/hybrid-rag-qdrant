@@ -1,6 +1,6 @@
 export {
-  EmbeddingService,
   type EmbeddingConfig,
-  type EmbeddingResult,
   type EmbeddingProvider,
+  type EmbeddingResult,
+  EmbeddingService,
 } from './embedding.js';

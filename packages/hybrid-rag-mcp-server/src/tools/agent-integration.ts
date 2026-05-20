@@ -72,7 +72,7 @@ class AgentRegistry {
   /**
    * Find best agent for a query based on intent
    */
-  findBest(query: string, intent?: string): AgentInfo | undefined {
+  findBest(_query: string, intent?: string): AgentInfo | undefined {
     // First try to find agents with matching routing weights
     if (intent) {
       let bestAgent: AgentInfo | undefined;

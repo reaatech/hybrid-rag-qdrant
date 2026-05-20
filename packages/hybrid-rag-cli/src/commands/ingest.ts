@@ -17,7 +17,7 @@ export interface IngestOptions {
 
 export async function ingestCommand(
   files: string[],
-  options: IngestOptions,
+  _options: IngestOptions,
   pipeline: RAGPipeline,
 ): Promise<void> {
   console.log(`Ingesting ${files.length} files...`);

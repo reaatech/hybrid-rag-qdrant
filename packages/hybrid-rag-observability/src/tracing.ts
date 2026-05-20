@@ -2,8 +2,8 @@
  * OpenTelemetry tracing for hybrid-rag-qdrant
  */
 
-import { SpanStatusCode, context, trace } from '@opentelemetry/api';
 import type { Span, Tracer } from '@opentelemetry/api';
+import { context, SpanStatusCode, trace } from '@opentelemetry/api';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { ConsoleSpanExporter, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { BatchSpanProcessor, NodeTracerProvider } from '@opentelemetry/sdk-trace-node';

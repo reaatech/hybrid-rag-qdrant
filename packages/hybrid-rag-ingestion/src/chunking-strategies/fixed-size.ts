@@ -3,7 +3,7 @@
  */
 
 import type { Chunk, ChunkingConfig } from '@reaatech/hybrid-rag';
-import { type TiktokenEncoding, get_encoding } from 'tiktoken';
+import { get_encoding, type TiktokenEncoding } from 'tiktoken';
 
 /**
  * Fixed-size chunking mode

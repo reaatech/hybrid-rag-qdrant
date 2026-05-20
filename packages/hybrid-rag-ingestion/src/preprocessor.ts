@@ -95,13 +95,6 @@ export class TextPreprocessor {
   }
 
   /**
-   * Normalize Unicode characters
-   */
-  private _normalizeUnicodeText(text: string): string {
-    return text.normalize('NFC');
-  }
-
-  /**
    * Normalize whitespace
    */
   private normalizeWhitespaceText(text: string): string {

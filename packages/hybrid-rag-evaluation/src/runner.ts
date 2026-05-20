@@ -6,10 +6,10 @@ import { writeFileSync } from 'node:fs';
 import type { RetrievalResult } from '@reaatech/hybrid-rag';
 import type { EvaluationDataset, EvaluationSample } from './dataset/loader.js';
 import {
-  type QueryEvaluationResult,
-  type RetrievalMetrics,
   aggregateMetrics,
   evaluateQuery,
+  type QueryEvaluationResult,
+  type RetrievalMetrics,
 } from './metrics/retrieval.js';
 
 /**
