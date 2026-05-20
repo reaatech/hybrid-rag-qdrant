@@ -2,8 +2,7 @@
  * Chunk Command
  */
 
-import { readFile } from 'node:fs/promises';
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import type { ChunkingStrategy } from '@reaatech/hybrid-rag';
 import { chunkDocument } from '@reaatech/hybrid-rag-ingestion';
 

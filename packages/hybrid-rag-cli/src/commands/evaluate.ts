@@ -2,11 +2,8 @@
  * Evaluate Command
  */
 
-import { readFile } from 'node:fs/promises';
 import { writeFile } from 'node:fs/promises';
-import { EvaluationRunner } from '@reaatech/hybrid-rag-evaluation';
-import { aggregateMetrics } from '@reaatech/hybrid-rag-evaluation';
-import { type EvaluationDataset, loadEvaluationDataset } from '@reaatech/hybrid-rag-evaluation';
+import { EvaluationRunner, loadEvaluationDataset } from '@reaatech/hybrid-rag-evaluation';
 import type { RAGPipeline } from '@reaatech/hybrid-rag-pipeline';
 
 export interface EvaluateOptions {

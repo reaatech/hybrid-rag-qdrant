@@ -1,1 +1,1 @@
-export { QdrantClientWrapper, type QdrantPoint, type QdrantClientConfig } from './qdrant-client.js';
+export { type QdrantClientConfig, QdrantClientWrapper, type QdrantPoint } from './qdrant-client.js';

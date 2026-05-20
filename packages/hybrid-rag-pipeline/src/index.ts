@@ -1,1 +1,1 @@
-export { RAGPipeline, type RAGPipelineConfig, type QueryOptions } from './pipeline.js';
+export { type QueryOptions, RAGPipeline, type RAGPipelineConfig } from './pipeline.js';

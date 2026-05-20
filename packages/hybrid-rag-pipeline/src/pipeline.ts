@@ -2,15 +2,16 @@
  * Main RAG Pipeline
  */
 
-import { type Chunk, type ChunkingConfig, ChunkingStrategy } from '@reaatech/hybrid-rag';
 import type { RetrievalResult } from '@reaatech/hybrid-rag';
+import { type Chunk, type ChunkingConfig, ChunkingStrategy } from '@reaatech/hybrid-rag';
 import { chunkDocument } from '@reaatech/hybrid-rag-ingestion';
 import {
   type HybridRetrievalOptions,
   HybridRetriever,
   type HybridRetrieverConfig,
+  type RerankerConfig,
+  RerankerEngine,
 } from '@reaatech/hybrid-rag-retrieval';
-import { type RerankerConfig, RerankerEngine } from '@reaatech/hybrid-rag-retrieval';
 
 /**
  * RAG Pipeline configuration

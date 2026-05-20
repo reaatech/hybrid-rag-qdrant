@@ -13,6 +13,7 @@ import {
 import { getLogger } from '@reaatech/hybrid-rag-observability';
 
 const logger = getLogger();
+
 import { adminTools } from './tools/admin.js';
 import { agentIntegrationTools } from './tools/agent-integration.js';
 import { costManagementTools } from './tools/cost-management.js';
