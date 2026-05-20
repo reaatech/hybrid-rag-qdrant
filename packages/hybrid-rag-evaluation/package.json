@@ -38,7 +38,7 @@
     "@reaatech/hybrid-rag": "workspace:*",
     "@reaatech/hybrid-rag-pipeline": "workspace:*",
     "@reaatech/hybrid-rag-observability": "workspace:*",
-    "yaml": "^2.7.0"
+    "yaml": "^2.8.4"
   },
   "devDependencies": {
     "tsup": "^8.4.0",
