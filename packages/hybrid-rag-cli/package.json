@@ -1,6 +1,6 @@
 {
   "name": "@reaatech/hybrid-rag-cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "CLI interface for hybrid RAG systems",
   "license": "MIT",
   "author": "Rick Somers <rick@reaatech.com> (https://reaatech.com)",

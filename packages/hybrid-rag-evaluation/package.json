@@ -1,6 +1,6 @@
 {
   "name": "@reaatech/hybrid-rag-evaluation",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Evaluation runner, ablation studies, and benchmarking for hybrid RAG systems",
   "license": "MIT",
   "author": "Rick Somers <rick@reaatech.com> (https://reaatech.com)",

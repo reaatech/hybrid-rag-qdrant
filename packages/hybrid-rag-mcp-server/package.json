@@ -1,6 +1,6 @@
 {
   "name": "@reaatech/hybrid-rag-mcp-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server with 41+ tools for hybrid RAG integration with agent-mesh",
   "license": "MIT",
   "author": "Rick Somers <rick@reaatech.com> (https://reaatech.com)",
