@@ -1,6 +1,6 @@
 {
   "name": "@reaatech/hybrid-rag-retrieval",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "BM25 search, reranker, and hybrid fusion for hybrid RAG systems",
   "license": "MIT",
   "author": "Rick Somers <rick@reaatech.com> (https://reaatech.com)",
