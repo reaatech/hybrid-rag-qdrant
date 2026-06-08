@@ -1,1 +1,7 @@
-export { type QueryOptions, RAGPipeline, type RAGPipelineConfig } from './pipeline.js';
+export {
+  type QueryOptions,
+  RAGPipeline,
+  type RAGPipelineConfig,
+  type VectorStorePreset,
+  type VectorStoreReadinessReport,
+} from './pipeline.js';

@@ -1,4 +1,4 @@
-# @reaatech/hybrid-rag-pipeline
+# @reaatech/hybrid-rag-embedding
 
 ## 2.0.0
 
@@ -19,16 +19,3 @@
 
 - Updated dependencies []:
   - @reaatech/hybrid-rag@2.0.0
-  - @reaatech/hybrid-rag-embedding@2.0.0
-  - @reaatech/hybrid-rag-ingestion@2.0.0
-  - @reaatech/hybrid-rag-observability@2.0.0
-  - @reaatech/hybrid-rag-retrieval@2.0.0
-
-## 0.1.1
-
-### Patch Changes
-
-- Updated dependencies [[`55e0f72`](https://github.com/reaatech/hybrid-rag/commit/55e0f7262f7641d700c04457fe6752c1ba9b4070)]:
-  - @reaatech/hybrid-rag-observability@0.1.1
-  - @reaatech/hybrid-rag-ingestion@0.1.1
-  - @reaatech/hybrid-rag-retrieval@0.1.1
