@@ -5,7 +5,16 @@ export default defineConfig({
     globals: false,
     environment: 'node',
     coverage: {
-      reporter: ['text', 'json-summary'],
+      provider: 'v8',
+      reporter: ['text', 'json', 'json-summary', 'html'],
+      include: ['src/**/*.ts'],
+      exclude: ['src/**/*.test.ts'],
+      thresholds: {
+        lines: 90,
+        branches: 90,
+        functions: 90,
+        statements: 90,
+      },
     },
   },
 });

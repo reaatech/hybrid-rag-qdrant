@@ -1,17 +1,13 @@
-/**
- * Ingest Command
- */
-
 import { readFile } from 'node:fs/promises';
 import { extname } from 'node:path';
 import { DocumentLoader } from '@reaatech/hybrid-rag-ingestion';
 import type { RAGPipeline } from '@reaatech/hybrid-rag-pipeline';
 
 export interface IngestOptions {
-  chunkSize: number;
-  overlap: number;
+  chunkSize: number | string;
+  overlap: number | string;
   strategy: string;
-  qdrantUrl: string;
+  vectorStore?: string;
   collection: string;
 }
 

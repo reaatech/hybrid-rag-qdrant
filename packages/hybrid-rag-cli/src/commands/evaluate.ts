@@ -9,7 +9,7 @@ import type { RAGPipeline } from '@reaatech/hybrid-rag-pipeline';
 export interface EvaluateOptions {
   output: string;
   metrics: string;
-  qdrantUrl: string;
+  vectorStore?: string;
   collection: string;
 }
 
