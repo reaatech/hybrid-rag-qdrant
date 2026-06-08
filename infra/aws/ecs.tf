@@ -29,7 +29,7 @@ resource "aws_ecs_task_definition" "main" {
 
   container_definitions = jsonencode([
     {
-      name  = "hybrid-rag-qdrant"
+      name  = "hybrid-rag"
       image = var.docker_image != "" ? var.docker_image : "${aws_ecr_repository.main[0].repository_url}:latest"
       portMappings = [
         {
@@ -92,7 +92,7 @@ resource "aws_ecs_service" "main" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.main[0].arn
-    container_name   = "hybrid-rag-qdrant"
+    container_name   = "hybrid-rag"
     container_port   = var.container_port
   }
 

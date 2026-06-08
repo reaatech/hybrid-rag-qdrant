@@ -20,7 +20,7 @@ variable "environment" {
 variable "network_name" {
   description = "Name of the VPC network"
   type        = string
-  default     = "hybrid-rag-qdrant-network"
+  default     = "hybrid-rag-network"
 }
 
 variable "subnet_cidr" {
@@ -33,7 +33,7 @@ variable "subnet_cidr" {
 variable "service_name" {
   description = "Name of the Cloud Run service"
   type        = string
-  default     = "hybrid-rag-qdrant"
+  default     = "hybrid-rag"
 }
 
 variable "location" {
@@ -89,7 +89,7 @@ variable "docker_image" {
 variable "cloud_sql_instance_name" {
   description = "Name of the Cloud SQL instance"
   type        = string
-  default     = "hybrid-rag-qdrant-db"
+  default     = "hybrid-rag-db"
 }
 
 variable "database_name" {
@@ -117,9 +117,15 @@ variable "database_tier" {
   default     = "db-f1-micro"
 }
 
-# Qdrant Variables
-variable "qdrant_url" {
-  description = "Qdrant server URL"
+# Vector Store Variables
+variable "vector_store_provider" {
+  description = "Vector store provider (qdrant, pinecone, weaviate, chroma, pgvector, milvus, elasticsearch, opensearch, redis, mongodb, azure-ai-search, lancedb, vespa, supabase)"
+  type        = string
+  default     = "qdrant"
+}
+
+variable "vector_store_url" {
+  description = "Vector store server URL (Qdrant Cloud, Pinecone host, Weaviate endpoint, etc.)"
   type        = string
   default     = ""
 }
@@ -156,7 +162,7 @@ variable "labels" {
 locals {
   common_labels = merge(
     {
-      project     = "hybrid-rag-qdrant"
+      project     = "hybrid-rag"
       environment = var.environment
       managed_by  = "terraform"
     },

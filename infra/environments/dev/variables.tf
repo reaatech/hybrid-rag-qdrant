@@ -16,8 +16,22 @@ variable "docker_image" {
   default     = ""
 }
 
-variable "qdrant_url" {
-  description = "Qdrant Cloud URL"
+# Vector Store Variables
+variable "vector_store_provider" {
+  description = "Vector store provider (e.g., qdrant, pinecone, weaviate, lancedb)"
   type        = string
+  default     = "qdrant"
+}
+
+variable "vector_store_url" {
+  description = "Vector store server URL"
+  type        = string
+  default     = ""
+}
+
+variable "vector_store_api_key" {
+  description = "Vector store API key"
+  type        = string
+  sensitive   = true
   default     = ""
 }

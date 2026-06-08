@@ -1,8 +1,8 @@
 # Artifact Registry for Docker images
 resource "google_artifact_registry_repository" "main" {
   location      = var.region
-  repository_id = "hybrid-rag-qdrant"
-  description   = "Docker repository for hybrid-rag-qdrant images"
+  repository_id = "hybrid-rag"
+  description   = "Docker repository for hybrid-rag images"
   format        = "DOCKER"
 
   docker_config {

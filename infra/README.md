@@ -1,6 +1,6 @@
 # Infrastructure Deployment Guide
 
-This directory contains Terraform configurations for deploying the hybrid-rag-qdrant application to AWS and GCP.
+This directory contains Terraform configurations for deploying the hybrid-rag application to AWS and GCP.
 
 ## Overview
 
@@ -139,21 +139,120 @@ curl -X POST $RUN_URL/v1/query \
   -d '{"query": "test question"}'
 ```
 
-### Configure Qdrant
+### Configure Vector Store
 
-The application requires a Qdrant vector database. Options:
+The application supports 15 vector database providers. Set `vector_store_provider` to configure, and provide the appropriate URL and API key.
 
-1. **Qdrant Cloud** (Recommended for production)
-   - Sign up at [cloud.qdrant.io](https://cloud.qdrant.io)
-   - Set `qdrant_url` and `qdrant_api_key` variables
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `vector_store_provider` | Provider name | `qdrant` |
+| `vector_store_url` | Provider endpoint URL | `""` |
+| `vector_store_api_key` | API key (if required) | `""` |
 
-2. **Self-hosted on EC2/GCE**
-   - Deploy Qdrant using the provided Docker configuration
-   - Use private IP for better performance
+#### Qdrant (default)
 
-3. **Qdrant in ECS/Cloud Run**
-   - Add Qdrant as a sidecar or separate service
-   - Configure network connectivity
+```terraform
+vector_store_provider = "qdrant"
+vector_store_url      = "https://xyz.cloud.qdrant.io:6333"
+vector_store_api_key  = "qdrant-api-key"
+```
+
+**Options:** Qdrant Cloud (recommended for production), self-hosted on EC2/GCE, or ECS/Cloud Run sidecar.
+
+#### Pinecone
+
+```terraform
+vector_store_provider = "pinecone"
+vector_store_url      = "https://index-name.svc.pinecone.io"
+vector_store_api_key  = "pinecone-api-key"
+```
+
+#### Weaviate
+
+```terraform
+vector_store_provider = "weaviate"
+vector_store_url      = "https://demo.weaviate.cloud"
+vector_store_api_key  = "weaviate-api-key"
+```
+
+#### Chroma
+
+```terraform
+vector_store_provider = "chroma"
+vector_store_url      = "https://chroma.example.com:8000"
+```
+
+#### PgVector
+
+```terraform
+vector_store_provider = "pgvector"
+vector_store_url      = "postgresql://user:pass@host:5432/db"
+```
+
+#### Milvus (Zilliz Cloud)
+
+```terraform
+vector_store_provider = "milvus"
+vector_store_url      = "https://xyz.api.zillizcloud.com"
+vector_store_api_key  = "zilliz-token"
+```
+
+#### Elasticsearch
+
+```terraform
+vector_store_provider = "elasticsearch"
+vector_store_url      = "https://es.example.com:9200"
+```
+
+#### OpenSearch
+
+```terraform
+vector_store_provider = "opensearch"
+vector_store_url      = "https://os.example.com:9200"
+```
+
+#### Redis
+
+```terraform
+vector_store_provider = "redis"
+vector_store_url      = "redis://redis.example.com:6379"
+```
+
+#### MongoDB Atlas
+
+```terraform
+vector_store_provider = "mongodb"
+vector_store_url      = "mongodb+srv://user:pass@cluster.xzy.mongodb.net"
+```
+
+#### Azure AI Search
+
+```terraform
+vector_store_provider = "azure-ai-search"
+vector_store_url      = "https://search-svc.search.windows.net"
+vector_store_api_key  = "azure-search-key"
+```
+
+#### LanceDB (zero-config, embedded)
+
+```terraform
+vector_store_provider = "lancedb"
+```
+
+#### Vespa
+
+```terraform
+vector_store_provider = "vespa"
+vector_store_url      = "https://vespa.example.com:8080"
+```
+
+#### Supabase
+
+```terraform
+vector_store_provider = "supabase"
+vector_store_url      = "https://project.supabase.co"
+vector_store_api_key  = "supabase-anon-key"
+```
 
 ### Monitoring
 
@@ -211,12 +310,12 @@ jobs:
 # cloudbuild.yaml
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/hybrid-rag-qdrant:$SHORT_SHA', '.']
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/hybrid-rag:$SHORT_SHA', '.']
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/hybrid-rag-qdrant:$SHORT_SHA']
+    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/hybrid-rag:$SHORT_SHA']
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
-    args: ['run', 'deploy', '${_SERVICE}', '--image', '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/hybrid-rag-qdrant:$SHORT_SHA', '--region', '${_REGION}']
+    args: ['run', 'deploy', '${_SERVICE}', '--image', '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/hybrid-rag:$SHORT_SHA', '--region', '${_REGION}']
 ```
 
 ## Troubleshooting
@@ -243,25 +342,25 @@ steps:
 **AWS:**
 ```bash
 # View ECS task logs
-aws logs tail /aws/ecs/hybrid-rag-qdrant-cluster --follow
+aws logs tail /aws/ecs/hybrid-rag-cluster --follow
 
 # Execute command in running task
-aws ecs execute-command --cluster hybrid-rag-qdrant-cluster --task <task-arn> --interactive
+aws ecs execute-command --cluster hybrid-rag-cluster --task <task-arn> --interactive
 
 # Scale service
-aws ecs update-service --cluster hybrid-rag-qdrant-cluster --service hybrid-rag-qdrant-service --desired-count 5
+aws ecs update-service --cluster hybrid-rag-cluster --service hybrid-rag-service --desired-count 5
 ```
 
 **GCP:**
 ```bash
 # View Cloud Run logs
-gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=hybrid-rag-qdrant" --limit=50 --format=json
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=hybrid-rag" --limit=50 --format=json
 
 # SSH into Cloud Run (not directly possible - use Cloud Run local testing)
-gcloud run services proxy hybrid-rag-qdrant --region us-central1 --port 8080
+gcloud run services proxy hybrid-rag --region us-central1 --port 8080
 
 # Scale service
-gcloud run services update hybrid-rag-qdrant --max-instances=20 --region us-central1
+gcloud run services update hybrid-rag --max-instances=20 --region us-central1
 ```
 
 ## Cleanup

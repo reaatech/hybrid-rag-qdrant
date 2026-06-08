@@ -10,7 +10,7 @@ resource "google_cloud_run_service" "main" {
       timeout_seconds      = var.timeout
 
       containers {
-        image = var.docker_image != "" ? var.docker_image : "${google_artifact_registry_repository.main.location}-docker.pkg.dev/${var.project}/${google_artifact_registry_repository.main.name}/hybrid-rag-qdrant:latest"
+        image = var.docker_image != "" ? var.docker_image : "${google_artifact_registry_repository.main.location}-docker.pkg.dev/${var.project}/${google_artifact_registry_repository.main.name}/hybrid-rag:latest"
         ports {
           container_port = var.container_port
         }

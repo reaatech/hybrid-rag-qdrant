@@ -2,7 +2,7 @@
 resource "aws_secretsmanager_secret" "api_keys" {
   count                   = var.vpc_cidr != "" ? 1 : 0
   name                    = "${var.ecs_cluster_name}-api-keys"
-  description             = "API keys for hybrid-rag-qdrant application"
+  description             = "API keys for hybrid-rag application"
   recovery_window_in_days = 7
 }
 
