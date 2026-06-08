@@ -1,17 +1,17 @@
 {
   "name": "@reaatech/hybrid-rag-evaluation",
-  "version": "0.1.1",
+  "version": "2.0.0",
   "description": "Evaluation runner, ablation studies, and benchmarking for hybrid RAG systems",
   "license": "MIT",
   "author": "Rick Somers <rick@reaatech.com> (https://reaatech.com)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/reaatech/hybrid-rag-qdrant.git",
+    "url": "https://github.com/reaatech/hybrid-rag.git",
     "directory": "packages/hybrid-rag-evaluation"
   },
-  "homepage": "https://github.com/reaatech/hybrid-rag-qdrant/tree/main/packages/hybrid-rag-evaluation#readme",
+  "homepage": "https://github.com/reaatech/hybrid-rag/tree/main/packages/hybrid-rag-evaluation#readme",
   "bugs": {
-    "url": "https://github.com/reaatech/hybrid-rag-qdrant/issues"
+    "url": "https://github.com/reaatech/hybrid-rag/issues"
   },
   "type": "module",
   "main": "./dist/index.cjs",
@@ -39,7 +39,13 @@
   "dependencies": {
     "@reaatech/hybrid-rag": "workspace:*",
     "@reaatech/hybrid-rag-pipeline": "workspace:*",
+    "@reaatech/hybrid-rag-retrieval": "workspace:*",
     "@reaatech/hybrid-rag-observability": "workspace:*",
+    "@reaatech/agent-budget-types": "^0.1.1",
+    "@reaatech/agent-budget-pricing": "^0.1.1",
+    "@reaatech/agent-budget-spend-tracker": "^0.1.1",
+    "@reaatech/agent-budget-engine": "^0.1.1",
+    "@reaatech/guardrail-chain": "^0.1.0",
     "yaml": "^2.8.4"
   },
   "devDependencies": {

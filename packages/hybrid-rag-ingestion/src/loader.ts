@@ -10,6 +10,14 @@ import * as cheerio from 'cheerio';
 import { marked } from 'marked';
 import { PDFParse } from 'pdf-parse';
 
+interface MarkdownToken {
+  type: string;
+  text?: string;
+  tokens?: MarkdownToken[];
+  depth?: number;
+  items?: { tokens?: MarkdownToken[] }[];
+}
+
 /**
  * Custom error for unsupported formats
  */
@@ -225,14 +233,13 @@ export class DocumentLoader {
   /**
    * Convert markdown tokens to plain text
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private tokensToText(tokens: any): string {
+  private tokensToText(tokens: MarkdownToken[]): string {
     const parts: string[] = [];
 
     for (const token of tokens) {
       switch (token.type) {
         case 'heading':
-          if (token.depth <= 3) {
+          if (token.depth != null && token.depth <= 3) {
             parts.push(
               `\n${'#'.repeat(token.depth)} ${this.extractTextFromTokens(token.tokens)}\n`,
             );
@@ -243,19 +250,17 @@ export class DocumentLoader {
           break;
         case 'list':
           parts.push(
-            this.extractTextFromTokens(
-              token.items.flatMap((item: unknown) => (item as { tokens?: unknown[] }).tokens ?? []),
-            ),
+            this.extractTextFromTokens(token.items?.flatMap((item) => item.tokens ?? []) ?? []),
           );
           break;
         case 'text':
-          parts.push(token.text);
+          parts.push(token.text ?? '');
           break;
         case 'code':
-          parts.push(`\n\`\`\`\n${token.text}\n\`\`\`\n`);
+          parts.push(`\n\`\`\`\n${token.text ?? ''}\n\`\`\`\n`);
           break;
         default:
-          if ('tokens' in token && token.tokens) {
+          if (token.tokens) {
             parts.push(this.extractTextFromTokens(token.tokens));
           }
       }
@@ -270,8 +275,7 @@ export class DocumentLoader {
   /**
    * Extract text from token array
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extractTextFromTokens(tokens: any[] | undefined): string {
+  private extractTextFromTokens(tokens: MarkdownToken[] | undefined): string {
     if (!tokens) {
       return '';
     }

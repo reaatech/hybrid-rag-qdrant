@@ -123,6 +123,11 @@ export class FixedSizeChunker {
       }
 
       chunks.push(chunk.trim());
+
+      if (end >= content.length) {
+        break;
+      }
+
       start = end - overlap;
 
       if (start >= content.length) {
@@ -145,6 +150,10 @@ export class FixedSizeChunker {
       const end = Math.min(start + chunkSize, words.length);
       const chunk = words.slice(start, end).join(' ');
       chunks.push(chunk);
+
+      if (end >= words.length) {
+        break;
+      }
 
       start = end - overlap;
       if (start >= words.length) {
@@ -169,6 +178,10 @@ export class FixedSizeChunker {
       const tokenChunk = tokens.slice(start, end);
       const chunk = new TextDecoder().decode(encoder.decode(tokenChunk));
       chunks.push(chunk);
+
+      if (end >= tokens.length) {
+        break;
+      }
 
       start = end - overlap;
       if (start >= tokens.length) {

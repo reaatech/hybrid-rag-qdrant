@@ -1,17 +1,17 @@
 {
   "name": "@reaatech/hybrid-rag-ingestion",
-  "version": "0.1.1",
+  "version": "2.0.0",
   "description": "Document loading, preprocessing, and chunking strategies for hybrid RAG systems",
   "license": "MIT",
   "author": "Rick Somers <rick@reaatech.com> (https://reaatech.com)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/reaatech/hybrid-rag-qdrant.git",
+    "url": "https://github.com/reaatech/hybrid-rag.git",
     "directory": "packages/hybrid-rag-ingestion"
   },
-  "homepage": "https://github.com/reaatech/hybrid-rag-qdrant/tree/main/packages/hybrid-rag-ingestion#readme",
+  "homepage": "https://github.com/reaatech/hybrid-rag/tree/main/packages/hybrid-rag-ingestion#readme",
   "bugs": {
-    "url": "https://github.com/reaatech/hybrid-rag-qdrant/issues"
+    "url": "https://github.com/reaatech/hybrid-rag/issues"
   },
   "type": "module",
   "main": "./dist/index.cjs",

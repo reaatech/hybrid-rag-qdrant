@@ -1,5 +1,5 @@
 /**
- * OpenTelemetry tracing for hybrid-rag-qdrant
+ * OpenTelemetry tracing for hybrid-rag
  */
 
 import type { Span, Tracer } from '@opentelemetry/api';
@@ -8,6 +8,7 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { ConsoleSpanExporter, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { BatchSpanProcessor, NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
+import type { StandardFilter } from '@reaatech/hybrid-rag';
 
 /**
  * Tracing configuration
@@ -27,7 +28,7 @@ export interface TracingConfig {
  * Default configuration
  */
 const DEFAULT_CONFIG: TracingConfig = {
-  serviceName: 'hybrid-rag-qdrant',
+  serviceName: 'hybrid-rag',
   consoleExport: false,
   samplingRate: 1.0,
 };
@@ -70,7 +71,7 @@ export class TracingManager {
     });
 
     this.provider.register();
-    this.tracer = trace.getTracer(this.config.serviceName ?? 'hybrid-rag-qdrant');
+    this.tracer = trace.getTracer(this.config.serviceName ?? 'hybrid-rag');
   }
 
   /**
@@ -117,7 +118,7 @@ export class TracingManager {
   /**
    * Start a vector search span
    */
-  startVectorSearchSpan(k: number, filter?: Record<string, unknown>): Span | null {
+  startVectorSearchSpan(k: number, filter?: StandardFilter): Span | null {
     if (!this.tracer) {
       return null;
     }

@@ -32,6 +32,12 @@ export {
   type PricingConfig,
 } from './benchmarking/cost.js';
 export {
+  benchmarkVectorStores,
+  type DBBenchmarkOptions,
+  type DBBenchmarkQuery,
+  type DBBenchmarkResult,
+} from './benchmarking/db-benchmark.js';
+export {
   type BenchmarkQueryFn,
   benchmarkComponentLatency,
   benchmarkLatency,
