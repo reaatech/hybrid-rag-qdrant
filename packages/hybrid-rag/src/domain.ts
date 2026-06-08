@@ -1,6 +1,8 @@
 /**
- * Core domain types for hybrid-rag-qdrant
+ * Core domain types for hybrid-rag
  */
+
+import type { StandardFilter } from './vector-store.js';
 
 // ============================================================================
 // Document Types
@@ -111,7 +113,7 @@ export interface VectorQuery {
   /** Similarity metric (cosine, euclidean, dot) */
   distance?: 'cosine' | 'euclidean' | 'dot';
   /** Metadata filters */
-  filter?: Record<string, unknown>;
+  filter?: StandardFilter;
   /** Collection name */
   collection?: string;
 }
@@ -129,7 +131,7 @@ export interface BM25Query {
   /** BM25 b parameter */
   b?: number;
   /** Metadata filters */
-  filter?: Record<string, unknown>;
+  filter?: StandardFilter;
 }
 
 /**
@@ -144,8 +146,8 @@ export interface RetrievalResult {
   content: string;
   /** Retrieval score */
   score: number;
-  /** Source of the score (vector, bm25, etc.) */
-  source: 'vector' | 'bm25';
+  /** Source of the score (vector, bm25, hybrid-native, etc.) */
+  source: 'vector' | 'bm25' | 'hybrid-native' | 'fusion';
   /** Metadata */
   metadata: Record<string, unknown>;
 }
