@@ -1,5 +1,5 @@
 /**
- * Structured logging for hybrid-rag-qdrant
+ * Structured logging for hybrid-rag
  */
 
 import pino from 'pino';

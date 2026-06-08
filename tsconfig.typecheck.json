@@ -13,7 +13,23 @@
       "@reaatech/hybrid-rag-pipeline": ["./packages/hybrid-rag-pipeline/src/index.ts"],
       "@reaatech/hybrid-rag-evaluation": ["./packages/hybrid-rag-evaluation/src/index.ts"],
       "@reaatech/hybrid-rag-mcp-server": ["./packages/hybrid-rag-mcp-server/src/index.ts"],
-      "@reaatech/hybrid-rag-cli": ["./packages/hybrid-rag-cli/src/index.ts"]
+      "@reaatech/hybrid-rag-cli": ["./packages/hybrid-rag-cli/src/index.ts"],
+      "@reaatech/hybrid-rag-pinecone": ["./packages/hybrid-rag-pinecone/src/index.ts"],
+      "@reaatech/hybrid-rag-weaviate": ["./packages/hybrid-rag-weaviate/src/index.ts"],
+      "@reaatech/hybrid-rag-chroma": ["./packages/hybrid-rag-chroma/src/index.ts"],
+      "@reaatech/hybrid-rag-pgvector": ["./packages/hybrid-rag-pgvector/src/index.ts"],
+      "@reaatech/hybrid-rag-milvus": ["./packages/hybrid-rag-milvus/src/index.ts"],
+      "@reaatech/hybrid-rag-elasticsearch": ["./packages/hybrid-rag-elasticsearch/src/index.ts"],
+      "@reaatech/hybrid-rag-opensearch": ["./packages/hybrid-rag-opensearch/src/index.ts"],
+      "@reaatech/hybrid-rag-redis": ["./packages/hybrid-rag-redis/src/index.ts"],
+      "@reaatech/hybrid-rag-mongodb": ["./packages/hybrid-rag-mongodb/src/index.ts"],
+      "@reaatech/hybrid-rag-azure-ai-search": [
+        "./packages/hybrid-rag-azure-ai-search/src/index.ts"
+      ],
+      "@reaatech/hybrid-rag-lancedb": ["./packages/hybrid-rag-lancedb/src/index.ts"],
+      "@reaatech/hybrid-rag-vespa": ["./packages/hybrid-rag-vespa/src/index.ts"],
+      "@reaatech/hybrid-rag-supabase": ["./packages/hybrid-rag-supabase/src/index.ts"],
+      "@reaatech/hybrid-rag-migration": ["./packages/hybrid-rag-migration/src/index.ts"]
     }
   }
 }

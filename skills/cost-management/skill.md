@@ -13,10 +13,50 @@ Track costs across all RAG components in real-time:
 | Component | Cost Factors |
 |-----------|-------------|
 | Embeddings | Tokens × model pricing |
-| Vector Search | Qdrant operations |
+| Vector Store | DB operations (varies by provider) |
+| Vector Search | Vector similarity queries |
 | BM25 Search | CPU/memory usage |
 | Reranking | API calls × provider pricing |
 | LLM-as-Judge | Judge model tokens |
+
+### Vector Store Cost Tracking
+
+Each adapter exposes its own `VectorStoreCostModel` for provider-specific pricing:
+
+```typescript
+import type { VectorStoreCostModel } from '@reaatech/hybrid-rag-retrieval';
+// Access via any adapter:
+const costModel: VectorStoreCostModel = adapter.getCostModel();
+// {
+//   provider: 'pinecone',
+//   pricingModel: 'per-node',
+//   costPerQuery: 0.00001,
+//   costPerUpsert: 0.00005,
+//   costPerGbMonth: 0.33,
+//   estimatedMonthlyCost: (vectors, dims) => ...
+// }
+```
+
+Per-provider breakdown:
+
+| Provider | Pricing Model | Query Cost | Notes |
+|----------|--------------|------------|-------|
+| Qdrant | Free (self-hosted) | $0 | Infrastructure cost only |
+| Chroma | Free (self-hosted) | $0 | Infrastructure cost only |
+| PgVector | Free (self-hosted) | $0 | Infrastructure cost only |
+| Milvus | Free (self-hosted) | $0 | Infrastructure cost only |
+| Weaviate | Free (self-hosted) | $0 | Cloud: per-hour + per-DU |
+| Pinecone | Per-node | ~$0.00001 | Serverless: per-RU |
+| MongoDB Atlas | Per-query | ~$0.00002 | Atlas Vector Search pricing |
+| Elasticsearch | Per-node | $0 (self-hosted) | Elastic Cloud: per-resource |
+| Azure AI Search | Per-DU (dimension) | ~$0.00003 | Azure resource pricing |
+| Supabase | Per-compute | ~$0.00001 | Compute add-on for pgvector |
+| LanceDB | Free (embedded) | $0 | Embedded, no server needed |
+| Redis | Free (self-hosted) | $0 | Redis Cloud: per-database |
+| Vespa | Free (self-hosted) | $0 | Managed Vespa: per-node |
+| OpenSearch | Free (self-hosted) | $0 | AWS OpenSearch: per-instance |
+
+The cost manager aggregates vector store costs alongside embeddings, reranking, and judge costs for a complete view.
 
 ### Budget Management
 

@@ -13,7 +13,7 @@ import { parse as load } from 'yaml';
 
 export interface AblateOptions {
   output: string;
-  qdrantUrl: string;
+  vectorStore?: string;
   collection: string;
 }
 

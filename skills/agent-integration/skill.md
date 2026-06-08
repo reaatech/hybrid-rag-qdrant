@@ -2,7 +2,7 @@
 
 ## Overview
 
-Agent integration enables seamless interoperability between hybrid-rag-qdrant and multi-agent systems like agent-mesh. This skill provides tools for agent discovery, cross-agent communication, intent-based routing, and collaborative workflows.
+Agent integration enables seamless interoperability between hybrid-rag and multi-agent systems like agent-mesh. This skill provides tools for agent discovery, cross-agent communication, intent-based routing, and collaborative workflows.
 
 ## Capabilities
 
@@ -74,11 +74,11 @@ Register callbacks for async agent responses:
 
 ### Integration with agent-mesh
 
-Register hybrid-rag-qdrant as an agent in agent-mesh:
+Register hybrid-rag as an agent in agent-mesh:
 
 ```yaml
 # agents/hybrid-rag.yaml
-agent_id: hybrid-rag-qdrant
+agent_id: hybrid-rag
 display_name: Hybrid RAG System
 description: >-
   Enterprise-grade RAG system with hybrid retrieval (vector + BM25),

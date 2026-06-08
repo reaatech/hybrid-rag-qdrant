@@ -48,8 +48,8 @@ module "cloud_run" {
   project        = var.project
   region         = var.region
   environment    = "dev"
-  service_name   = "hybrid-rag-qdrant-dev"
-  docker_image   = var.docker_image != "" ? var.docker_image : "${var.region}-docker.pkg.dev/${var.project}/hybrid-rag-qdrant/hybrid-rag-qdrant:latest"
+  service_name   = "hybrid-rag-dev"
+  docker_image   = var.docker_image != "" ? var.docker_image : "${var.region}-docker.pkg.dev/${var.project}/hybrid-rag/hybrid-rag:latest"
   min_instances  = 0
   max_instances  = 5
   memory         = "512Mi"

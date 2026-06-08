@@ -2,6 +2,40 @@
  * Generation evaluation metrics (LLM output quality)
  */
 
+type GuardrailChainLike = {
+  addGuardrail: (guardrail: unknown) => GuardrailChainLike;
+  execute: (input: unknown) => Promise<{
+    success: boolean;
+    output?: unknown;
+  }>;
+};
+
+type GuardrailModuleLike = {
+  GuardrailChain?: new (...args: unknown[]) => GuardrailChainLike;
+  Guardrail?: new (...args: unknown[]) => unknown;
+  ChainBuilder?: new (
+    ...args: unknown[]
+  ) => {
+    addCheck?: (...args: unknown[]) => unknown;
+    build?: () => GuardrailChainLike;
+  };
+};
+
+let guardrailModule: GuardrailModuleLike | null = null;
+let guardrailLoadAttempted = false;
+
+async function getGuardrailModule(): Promise<GuardrailModuleLike | null> {
+  if (guardrailModule) return guardrailModule;
+  if (guardrailLoadAttempted) return null;
+  guardrailLoadAttempted = true;
+  try {
+    guardrailModule = (await import('@reaatech/guardrail-chain')) as GuardrailModuleLike;
+    return guardrailModule;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Generation evaluation result for a single query
  */
@@ -174,7 +208,7 @@ export function answerCorrectnessScore(answer: string, groundTruth: string): num
 }
 
 /**
- * Evaluate a single query's generation
+ * Evaluate a single query's generation with deterministic local metrics.
  */
 export function evaluateGeneration(
   queryId: string,
@@ -196,6 +230,72 @@ export function evaluateGeneration(
   }
 
   return result;
+}
+
+/**
+ * Evaluate generation through @reaatech/guardrail-chain when available.
+ * Falls back to the synchronous local metrics when the optional package cannot run.
+ */
+export async function evaluateGenerationWithGuardrails(
+  queryId: string,
+  query: string,
+  answer: string,
+  sourceChunks: string[],
+  groundTruth?: string,
+): Promise<QueryGenerationResult> {
+  const fallback = evaluateGeneration(queryId, query, answer, sourceChunks, groundTruth);
+  const mod = await getGuardrailModule();
+  if (!mod?.GuardrailChain) {
+    return fallback;
+  }
+
+  try {
+    const metricGuardrail = {
+      id: 'generation-quality-metrics',
+      name: 'Generation Quality Metrics',
+      type: 'output' as const,
+      enabled: true,
+      shortCircuitOnFail: false,
+      execute: async () => ({
+        passed: true,
+        output: fallback,
+        confidence: Math.min(
+          fallback.relevance,
+          fallback.fluency,
+          fallback.coherence,
+          fallback.faithfulness,
+        ),
+        metadata: { duration: 0 },
+      }),
+    };
+    const chain = new mod.GuardrailChain({
+      budget: { maxLatencyMs: 1_000, maxTokens: 4_000 },
+      errorHandling: { failOpen: true },
+    }).addGuardrail(metricGuardrail);
+    const result = await chain.execute({
+      queryId,
+      query,
+      answer,
+      sourceChunks,
+      groundTruth,
+    });
+    const output = (result.output ?? fallback) as Partial<QueryGenerationResult>;
+
+    return {
+      queryId,
+      relevance: typeof output.relevance === 'number' ? output.relevance : fallback.relevance,
+      fluency: typeof output.fluency === 'number' ? output.fluency : fallback.fluency,
+      coherence: typeof output.coherence === 'number' ? output.coherence : fallback.coherence,
+      faithfulness:
+        typeof output.faithfulness === 'number' ? output.faithfulness : fallback.faithfulness,
+      answerCorrectness:
+        typeof output.answerCorrectness === 'number'
+          ? output.answerCorrectness
+          : fallback.answerCorrectness,
+    };
+  } catch {
+    return fallback;
+  }
 }
 
 /**

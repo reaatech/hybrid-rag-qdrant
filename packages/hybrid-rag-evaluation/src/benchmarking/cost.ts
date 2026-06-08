@@ -57,6 +57,50 @@ export const DEFAULT_PRICING: PricingConfig = {
   vectorSearchPerThousand: 1.0, // Qdrant Cloud estimate
 };
 
+type PricingEngineLike = {
+  estimateCost?: (
+    modelId: string,
+    estimatedInputTokens: number,
+    provider?: string,
+    outputRatio?: number,
+  ) => number;
+  computeCost?: (
+    inputTokens: number,
+    outputTokens: number,
+    modelId: string,
+    provider?: string,
+  ) => number;
+};
+
+let pricingEngine: PricingEngineLike | null = null;
+let pricingEngineLoadAttempted = false;
+
+export async function getPricingEngine(): Promise<PricingEngineLike | null> {
+  if (pricingEngine) return pricingEngine;
+  if (pricingEngineLoadAttempted) return null;
+  pricingEngineLoadAttempted = true;
+  try {
+    const { PricingEngine } = await import('@reaatech/agent-budget-pricing');
+    pricingEngine = new PricingEngine() as PricingEngineLike;
+    return pricingEngine;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeCostBreakdown(cost: number | CostBreakdown): CostBreakdown {
+  if (typeof cost === 'number') {
+    return {
+      embedding: 0,
+      vectorSearch: 0,
+      bm25Search: 0,
+      reranker: 0,
+      total: cost,
+    };
+  }
+  return cost;
+}
+
 /**
  * Calculate embedding cost
  */
@@ -128,6 +172,59 @@ export function calculateQueryCost(options: {
     reranker,
     total: embedding + vectorSearch + reranker,
   };
+}
+
+/**
+ * Estimate query cost through @reaatech/agent-budget-pricing when available.
+ * The synchronous calculators remain as deterministic fallbacks for tests and offline runs.
+ */
+export async function estimateQueryCost(options: {
+  embeddingInputTokens: number;
+  embeddingOutputTokens?: number;
+  rerankerCalls: number;
+  rerankerInputTokens?: number;
+  vectorSearchRequests: number;
+  pricing?: PricingConfig;
+  provider?: string;
+  embeddingModel?: string;
+  rerankerModel?: string;
+}): Promise<CostBreakdown> {
+  const engine = await getPricingEngine();
+  if (engine) {
+    try {
+      const embeddingModel = options.embeddingModel ?? 'text-embedding-3-small';
+      const embedding = engine.computeCost
+        ? engine.computeCost(
+            options.embeddingInputTokens,
+            options.embeddingOutputTokens ?? 0,
+            embeddingModel,
+            options.provider,
+          )
+        : (engine.estimateCost?.(embeddingModel, options.embeddingInputTokens, options.provider) ??
+          0);
+      const reranker = options.rerankerModel
+        ? (engine.estimateCost?.(
+            options.rerankerModel,
+            options.rerankerInputTokens ?? 0,
+            options.provider,
+          ) ?? 0)
+        : calculateRerankerCost(options.rerankerCalls, options.rerankerInputTokens ?? 0);
+      const vectorSearch = calculateVectorSearchCost(
+        options.vectorSearchRequests,
+        options.pricing ?? DEFAULT_PRICING,
+      );
+      return normalizeCostBreakdown({
+        embedding,
+        vectorSearch,
+        bm25Search: 0,
+        reranker,
+        total: embedding + vectorSearch + reranker,
+      });
+    } catch {
+      // Fall back below when the optional pricing package is unavailable or changes shape.
+    }
+  }
+  return calculateQueryCost(options);
 }
 
 /**

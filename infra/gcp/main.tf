@@ -19,7 +19,7 @@ terraform {
   backend "gcs" {
     # Uncomment and configure for remote state
     # bucket = "your-terraform-state-bucket"
-    # prefix = "hybrid-rag-qdrant/state"
+    # prefix = "hybrid-rag/state"
   }
 }
 

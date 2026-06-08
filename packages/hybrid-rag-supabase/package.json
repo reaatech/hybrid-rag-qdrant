@@ -1,0 +1,48 @@
+{
+  "name": "@reaatech/hybrid-rag-supabase",
+  "version": "2.0.0",
+  "description": "Supabase vector database adapter for hybrid RAG systems",
+  "license": "MIT",
+  "author": "Rick Somers <rick@reaatech.com> (https://reaatech.com)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/reaatech/hybrid-rag.git",
+    "directory": "packages/hybrid-rag-supabase"
+  },
+  "homepage": "https://github.com/reaatech/hybrid-rag/tree/main/packages/hybrid-rag-supabase#readme",
+  "bugs": {
+    "url": "https://github.com/reaatech/hybrid-rag/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "test": "vitest run --passWithNoTests",
+    "test:coverage": "vitest run --coverage --passWithNoTests",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@reaatech/hybrid-rag": "workspace:*",
+    "@supabase/supabase-js": "^2.49.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.4.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6"
+  }
+}

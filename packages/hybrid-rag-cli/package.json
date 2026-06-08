@@ -1,17 +1,17 @@
 {
   "name": "@reaatech/hybrid-rag-cli",
-  "version": "0.1.1",
+  "version": "2.0.0",
   "description": "CLI interface for hybrid RAG systems",
   "license": "MIT",
   "author": "Rick Somers <rick@reaatech.com> (https://reaatech.com)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/reaatech/hybrid-rag-qdrant.git",
+    "url": "https://github.com/reaatech/hybrid-rag.git",
     "directory": "packages/hybrid-rag-cli"
   },
-  "homepage": "https://github.com/reaatech/hybrid-rag-qdrant/tree/main/packages/hybrid-rag-cli#readme",
+  "homepage": "https://github.com/reaatech/hybrid-rag/tree/main/packages/hybrid-rag-cli#readme",
   "bugs": {
-    "url": "https://github.com/reaatech/hybrid-rag-qdrant/issues"
+    "url": "https://github.com/reaatech/hybrid-rag/issues"
   },
   "type": "module",
   "main": "./dist/index.cjs",
@@ -31,7 +31,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean --external '@reaatech/hybrid-rag-migration'",
     "test": "vitest run --passWithNoTests",
     "test:coverage": "vitest run --coverage --passWithNoTests",
     "clean": "rm -rf dist"
@@ -46,6 +46,7 @@
     "@reaatech/hybrid-rag-mcp-server": "workspace:*",
     "@reaatech/hybrid-rag-evaluation": "workspace:*",
     "@reaatech/hybrid-rag-ingestion": "workspace:*",
+    "@reaatech/hybrid-rag-migration": "workspace:*",
     "commander": "^15.0.0",
     "chalk": "^5.3.0",
     "cli-progress": "^3.12.0",

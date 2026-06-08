@@ -14,7 +14,7 @@ export interface BenchmarkOptions {
   output: string;
   queries: number;
   iterations: number;
-  qdrantUrl: string;
+  vectorStore?: string;
   collection: string;
 }
 

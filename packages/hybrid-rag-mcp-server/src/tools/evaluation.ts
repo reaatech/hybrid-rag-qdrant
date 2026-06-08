@@ -1,13 +1,7 @@
-/**
- * MCP Evaluation Tools
- */
-
+import { vectorStoreConfigSchema } from '@reaatech/hybrid-rag';
 import type { RAGPipeline } from '@reaatech/hybrid-rag-pipeline';
 import type { RAGTool } from '../types.js';
 
-/**
- * rag.evaluate - Run evaluation on a dataset
- */
 export const ragEvaluate: RAGTool = {
   name: 'rag.evaluate',
   description: 'Run evaluation on a dataset and calculate metrics',
@@ -53,9 +47,6 @@ export const ragEvaluate: RAGTool = {
   },
 };
 
-/**
- * rag.ablation - Run ablation study
- */
 export const ragAblation: RAGTool = {
   name: 'rag.ablation',
   description: 'Run ablation study to measure component contributions',
@@ -93,9 +84,6 @@ export const ragAblation: RAGTool = {
   },
 };
 
-/**
- * rag.benchmark - Run performance benchmarks
- */
 export const ragBenchmark: RAGTool = {
   name: 'rag.benchmark',
   description: 'Run performance benchmarks (latency, throughput, cost)',
@@ -147,4 +135,85 @@ export const ragBenchmark: RAGTool = {
   },
 };
 
-export const evaluationTools: RAGTool[] = [ragEvaluate, ragAblation, ragBenchmark];
+export const ragBenchmarkDb: RAGTool = {
+  name: 'rag.benchmark_db',
+  description: 'Compare performance across configured vector databases',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      configs: {
+        type: 'array',
+        items: { type: 'object' },
+        description: 'Vector store configs to compare',
+      },
+      queries: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            query: { type: 'string' },
+            relevantChunkIds: { type: 'array', items: { type: 'string' } },
+          },
+        },
+        description: 'Benchmark queries with ground truth',
+      },
+      iterations: {
+        type: 'number',
+        description: 'Iterations per query (default: 10)',
+        default: 10,
+      },
+    },
+    required: ['configs', 'queries'],
+  },
+  handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
+    try {
+      const configs = args.configs as Record<string, unknown>[];
+      const queries = args.queries as Array<{ query: string; relevantChunkIds: string[] }>;
+      const iterations = (args.iterations as number) ?? 10;
+
+      const validatedConfigs = configs.map((c) => vectorStoreConfigSchema.parse(c));
+
+      const evalModName = '@reaatech/hybrid-rag-evaluation';
+      const { benchmarkVectorStores } = (await import(evalModName)) as {
+        benchmarkVectorStores: (
+          configs: unknown[],
+          queries: Array<{ query: string; relevantChunkIds: string[] }>,
+          options: { iterations: number },
+        ) => Promise<unknown>;
+      };
+
+      const results = await benchmarkVectorStores(validatedConfigs, queries, { iterations });
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(results, null, 2),
+          },
+        ],
+      };
+    } catch (error) {
+      const err = error as Error & { code?: string };
+      if (err.code === 'ERR_MODULE_NOT_FOUND') {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                error:
+                  'Evaluation package not installed. Run: pnpm add @reaatech/hybrid-rag-evaluation',
+              }),
+            },
+          ],
+          isError: true,
+        };
+      }
+      return {
+        content: [{ type: 'text', text: JSON.stringify({ error: err.message }) }],
+        isError: true,
+      };
+    }
+  },
+};
+
+export const evaluationTools: RAGTool[] = [ragEvaluate, ragAblation, ragBenchmark, ragBenchmarkDb];

@@ -1,7 +1,42 @@
 # Vector Retrieval
 
 ## Capability
-Semantic search using Qdrant vector database with provider-agnostic embeddings.
+Multi-provider semantic search via any supported vector database backend (15 backends in v2.0.0). Uses the `VectorStoreFactory` and `createVectorStore()` pattern to swap databases without changing retrieval logic.
+
+## Multi-Provider Architecture
+
+`VectorSearchEngine` uses dependency injection to accept any `VectorStoreAdapter`:
+
+```typescript
+import { VectorSearchEngine, createVectorStore } from '@reaatech/hybrid-rag-retrieval';
+
+const vectorStore = await createVectorStore({
+  provider: 'qdrant',       // or 'pinecone', 'weaviate', 'chroma', 'pgvector', etc.
+  url: process.env.VECTOR_STORE_URL,
+  apiKey: process.env.VECTOR_STORE_API_KEY,
+  collectionName: 'documents',
+});
+
+const searchEngine = new VectorSearchEngine(vectorStore);
+await searchEngine.initialize();
+```
+
+### `VectorStoreFactory` Pattern
+
+```typescript
+import { VectorStoreFactory } from '@reaatech/hybrid-rag-retrieval';
+
+const factory = new VectorStoreFactory();
+factory.register('qdrant', QdrantAdapter);
+factory.register('pinecone', PineconeAdapter);
+// ... 15 backends registered
+
+const store = factory.create('pinecone', {
+  apiKey: process.env.PINECONE_API_KEY,
+  environment: 'us-east-1-aws',
+  collectionName: 'documents',
+});
+```
 
 ## Embedding Providers
 
@@ -18,18 +53,25 @@ Semantic search using Qdrant vector database with provider-agnostic embeddings.
 import { VectorSearchEngine } from '@reaatech/hybrid-rag-retrieval';
 import { EmbeddingService } from '@reaatech/hybrid-rag-embedding';
 
-const retriever = new VectorRetriever({
-  qdrantUrl: process.env.QDRANT_URL,
+const vectorStore = await createVectorStore({
+  provider: 'qdrant',
+  vectorStore: {
+    url: process.env.VECTOR_STORE_URL,
+    apiKey: process.env.VECTOR_STORE_API_KEY,
+  },
   embeddingProvider: EmbeddingProvider.OPENAI,
   model: 'text-embedding-3-small',
   collectionName: 'documents',
 });
 
+const searchEngine = new VectorSearchEngine(vectorStore);
+await searchEngine.initialize();
+
 // Index chunks
-await retriever.upsert(chunks);
+await searchEngine.upsert(chunks);
 
 // Search
-const results = await retriever.search(query, {
+const results = await searchEngine.search(query, {
   topK: 10,
   filter: { department: 'engineering' },
 });

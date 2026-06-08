@@ -53,7 +53,7 @@ resource "google_cloud_run_service" "main" {
       volumes {
         name = "google-cloud-key"
         secret {
-          name         = "hybrid-rag-qdrant-secrets"
+          name         = "hybrid-rag-secrets"
           secret_items = ["qdrant-api-key"]
         }
       }

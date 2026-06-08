@@ -28,13 +28,13 @@ variable "availability_zones" {
 variable "ecs_cluster_name" {
   description = "Name of the ECS cluster"
   type        = string
-  default     = "hybrid-rag-qdrant-cluster"
+  default     = "hybrid-rag-cluster"
 }
 
 variable "service_name" {
   description = "Name of the ECS service"
   type        = string
-  default     = "hybrid-rag-qdrant-service"
+  default     = "hybrid-rag-service"
 }
 
 variable "task_cpu" {
@@ -80,16 +80,23 @@ variable "docker_image" {
   default     = ""
 }
 
-# Qdrant Variables
-variable "qdrant_url" {
-  description = "Qdrant server URL (external or self-hosted)"
+# Vector Store Variables
+variable "vector_store_provider" {
+  description = "Vector store provider (qdrant, pinecone, weaviate, chroma, pgvector, milvus, elasticsearch, opensearch, redis, mongodb, azure-ai-search, lancedb, vespa, supabase)"
+  type        = string
+  default     = "qdrant"
+}
+
+variable "vector_store_url" {
+  description = "Vector store server URL (Qdrant Cloud, Pinecone host, Weaviate endpoint, etc.)"
   type        = string
   default     = ""
 }
 
-variable "qdrant_api_key" {
-  description = "Qdrant API key (if required)"
+variable "vector_store_api_key" {
+  description = "Vector store API key (if required by provider)"
   type        = string
+  sensitive   = true
   default     = ""
 }
 
@@ -162,7 +169,7 @@ variable "tags" {
 locals {
   common_tags = merge(
     {
-      Project     = "hybrid-rag-qdrant"
+      Project     = "hybrid-rag"
       Environment = var.environment
       ManagedBy   = "terraform"
     },

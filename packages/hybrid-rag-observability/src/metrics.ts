@@ -1,5 +1,5 @@
 /**
- * OpenTelemetry metrics for hybrid-rag-qdrant
+ * OpenTelemetry metrics for hybrid-rag
  */
 
 import type { Counter, Histogram, Meter } from '@opentelemetry/api';
@@ -71,7 +71,7 @@ export class MetricsCollector {
 
     this.provider = new MeterProvider({ readers });
 
-    this.meter = this.provider.getMeter('hybrid-rag-qdrant', '1.0.0');
+    this.meter = this.provider.getMeter('hybrid-rag', '1.0.0');
 
     // Initialize counters
     this.queriesTotal = this.meter.createCounter('rag.queries.total', {

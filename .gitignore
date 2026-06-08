@@ -32,6 +32,8 @@ datasets/*
 .vscode/
 *.swp
 *.swo
+.claude
+.opencode
 
 # Temporary files
 tmp/
@@ -46,3 +48,16 @@ packages/*/src/**/*.js
 packages/*/src/**/*.js.map
 packages/*/src/**/*.d.ts
 packages/*/src/**/*.d.ts.map
+
+dev
+DEV_PLAN.md
+
+# Vector store data (LanceDB embedded default)
+.lancedb-data/
+
+# Migration export files
+*.ndjson
+exports/
+
+# Claude Code agent memory (must not be committed)
+memory/

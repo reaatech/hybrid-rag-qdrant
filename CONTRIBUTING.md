@@ -1,4 +1,4 @@
-# Contributing to hybrid-rag-qdrant
+# Contributing to hybrid-rag
 
 Thank you for your interest in contributing! This guide will help you get started.
 
@@ -14,8 +14,8 @@ Thank you for your interest in contributing! This guide will help you get starte
 
 ```bash
 # Clone the repository
-git clone https://github.com/reaatech/hybrid-rag-qdrant.git
-cd hybrid-rag-qdrant
+git clone https://github.com/reaatech/hybrid-rag.git
+cd hybrid-rag
 
 # Install dependencies
 npm install

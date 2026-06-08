@@ -1,17 +1,17 @@
 {
   "name": "@reaatech/hybrid-rag-qdrant",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "description": "Qdrant vector database adapter for hybrid RAG systems",
   "license": "MIT",
   "author": "Rick Somers <rick@reaatech.com> (https://reaatech.com)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/reaatech/hybrid-rag-qdrant.git",
+    "url": "https://github.com/reaatech/hybrid-rag.git",
     "directory": "packages/hybrid-rag-qdrant"
   },
-  "homepage": "https://github.com/reaatech/hybrid-rag-qdrant/tree/main/packages/hybrid-rag-qdrant#readme",
+  "homepage": "https://github.com/reaatech/hybrid-rag/tree/main/packages/hybrid-rag-qdrant#readme",
   "bugs": {
-    "url": "https://github.com/reaatech/hybrid-rag-qdrant/issues"
+    "url": "https://github.com/reaatech/hybrid-rag/issues"
   },
   "type": "module",
   "main": "./dist/index.cjs",

@@ -1,4 +1,4 @@
-# CLAUDE.md — Development Guide for hybrid-rag-qdrant
+# CLAUDE.md — Development Guide for hybrid-rag
 
 This document provides guidance for AI assistants (Claude, etc.) working on this codebase.
 

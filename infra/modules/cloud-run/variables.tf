@@ -83,7 +83,7 @@ variable "labels" {
 locals {
   common_labels = merge(
     {
-      project     = "hybrid-rag-qdrant"
+      project     = "hybrid-rag"
       environment = var.environment
       managed_by  = "terraform"
     },

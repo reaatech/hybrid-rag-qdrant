@@ -1,16 +1,11 @@
-/**
- * Query Command
- */
-
 import type { QueryOptions, RAGPipeline } from '@reaatech/hybrid-rag-pipeline';
 
 export interface QueryCommandOptions {
-  topK: number;
+  topK: number | string;
   rerank: boolean;
-  vectorWeight: number;
-  bm25Weight: number;
-  qdrantUrl: string;
-  collection: string;
+  vectorWeight: number | string;
+  bm25Weight: number | string;
+  vectorStore?: string;
 }
 
 export async function queryCommand(
@@ -21,10 +16,10 @@ export async function queryCommand(
   console.log(`Querying: "${query}"`);
 
   const queryOptions: QueryOptions = {
-    topK: options.topK,
+    topK: Number.parseInt(String(options.topK), 10),
     useReranker: options.rerank,
-    vectorWeight: options.vectorWeight,
-    bm25Weight: options.bm25Weight,
+    vectorWeight: Number.parseFloat(String(options.vectorWeight)),
+    bm25Weight: Number.parseFloat(String(options.bm25Weight)),
   };
 
   const results = await pipeline.query(query, queryOptions);

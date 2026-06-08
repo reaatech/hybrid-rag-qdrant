@@ -103,39 +103,55 @@ class MetricsStore {
 
   update(data: Partial<DashboardMetrics>): void {
     for (const [key, value] of Object.entries(data)) {
+      const k = key as keyof DashboardMetrics;
       if (
         value &&
         typeof value === 'object' &&
         !Array.isArray(value) &&
-        key in this.metrics &&
-        typeof this.metrics[key as keyof DashboardMetrics] === 'object'
+        k in this.metrics &&
+        typeof this.metrics[k] === 'object'
       ) {
-        (this.metrics as Record<string, unknown>)[key] = {
-          ...(this.metrics[key as keyof DashboardMetrics] as object),
-          ...value,
-        };
+        this.metrics = {
+          ...this.metrics,
+          [k]: {
+            ...(this.metrics[k] as object),
+            ...(value as object),
+          },
+        } as Partial<DashboardMetrics>;
       } else {
-        (this.metrics as Record<string, unknown>)[key] = value;
+        this.metrics = {
+          ...this.metrics,
+          [k]: value,
+        } as Partial<DashboardMetrics>;
       }
     }
   }
 
   get(): DashboardMetrics {
     const uptime = (Date.now() - this.startTime) / 1000;
-    const result = { ...emptyMetrics } as DashboardMetrics;
+    let result = { ...emptyMetrics } as DashboardMetrics;
     for (const key of Object.keys(this.metrics) as Array<keyof DashboardMetrics>) {
       const value = this.metrics[key];
       if (value && typeof value === 'object' && !Array.isArray(value)) {
-        (result as unknown as Record<string, unknown>)[key] = {
-          ...(emptyMetrics[key] as object),
-          ...value,
-        };
+        result = {
+          ...result,
+          [key]: {
+            ...(emptyMetrics[key] as object),
+            ...value,
+          },
+        } as DashboardMetrics;
       } else if (value !== undefined) {
-        (result as unknown as Record<string, unknown>)[key] = value;
+        result = {
+          ...result,
+          [key]: value,
+        } as DashboardMetrics;
       }
     }
-    result.timestamp = new Date().toISOString();
-    result.system = { ...emptyMetrics.system, ...(this.metrics.system ?? {}), uptime };
+    result = {
+      ...result,
+      timestamp: new Date().toISOString(),
+      system: { ...emptyMetrics.system, ...(this.metrics.system ?? {}), uptime },
+    } as DashboardMetrics;
     return result;
   }
 
@@ -240,9 +256,32 @@ export function formatForDashboard(metrics: DashboardMetrics): string {
 }
 
 /**
+ * Flat export metrics for external monitoring systems
+ */
+export interface ExportMetrics {
+  'system.health': number;
+  'system.uptime': number;
+  'performance.avg_latency_ms': number;
+  'performance.p50_latency_ms': number;
+  'performance.p90_latency_ms': number;
+  'performance.p99_latency_ms': number;
+  'performance.throughput_qps': number;
+  'performance.error_rate': number;
+  'cost.total_today': number;
+  'cost.avg_per_query': number;
+  'cost.budget_remaining_pct': number;
+  'usage.queries_today': number;
+  'usage.total_documents': number;
+  'usage.active_sessions': number;
+  'quality.relevance_score': number;
+  'quality.faithfulness_score': number;
+  'quality.hallucination_rate': number;
+}
+
+/**
  * Export metrics for external monitoring systems
  */
-export function exportMetrics(): Record<string, unknown> {
+export function exportMetrics(): ExportMetrics {
   const metrics = getDashboardMetrics();
   const health = calculateHealth(metrics);
 

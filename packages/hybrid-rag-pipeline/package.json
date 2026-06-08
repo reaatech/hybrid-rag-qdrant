@@ -1,17 +1,17 @@
 {
   "name": "@reaatech/hybrid-rag-pipeline",
-  "version": "0.1.1",
+  "version": "2.0.0",
   "description": "Main RAG pipeline orchestrator for hybrid RAG systems",
   "license": "MIT",
   "author": "Rick Somers <rick@reaatech.com> (https://reaatech.com)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/reaatech/hybrid-rag-qdrant.git",
+    "url": "https://github.com/reaatech/hybrid-rag.git",
     "directory": "packages/hybrid-rag-pipeline"
   },
-  "homepage": "https://github.com/reaatech/hybrid-rag-qdrant/tree/main/packages/hybrid-rag-pipeline#readme",
+  "homepage": "https://github.com/reaatech/hybrid-rag/tree/main/packages/hybrid-rag-pipeline#readme",
   "bugs": {
-    "url": "https://github.com/reaatech/hybrid-rag-qdrant/issues"
+    "url": "https://github.com/reaatech/hybrid-rag/issues"
   },
   "type": "module",
   "main": "./dist/index.cjs",
@@ -41,7 +41,8 @@
     "@reaatech/hybrid-rag-ingestion": "workspace:*",
     "@reaatech/hybrid-rag-embedding": "workspace:*",
     "@reaatech/hybrid-rag-retrieval": "workspace:*",
-    "@reaatech/hybrid-rag-observability": "workspace:*"
+    "@reaatech/hybrid-rag-observability": "workspace:*",
+    "@reaatech/context-window-planner": "^0.1.0"
   },
   "devDependencies": {
     "tsup": "^8.4.0",

@@ -23,4 +23,12 @@ export {
   weightedSumFusion,
 } from './fusion/strategies.js';
 export { type RerankerConfig, RerankerEngine, type RerankerProvider } from './reranker.js';
+export { SandboxVectorStore } from './sandbox-store.js';
 export { type VectorSearchConfig, VectorSearchEngine } from './vector-search.js';
+export { createVectorStore } from './vector-store-factory.js';
+export {
+  createFromRegistry,
+  getRegisteredProviders,
+  hasProvider,
+  registerVectorStore,
+} from './vector-store-registry.js';

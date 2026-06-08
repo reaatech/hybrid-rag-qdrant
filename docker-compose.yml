@@ -1,6 +1,6 @@
 
 services:
-  hybrid-rag-qdrant:
+  hybrid-rag:
     build:
       context: .
       dockerfile: Dockerfile
@@ -8,16 +8,25 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=development
-      - QDRANT_URL=http://qdrant:6333
+      - VECTOR_STORE_PROVIDER=${VECTOR_STORE_PROVIDER:-lancedb}
+      - VECTOR_STORE_URL=${VECTOR_STORE_URL:-.lancedb-data}
+      - HYBRID_RAG_VECTOR_STORE=${HYBRID_RAG_VECTOR_STORE:-lancedb}
+      - HYBRID_RAG_LANCEDB_URI=${HYBRID_RAG_LANCEDB_URI:-.lancedb-data}
+      - QDRANT_URL=${QDRANT_URL:-http://qdrant:6333}
+      - HYBRID_RAG_QDRANT_URL=${HYBRID_RAG_QDRANT_URL:-http://qdrant:6333}
+      - HYBRID_RAG_CHROMA_URL=${HYBRID_RAG_CHROMA_URL:-http://chroma:8000}
+      - HYBRID_RAG_PGVECTOR_CONNECTION_STRING=${HYBRID_RAG_PGVECTOR_CONNECTION_STRING:-postgresql://rag:ragpass@postgres:5432/ragdb}
+      - HYBRID_RAG_WEAVIATE_URL=${HYBRID_RAG_WEAVIATE_URL:-http://weaviate:8080}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - COHERE_API_KEY=${COHERE_API_KEY:-}
       - JINA_API_KEY=${JINA_API_KEY:-}
       - LOG_LEVEL=debug
-    depends_on:
-      - qdrant
     volumes:
       - ./datasets:/app/datasets:ro
+      - lancedb_data:/app/.lancedb-data
     command: ["node", "node_modules/@reaatech/hybrid-rag-cli/dist/index.js", "serve"]
+    profiles:
+      - app
 
   qdrant:
     image: qdrant/qdrant:latest
@@ -33,7 +42,68 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    profiles:
+      - qdrant
+
+  chroma:
+    image: chromadb/chroma:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_storage:/chroma/chroma
+    profiles:
+      - chroma
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=rag
+      - POSTGRES_PASSWORD=ragpass
+      - POSTGRES_DB=ragdb
+    volumes:
+      - postgres_storage:/var/lib/postgresql/data
+    profiles:
+      - postgres
+
+  weaviate:
+    image: semitechnologies/weaviate:latest
+    ports:
+      - "8080:8080"
+    environment:
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      PERSISTENCE_DATA_PATH: /var/lib/weaviate
+      DEFAULT_VECTORIZER_MODULE: none
+      CLUSTER_HOSTNAME: node1
+    volumes:
+      - weaviate_storage:/var/lib/weaviate
+    profiles:
+      - weaviate
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.3
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - es_storage:/usr/share/elasticsearch/data
+    profiles:
+      - elasticsearch
 
 volumes:
+  lancedb_data:
+    driver: local
   qdrant_storage:
+    driver: local
+  chroma_storage:
+    driver: local
+  postgres_storage:
+    driver: local
+  weaviate_storage:
+    driver: local
+  es_storage:
     driver: local

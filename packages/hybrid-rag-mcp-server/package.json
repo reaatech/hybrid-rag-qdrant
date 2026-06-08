@@ -1,17 +1,17 @@
 {
   "name": "@reaatech/hybrid-rag-mcp-server",
-  "version": "0.1.1",
-  "description": "MCP server with 41+ tools for hybrid RAG integration with agent-mesh",
+  "version": "2.0.0",
+  "description": "MCP server with 47+ tools for hybrid RAG integration with agent-mesh",
   "license": "MIT",
   "author": "Rick Somers <rick@reaatech.com> (https://reaatech.com)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/reaatech/hybrid-rag-qdrant.git",
+    "url": "https://github.com/reaatech/hybrid-rag.git",
     "directory": "packages/hybrid-rag-mcp-server"
   },
-  "homepage": "https://github.com/reaatech/hybrid-rag-qdrant/tree/main/packages/hybrid-rag-mcp-server#readme",
+  "homepage": "https://github.com/reaatech/hybrid-rag/tree/main/packages/hybrid-rag-mcp-server#readme",
   "bugs": {
-    "url": "https://github.com/reaatech/hybrid-rag-qdrant/issues"
+    "url": "https://github.com/reaatech/hybrid-rag/issues"
   },
   "type": "module",
   "main": "./dist/index.cjs",
@@ -41,7 +41,13 @@
     "@reaatech/hybrid-rag-pipeline": "workspace:*",
     "@reaatech/hybrid-rag-evaluation": "workspace:*",
     "@reaatech/hybrid-rag-observability": "workspace:*",
-    "@modelcontextprotocol/sdk": "^1.6.1",
+    "@reaatech/hybrid-rag-migration": "workspace:*",
+    "@reaatech/agent-budget-types": "^0.1.1",
+    "@reaatech/agent-budget-pricing": "^0.1.1",
+    "@reaatech/agent-budget-spend-tracker": "^0.1.1",
+    "@reaatech/agent-budget-engine": "^0.1.1",
+    "@reaatech/guardrail-chain": "^0.1.0",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {

@@ -1,48 +1,34 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [Unreleased]
+## v2.0.0 (2026-06-07)
 
 ### Added
-- Initial project structure and scaffolding
-- Core types and Zod schemas
-- Document ingestion pipeline (PDF, Markdown, HTML, Text)
-- Chunking strategies: fixed-size, semantic, recursive, sliding-window
-- Vector retrieval with Qdrant integration
-- BM25 sparse retrieval implementation
-- Reranker engine with provider support (Cohere, Jina, OpenAI, local)
-- Hybrid fusion strategies: RRF, weighted sum, normalized
-- Evaluation framework with retrieval metrics
-- Ablation study framework
-- Benchmarking framework (latency, throughput, cost)
-- MCP server with retrieval, ingestion, evaluation, and admin tools
-- CLI tool with ingest, query, evaluate, ablate, benchmark commands
-- Observability: OpenTelemetry tracing, metrics, structured logging
-- Docker support with docker-compose for local development
-- CI/CD workflows for testing and releases
+
+- Multi-vector-database support via `VectorStoreAdapter` interface
+- Pinecone, Weaviate, Chroma, PgVector adapters
+- Milvus/Zilliz, Elasticsearch, OpenSearch, Redis Vector, MongoDB Atlas Vector Search, Azure AI Search, LanceDB, Vespa, and Supabase Vector adapters
+- `VectorStoreFactory` with dynamic lazy-loading of provider packages
+- Plugin registry for third-party adapter registration
+- Unified `StandardFilter` for cross-DB metadata filtering
+- Hybrid-native delegation (Weaviate alpha-weighted fusion; Pinecone sparse-dense)
+- Deterministic BM25 sparse-vector encoding (`encodeSparse`) enabling native sparse-dense hybrid
+- Zero-config local dev mode via embedded LanceDB default (in-process, no server)
+- Sandbox/dry-run mode for cost-free testing
+- Cross-DB vector migration tools (`hybrid-rag-migration`)
+- Cross-DB benchmarking in evaluation package
+- Per-DB cost tracking with cost models per provider
+- 6 new MCP tools: `rag.migrate`, `rag.detect_capabilities`, `rag.benchmark_db`, `rag.list_providers`, `rag.db_health`, `rag.sandbox`
+- >90% test coverage enforced across all packages
 
 ### Changed
-- N/A
+
+- **BREAKING:** `RAGPipelineConfig.qdrantUrl` / `qdrantApiKey` replaced by `vectorStore: VectorStoreConfig`
+- **BREAKING:** `VectorSearchConfig.qdrant` replaced by `VectorStoreConfig`
+- `VectorSearchEngine` uses dependency injection — no longer hard-coupled to Qdrant
+- `RAGPipeline` defaults to embedded LanceDB local mode (in-process, no server) when no `vectorStore` is provided
+- MCP tools updated to be DB-agnostic (no hardcoded Qdrant references)
+- Cost breakdown includes `vector_store` component
 
 ### Deprecated
-- N/A
 
-### Removed
-- N/A
-
-### Fixed
-- N/A
-
-### Security
-- N/A
-
----
-
-## [0.1.0] - 2026-04-16
-
-### Added
-- Initial release with core RAG pipeline implementation
+- `qdrantUrl` and `qdrantApiKey` in `RAGPipelineConfig` — backward compat shim maps these to `vectorStore: { provider: 'qdrant', ... }` automatically. Will be removed in v3.0.0.

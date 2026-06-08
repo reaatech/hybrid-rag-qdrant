@@ -3,6 +3,49 @@
 ## Capability
 Comprehensive evaluation framework for RAG retrieval quality.
 
+## Evaluation Modes
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| `standard` | Evaluate retrieval quality on a single backend | Production monitoring |
+| `ablation` | Measure contribution of each pipeline component | Architecture decisions |
+| `db_benchmark` | Compare multiple vector DB backends | Backend selection, migration planning |
+
+## Database Benchmarking (v2.0.0)
+
+The `db_benchmark` mode compares retrieval quality, latency, and cost across backends:
+
+```typescript
+import { benchmarkVectorStores } from '@reaatech/hybrid-rag-evaluation';
+
+const benchResults = await benchmarkVectorStores({
+  dataset: evalDataset,
+  backends: ['qdrant', 'pinecone', 'weaviate', 'chroma', 'pgvector'],
+  metrics: ['recall@10', 'ndcg@10', 'latency_p50', 'latency_p99', 'cost_per_query'],
+  queriesPerBackend: 100,
+  warmupQueries: 10,
+});
+
+console.log(benchResults.summary);
+// Backend      Recall@10   NDCG@10   P50(ms)   P99(ms)   Cost/query
+// qdrant       0.82        0.78      45        120        $0.0012
+// pinecone     0.81        0.77      35        95         $0.0018
+// weaviate     0.80        0.76      50        140        $0.0015
+// chroma       0.79        0.75      60        200        $0.0000
+// pgvector     0.80        0.76      70        180        $0.0000
+```
+
+### Cross-DB Metrics
+
+| Metric | Description |
+|--------|-------------|
+| `recall@K` | Fraction of relevant docs retrieved (quality) |
+| `ndcg@K` | Rank-weighted relevance (quality) |
+| `latency_p50` | Median query latency (performance) |
+| `latency_p99` | Tail latency at 99th percentile (performance) |
+| `cost_per_query` | Total cost including embeddings + DB + reranking (cost) |
+| `throughput` | Queries per second under load (scalability) |
+
 ## Retrieval Metrics
 
 | Metric | Description | Range |

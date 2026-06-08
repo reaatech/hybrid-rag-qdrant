@@ -1,17 +1,17 @@
 {
   "name": "@reaatech/hybrid-rag-retrieval",
-  "version": "0.1.1",
+  "version": "2.0.0",
   "description": "BM25 search, reranker, and hybrid fusion for hybrid RAG systems",
   "license": "MIT",
   "author": "Rick Somers <rick@reaatech.com> (https://reaatech.com)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/reaatech/hybrid-rag-qdrant.git",
+    "url": "https://github.com/reaatech/hybrid-rag.git",
     "directory": "packages/hybrid-rag-retrieval"
   },
-  "homepage": "https://github.com/reaatech/hybrid-rag-qdrant/tree/main/packages/hybrid-rag-retrieval#readme",
+  "homepage": "https://github.com/reaatech/hybrid-rag/tree/main/packages/hybrid-rag-retrieval#readme",
   "bugs": {
-    "url": "https://github.com/reaatech/hybrid-rag-qdrant/issues"
+    "url": "https://github.com/reaatech/hybrid-rag/issues"
   },
   "type": "module",
   "main": "./dist/index.cjs",
@@ -44,7 +44,77 @@
     "@reaatech/hybrid-rag-observability": "workspace:*",
     "openai": "^6.38.0"
   },
+  "peerDependencies": {
+    "@reaatech/hybrid-rag-pinecone": "^2.0.0",
+    "@reaatech/hybrid-rag-weaviate": "^2.0.0",
+    "@reaatech/hybrid-rag-chroma": "^2.0.0",
+    "@reaatech/hybrid-rag-pgvector": "^2.0.0",
+    "@reaatech/hybrid-rag-milvus": "^2.0.0",
+    "@reaatech/hybrid-rag-elasticsearch": "^2.0.0",
+    "@reaatech/hybrid-rag-opensearch": "^2.0.0",
+    "@reaatech/hybrid-rag-redis": "^2.0.0",
+    "@reaatech/hybrid-rag-mongodb": "^2.0.0",
+    "@reaatech/hybrid-rag-azure-ai-search": "^2.0.0",
+    "@reaatech/hybrid-rag-lancedb": "^2.0.0",
+    "@reaatech/hybrid-rag-vespa": "^2.0.0",
+    "@reaatech/hybrid-rag-supabase": "^2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@reaatech/hybrid-rag-pinecone": {
+      "optional": true
+    },
+    "@reaatech/hybrid-rag-weaviate": {
+      "optional": true
+    },
+    "@reaatech/hybrid-rag-chroma": {
+      "optional": true
+    },
+    "@reaatech/hybrid-rag-pgvector": {
+      "optional": true
+    },
+    "@reaatech/hybrid-rag-milvus": {
+      "optional": true
+    },
+    "@reaatech/hybrid-rag-elasticsearch": {
+      "optional": true
+    },
+    "@reaatech/hybrid-rag-opensearch": {
+      "optional": true
+    },
+    "@reaatech/hybrid-rag-redis": {
+      "optional": true
+    },
+    "@reaatech/hybrid-rag-mongodb": {
+      "optional": true
+    },
+    "@reaatech/hybrid-rag-azure-ai-search": {
+      "optional": true
+    },
+    "@reaatech/hybrid-rag-lancedb": {
+      "optional": true
+    },
+    "@reaatech/hybrid-rag-vespa": {
+      "optional": true
+    },
+    "@reaatech/hybrid-rag-supabase": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "@reaatech/hybrid-rag-pinecone": "workspace:*",
+    "@reaatech/hybrid-rag-weaviate": "workspace:*",
+    "@reaatech/hybrid-rag-chroma": "workspace:*",
+    "@reaatech/hybrid-rag-pgvector": "workspace:*",
+    "@reaatech/hybrid-rag-milvus": "workspace:*",
+    "@reaatech/hybrid-rag-elasticsearch": "workspace:*",
+    "@reaatech/hybrid-rag-opensearch": "workspace:*",
+    "@reaatech/hybrid-rag-redis": "workspace:*",
+    "@reaatech/hybrid-rag-mongodb": "workspace:*",
+    "@reaatech/hybrid-rag-azure-ai-search": "workspace:*",
+    "@reaatech/hybrid-rag-lancedb": "workspace:*",
+    "@reaatech/hybrid-rag-vespa": "workspace:*",
+    "@reaatech/hybrid-rag-supabase": "workspace:*",
+    "@vitest/coverage-v8": "^4.1.8",
     "tsup": "^8.4.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.6"

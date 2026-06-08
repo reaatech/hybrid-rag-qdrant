@@ -1,5 +1,5 @@
 {
-  "name": "hybrid-rag-qdrant",
+  "name": "hybrid-rag",
   "version": "0.1.0",
   "private": true,
   "description": "Production-grade hybrid RAG reference implementation with vector + BM25 + reranker, benchmarked chunking strategies, evaluation frameworks, and ablation studies",
@@ -21,6 +21,11 @@
     "rag",
     "hybrid-retrieval",
     "qdrant",
+    "pinecone",
+    "weaviate",
+    "chroma",
+    "pgvector",
+    "vector-database",
     "bm25",
     "reranker",
     "evaluation",
@@ -32,12 +37,12 @@
   "packageManager": "pnpm@10.22.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/reaatech/hybrid-rag-qdrant.git"
+    "url": "https://github.com/reaatech/hybrid-rag.git"
   },
   "bugs": {
-    "url": "https://github.com/reaatech/hybrid-rag-qdrant/issues"
+    "url": "https://github.com/reaatech/hybrid-rag/issues"
   },
-  "homepage": "https://github.com/reaatech/hybrid-rag-qdrant#readme",
+  "homepage": "https://github.com/reaatech/hybrid-rag#readme",
   "pnpm": {
     "onlyBuiltDependencies": [
       "@biomejs/biome",

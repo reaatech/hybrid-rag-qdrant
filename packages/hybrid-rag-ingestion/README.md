@@ -1,8 +1,8 @@
 # @reaatech/hybrid-rag-ingestion
 
 [![npm version](https://img.shields.io/npm/v/@reaatech/hybrid-rag-ingestion.svg)](https://www.npmjs.com/package/@reaatech/hybrid-rag-ingestion)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/reaatech/hybrid-rag-qdrant/blob/main/LICENSE)
-[![CI](https://img.shields.io/github/actions/workflow/status/reaatech/hybrid-rag-qdrant/ci.yml?branch=main&label=CI)](https://github.com/reaatech/hybrid-rag-qdrant/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/reaatech/hybrid-rag/blob/main/LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/reaatech/hybrid-rag/ci.yml?branch=main&label=CI)](https://github.com/reaatech/hybrid-rag/actions/workflows/ci.yml)
 
 > **Status:** Pre-1.0 — APIs may change in minor versions. Pin to a specific version in production.
 
@@ -215,4 +215,4 @@ console.table(results.map(r => ({ name: r.name, chunkCount: r.chunkCount, avgTok
 
 ## License
 
-[MIT](https://github.com/reaatech/hybrid-rag-qdrant/blob/main/LICENSE)
+[MIT](https://github.com/reaatech/hybrid-rag/blob/main/LICENSE)
