@@ -220,7 +220,7 @@ export class RAGPipeline {
     // Optional reranking
     if (useReranker && this.reranker && results.length > 0) {
       const reranked = await this.reranker.rerankResults(queryText, results);
-      results = reranked.slice(0, rerankFinalK) as unknown as RetrievalResult[];
+      results = reranked.slice(0, rerankFinalK);
     }
 
     return results.slice(0, topK);

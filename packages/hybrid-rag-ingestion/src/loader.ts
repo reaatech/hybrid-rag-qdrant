@@ -7,7 +7,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { Document } from '@reaatech/hybrid-rag';
 import * as cheerio from 'cheerio';
-import { marked } from 'marked';
+import { marked, type Token } from 'marked';
 import { PDFParse } from 'pdf-parse';
 
 /**
@@ -225,8 +225,7 @@ export class DocumentLoader {
   /**
    * Convert markdown tokens to plain text
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private tokensToText(tokens: any): string {
+  private tokensToText(tokens: Token[]): string {
     const parts: string[] = [];
 
     for (const token of tokens) {
@@ -243,9 +242,7 @@ export class DocumentLoader {
           break;
         case 'list':
           parts.push(
-            this.extractTextFromTokens(
-              token.items.flatMap((item: unknown) => (item as { tokens?: unknown[] }).tokens ?? []),
-            ),
+            this.extractTextFromTokens(token.items.flatMap((item: { tokens?: Token[] }) => item.tokens ?? [])),
           );
           break;
         case 'text':
@@ -270,8 +267,7 @@ export class DocumentLoader {
   /**
    * Extract text from token array
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extractTextFromTokens(tokens: any[] | undefined): string {
+  private extractTextFromTokens(tokens: Token[] | undefined): string {
     if (!tokens) {
       return '';
     }

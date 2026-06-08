@@ -584,7 +584,7 @@ function simulateAgentResponse(
   agent: AgentInfo,
   query: string,
   context?: Record<string, unknown>,
-): unknown {
+): { message: string; note: string; context?: Record<string, unknown> } {
   // In production, this would make an actual API call to the agent
   switch (agent.agent_id) {
     case 'calculator':
