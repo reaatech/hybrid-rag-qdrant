@@ -1,15 +1,15 @@
 {
-  "name": "@reaatech/hybrid-rag-qdrant",
+  "name": "@reaatech/hybrid-rag-pgvector",
   "version": "2.0.0",
-  "description": "Qdrant vector database adapter for hybrid RAG systems",
+  "description": "PostgreSQL pgvector adapter for hybrid RAG systems",
   "license": "MIT",
   "author": "Rick Somers <rick@reaatech.com> (https://reaatech.com)",
   "repository": {
     "type": "git",
     "url": "https://github.com/reaatech/hybrid-rag.git",
-    "directory": "packages/hybrid-rag-qdrant"
+    "directory": "packages/hybrid-rag-pgvector"
   },
-  "homepage": "https://github.com/reaatech/hybrid-rag/tree/main/packages/hybrid-rag-qdrant#readme",
+  "homepage": "https://github.com/reaatech/hybrid-rag/tree/main/packages/hybrid-rag-pgvector#readme",
   "bugs": {
     "url": "https://github.com/reaatech/hybrid-rag/issues"
   },
@@ -38,9 +38,10 @@
   },
   "dependencies": {
     "@reaatech/hybrid-rag": "workspace:*",
-    "@qdrant/js-client-rest": "^1.11.0"
+    "pg": "^8.13.0"
   },
   "devDependencies": {
+    "@types/pg": "^8.11.0",
     "tsup": "^8.4.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.6"
