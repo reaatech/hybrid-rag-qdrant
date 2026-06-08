@@ -1,4 +1,4 @@
-# Using hybrid-rag-qdrant as a Template Repository
+# Using hybrid-rag as a Template Repository
 
 This repository can be used as a GitHub template to bootstrap new RAG projects with production-grade hybrid retrieval capabilities.
 
@@ -62,12 +62,12 @@ Create your evaluation dataset in `datasets/eval.jsonl`:
 
 ```bash
 # Evaluate baseline configuration
-npx hybrid-rag-qdrant evaluate \
+npx hybrid-rag evaluate \
   --dataset datasets/eval.jsonl \
   --output eval-results.json
 
 # Run ablation study
-npx hybrid-rag-qdrant ablate \
+npx hybrid-rag ablate \
   --config datasets/examples/config.yaml \
   --dataset datasets/eval.jsonl \
   --output ablation-results.json
