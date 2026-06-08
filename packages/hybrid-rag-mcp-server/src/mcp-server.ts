@@ -1,7 +1,3 @@
-/**
- * MCP Server implementation for hybrid-rag-qdrant
- */
-
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -14,11 +10,12 @@ import { getLogger } from '@reaatech/hybrid-rag-observability';
 
 const logger = getLogger();
 
-import { adminTools } from './tools/admin.js';
+import { adminTools, sandboxTools } from './tools/admin.js';
 import { agentIntegrationTools } from './tools/agent-integration.js';
 import { costManagementTools } from './tools/cost-management.js';
 import { evaluationTools } from './tools/evaluation.js';
 import { ingestionTools } from './tools/ingestion.js';
+import { migrationTools } from './tools/migration.js';
 import { observabilityTools } from './tools/observability-tools.js';
 import { qualityTools } from './tools/quality-tools.js';
 import { queryAnalysisTools } from './tools/query-analysis.js';
@@ -26,21 +23,12 @@ import { retrievalTools } from './tools/retrieval.js';
 import { sessionManagementTools } from './tools/session-management.js';
 import type { RAGPipeline } from './types.js';
 
-/**
- * MCP Server configuration
- */
 export interface MCPServerConfig {
-  /** RAG Pipeline instance */
   pipeline: RAGPipeline;
-  /** Server name */
   name?: string;
-  /** Server version */
   version?: string;
 }
 
-/**
- * MCP Server for hybrid-rag-qdrant
- */
 export class MCPServer {
   private readonly server: Server;
   private readonly pipeline: RAGPipeline;
@@ -50,8 +38,8 @@ export class MCPServer {
 
     this.server = new Server(
       {
-        name: config.name ?? 'hybrid-rag-qdrant',
-        version: config.version ?? '1.0.0',
+        name: config.name ?? 'hybrid-rag',
+        version: config.version ?? '2.0.0',
       },
       {
         capabilities: {
@@ -63,11 +51,7 @@ export class MCPServer {
     this.setupToolHandlers();
   }
 
-  /**
-   * Set up tool request handlers
-   */
   private setupToolHandlers(): void {
-    // List all available tools
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
       return {
         tools: [
@@ -75,33 +59,35 @@ export class MCPServer {
           ...ingestionTools,
           ...evaluationTools,
           ...adminTools,
+          ...sandboxTools,
           ...queryAnalysisTools,
           ...sessionManagementTools,
           ...agentIntegrationTools,
           ...costManagementTools,
           ...qualityTools,
           ...observabilityTools,
+          ...migrationTools,
         ],
       };
     });
 
-    // Build a map of all tools for efficient lookup
     const allTools = [
       ...retrievalTools,
       ...ingestionTools,
       ...evaluationTools,
       ...adminTools,
+      ...sandboxTools,
       ...queryAnalysisTools,
       ...sessionManagementTools,
       ...agentIntegrationTools,
       ...costManagementTools,
       ...qualityTools,
       ...observabilityTools,
+      ...migrationTools,
     ];
 
     const toolMap = new Map(allTools.map((t) => [t.name, t]));
 
-    // Handle tool calls
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { name, arguments: args } = request.params;
 
@@ -121,27 +107,18 @@ export class MCPServer {
     });
   }
 
-  /**
-   * Start the MCP server with stdio transport
-   */
   async start(): Promise<void> {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
     logger.info('MCP server started');
   }
 
-  /**
-   * Stop the MCP server
-   */
   async stop(): Promise<void> {
     await this.server.close();
     await this.pipeline.close();
   }
 }
 
-/**
- * Create and start an MCP server
- */
 export async function createMCPServer(pipeline: RAGPipeline): Promise<MCPServer> {
   const server = new MCPServer({ pipeline });
   await server.start();

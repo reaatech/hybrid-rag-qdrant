@@ -167,7 +167,7 @@ export const ragAnalyzeQuery: RAGTool = {
   },
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
     const query = args.query as string;
-    const context = args.context as Record<string, unknown> | undefined;
+    const context = args.context as { user_tier?: string; previous_queries?: string[] } | undefined;
 
     const intent = classifyIntent(query);
     const strategy = INTENT_STRATEGIES[intent];

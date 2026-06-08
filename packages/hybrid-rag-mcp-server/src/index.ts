@@ -1,9 +1,10 @@
 export { createMCPServer, MCPServer, type MCPServerConfig } from './mcp-server.js';
-export { adminTools } from './tools/admin.js';
+export { adminTools, sandboxTools } from './tools/admin.js';
 export { agentIntegrationTools } from './tools/agent-integration.js';
 export { costManagementTools } from './tools/cost-management.js';
 export { evaluationTools } from './tools/evaluation.js';
 export { ingestionTools } from './tools/ingestion.js';
+export { migrationTools } from './tools/migration.js';
 export { observabilityTools } from './tools/observability-tools.js';
 export { qualityTools } from './tools/quality-tools.js';
 export { queryAnalysisTools } from './tools/query-analysis.js';

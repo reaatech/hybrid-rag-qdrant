@@ -11,7 +11,7 @@ export interface ValidationError {
 
 export function validateInput<T>(
   schema: ZodSchema<T>,
-  args: Record<string, unknown>,
+  args: unknown,
 ):
   | {
       success: true;

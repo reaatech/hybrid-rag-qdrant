@@ -1,16 +1,7 @@
-/**
- * MCP Cost Management Tools
- *
- * Tools for cost tracking, budgeting, optimization recommendations,
- * and cost control enforcement across RAG operations.
- */
-
+import { PricingEngine } from '@reaatech/agent-budget-pricing';
 import type { RAGPipeline } from '@reaatech/hybrid-rag-pipeline';
 import type { RAGTool } from '../types.js';
 
-/**
- * Budget configuration
- */
 export interface BudgetConfig {
   budget_type: 'per-query' | 'daily' | 'monthly';
   limit: number;
@@ -22,9 +13,6 @@ export interface BudgetConfig {
   };
 }
 
-/**
- * Budget status tracking
- */
 export interface BudgetStatus {
   budget_type: string;
   limit: number;
@@ -35,23 +23,44 @@ export interface BudgetStatus {
   hard_limit_reached: boolean;
 }
 
-/**
- * Cost breakdown by component
- */
 export interface CostBreakdown {
   embeddings: number;
   vector_search: number;
   bm25_search: number;
   reranking: number;
   llm_judge: number;
+  vector_store: number;
   total: number;
 }
 
-/**
- * Simple in-memory cost tracker
- * In production, this would be backed by a database
- */
-class CostTracker {
+const VECTOR_STORE_COST_MODELS: Record<
+  string,
+  { costPerQueryEstimate: number; costPer1000Upserts: number; monthlyBaseCost?: number }
+> = {
+  qdrant: { costPerQueryEstimate: 0, costPer1000Upserts: 0 },
+  pinecone: { costPerQueryEstimate: 0.0004, costPer1000Upserts: 0.01, monthlyBaseCost: 70 },
+  weaviate: { costPerQueryEstimate: 0.0002, costPer1000Upserts: 0.005 },
+  chroma: { costPerQueryEstimate: 0, costPer1000Upserts: 0 },
+  pgvector: { costPerQueryEstimate: 0, costPer1000Upserts: 0 },
+  milvus: { costPerQueryEstimate: 0, costPer1000Upserts: 0 },
+  elasticsearch: { costPerQueryEstimate: 0.0002, costPer1000Upserts: 0.004 },
+  opensearch: { costPerQueryEstimate: 0.0002, costPer1000Upserts: 0.004 },
+  redis: { costPerQueryEstimate: 0.0001, costPer1000Upserts: 0.002 },
+  mongodb: { costPerQueryEstimate: 0.0003, costPer1000Upserts: 0.006 },
+  'azure-ai-search': { costPerQueryEstimate: 0.0005, costPer1000Upserts: 0.008 },
+  lancedb: { costPerQueryEstimate: 0, costPer1000Upserts: 0 },
+  vespa: { costPerQueryEstimate: 0.0002, costPer1000Upserts: 0.004 },
+  supabase: { costPerQueryEstimate: 0.0001, costPer1000Upserts: 0.002 },
+  sandbox: { costPerQueryEstimate: 0, costPer1000Upserts: 0 },
+};
+
+function fallbackVectorStoreCostModel(provider: string) {
+  return (
+    VECTOR_STORE_COST_MODELS[provider] ?? { costPerQueryEstimate: 0.0001, costPer1000Upserts: 0 }
+  );
+}
+
+export class CostTracker {
   private budgets: Map<string, BudgetConfig> = new Map();
   private spending: Map<string, number> = new Map();
   private costHistory: Array<{
@@ -62,9 +71,6 @@ class CostTracker {
   }> = [];
   private static readonly MAX_COST_HISTORY = 10000;
 
-  /**
-   * Set a budget
-   */
   setBudget(key: string, config: BudgetConfig): void {
     this.budgets.set(key, config);
     if (!this.spending.has(key)) {
@@ -72,9 +78,6 @@ class CostTracker {
     }
   }
 
-  /**
-   * Get budget status
-   */
   getBudgetStatus(key: string): BudgetStatus | null {
     const budget = this.budgets.get(key);
     if (!budget) {
@@ -98,9 +101,6 @@ class CostTracker {
     };
   }
 
-  /**
-   * Track spending
-   */
   trackSpending(
     key: string,
     amount: number,
@@ -121,9 +121,6 @@ class CostTracker {
     }
   }
 
-  /**
-   * Get cost report
-   */
   getCostReport(period: 'day' | 'week' | 'month' = 'day'): CostBreakdown {
     const now = new Date();
     let cutoff: Date;
@@ -146,6 +143,7 @@ class CostTracker {
       bm25_search: 0,
       reranking: 0,
       llm_judge: 0,
+      vector_store: 0,
       total: 0,
     };
 
@@ -168,6 +166,9 @@ class CostTracker {
           case 'llm_judge':
             breakdown.llm_judge += record.amount;
             break;
+          case 'vector_store':
+            breakdown.vector_store += record.amount;
+            break;
         }
         breakdown.total += record.amount;
       }
@@ -176,14 +177,11 @@ class CostTracker {
     return breakdown;
   }
 
-  /**
-   * Check if spending is within budget
-   */
   canSpend(key: string, amount: number): boolean {
     const budget = this.budgets.get(key);
     if (!budget) {
       return true;
-    } // No budget set
+    }
 
     const current = this.spending.get(key) || 0;
     const newTotal = current + amount;
@@ -195,9 +193,6 @@ class CostTracker {
     return true;
   }
 
-  /**
-   * Get optimization recommendations
-   */
   getOptimizationRecommendations(currentConfig: {
     useReranker: boolean;
     rerankerProvider?: string;
@@ -211,7 +206,6 @@ class CostTracker {
   }> {
     const recommendations = [];
 
-    // Reranker optimization
     if (currentConfig.useReranker) {
       if (currentConfig.rerankerProvider === 'cohere') {
         recommendations.push({
@@ -230,7 +224,6 @@ class CostTracker {
       });
     }
 
-    // TopK optimization
     if (currentConfig.topK > 10) {
       recommendations.push({
         strategy: 'Reduce topK',
@@ -240,7 +233,6 @@ class CostTracker {
       });
     }
 
-    // Embedding model optimization
     if (currentConfig.embeddingModel === 'text-embedding-3-large') {
       recommendations.push({
         strategy: 'Use smaller embedding model',
@@ -254,33 +246,36 @@ class CostTracker {
   }
 }
 
-// Global cost tracker instance
 const costTracker = new CostTracker();
 
-/**
- * Default pricing (per 1K tokens unless otherwise noted)
- */
-const PRICING = {
-  embeddings: {
-    'text-embedding-3-small': 0.02,
-    'text-embedding-3-large': 0.13,
-  },
-  reranking: {
-    cohere: 0.01, // per document
-    jina: 0.005, // per document
-    openai: 0.002, // per document (estimated)
-    local: 0, // no API cost
-  },
-  llm_judge: {
-    'claude-opus': 0.015, // per 1K input tokens (estimated)
-    'claude-sonnet': 0.003, // per 1K input tokens
-    'gpt-4': 0.03, // per 1K input tokens
-  },
-};
+const pricingEngine = new PricingEngine({ cacheTtlMs: 300_000 });
+
+pricingEngine.loadTable('embeddings', {
+  'text-embedding-3-small': { inputPricePerMillion: 0.02 * 1000, outputPricePerMillion: 0 },
+  'text-embedding-3-large': { inputPricePerMillion: 0.13 * 1000, outputPricePerMillion: 0 },
+});
+
+pricingEngine.loadTable('reranking', {
+  cohere: { inputPricePerMillion: 0.01 * 1000, outputPricePerMillion: 0 },
+  jina: { inputPricePerMillion: 0.005 * 1000, outputPricePerMillion: 0 },
+  openai: { inputPricePerMillion: 0.002 * 1000, outputPricePerMillion: 0 },
+  local: { inputPricePerMillion: 0, outputPricePerMillion: 0 },
+});
 
 /**
- * rag.get_cost_estimate - Estimate cost for a query before execution
+ * Look up the input price-per-million for a model, falling back to a default
+ * when the model is unknown. PricingEngine.lookup throws "Price not found" for
+ * unlisted models, so unknown models must be handled gracefully here rather
+ * than crashing the cost estimate.
  */
+function inputPricePerMillion(model: string, table: string, fallback: number): number {
+  try {
+    return pricingEngine.lookup(model, table)?.inputPricePerMillion ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 export const ragGetCostEstimate: RAGTool = {
   name: 'rag.get_cost_estimate',
   description: 'Estimate the cost of a query before execution',
@@ -299,34 +294,72 @@ export const ragGetCostEstimate: RAGTool = {
           rerankerProvider: { type: 'string', enum: ['cohere', 'jina', 'openai', 'local'] },
           topK: { type: 'number', default: 10 },
           embeddingModel: { type: 'string', default: 'text-embedding-3-small' },
+          vectorStoreProvider: {
+            type: 'string',
+            description: 'Vector store provider for cost estimation',
+          },
         },
       },
     },
     required: ['query'],
   },
-  handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
+  handler: async (args: Record<string, unknown>, pipeline: RAGPipeline) => {
     const query = args.query as string;
     const config = args.config as Record<string, unknown> | undefined;
 
-    // Estimate token count (rough approximation: 1 token ≈ 4 characters)
     const estimatedTokens = Math.ceil(query.length / 4);
     const embeddingModel = (config?.embeddingModel as string) ?? 'text-embedding-3-small';
     const topK = (config?.topK as number) ?? 10;
     const useReranker = (config?.useReranker as boolean) ?? false;
     const rerankerProvider = (config?.rerankerProvider as string) ?? 'cohere';
+    const requestedVectorStoreProvider =
+      (config?.vectorStoreProvider as string | undefined) ?? undefined;
 
-    // Calculate costs
     const embeddingCost =
       (estimatedTokens / 1000) *
-      (PRICING.embeddings[embeddingModel as keyof typeof PRICING.embeddings] ||
-        PRICING.embeddings['text-embedding-3-small']);
+      (inputPricePerMillion(embeddingModel, 'embeddings', 0.02 * 1000) / 1000);
     const rerankerCost = useReranker
-      ? topK * (PRICING.reranking[rerankerProvider as keyof typeof PRICING.reranking] || 0)
+      ? topK * (inputPricePerMillion(rerankerProvider, 'reranking', 0.01 * 1000) / 1000)
       : 0;
-    const vectorSearchCost = 0.0001; // Minimal Qdrant cost
-    const bm25SearchCost = 0.00005; // Minimal compute cost
 
-    const totalCost = embeddingCost + rerankerCost + vectorSearchCost + bm25SearchCost;
+    let vectorStoreProvider = requestedVectorStoreProvider ?? 'configured';
+    let vectorStoreCostModel = requestedVectorStoreProvider
+      ? fallbackVectorStoreCostModel(requestedVectorStoreProvider)
+      : null;
+    let vectorStoreCost = vectorStoreCostModel?.costPerQueryEstimate ?? 0;
+    try {
+      const pipelineAny = pipeline as unknown as Record<string, unknown>;
+      if (typeof pipelineAny.getVectorStoreCostModel === 'function') {
+        const costModel = await (
+          pipelineAny.getVectorStoreCostModel as () => Promise<Record<string, unknown>>
+        )();
+        if (!requestedVectorStoreProvider && costModel) {
+          vectorStoreCostModel = {
+            costPerQueryEstimate: (costModel.costPerQueryEstimate as number) ?? 0,
+            costPer1000Upserts: (costModel.costPer1000Upserts as number) ?? 0,
+            monthlyBaseCost: costModel.monthlyBaseCost as number | undefined,
+          };
+          vectorStoreCost = vectorStoreCostModel.costPerQueryEstimate;
+        }
+      }
+      if (
+        typeof pipelineAny.getVectorStoreReadiness === 'function' &&
+        !requestedVectorStoreProvider
+      ) {
+        const readiness = await (
+          pipelineAny.getVectorStoreReadiness as () => Promise<Record<string, unknown>>
+        )();
+        vectorStoreProvider = (readiness.provider as string | undefined) ?? vectorStoreProvider;
+      }
+    } catch {
+      vectorStoreCost = 0;
+    }
+
+    const vectorSearchCost = 0.0001;
+    const bm25SearchCost = 0.00005;
+
+    const totalCost =
+      embeddingCost + rerankerCost + vectorSearchCost + bm25SearchCost + vectorStoreCost;
 
     return {
       content: [
@@ -341,6 +374,11 @@ export const ragGetCostEstimate: RAGTool = {
                 reranking: Number.parseFloat(rerankerCost.toFixed(6)),
                 vector_search: vectorSearchCost,
                 bm25_search: bm25SearchCost,
+                vector_store: Number.parseFloat(vectorStoreCost.toFixed(6)),
+              },
+              vector_store: {
+                provider: vectorStoreProvider,
+                cost_model: vectorStoreCostModel,
               },
               total_cost: Number.parseFloat(totalCost.toFixed(6)),
               config: {
@@ -348,6 +386,7 @@ export const ragGetCostEstimate: RAGTool = {
                 top_k: topK,
                 use_reranker: useReranker,
                 reranker_provider: rerankerProvider,
+                vector_store_provider: vectorStoreProvider,
               },
             },
             null,
@@ -359,9 +398,6 @@ export const ragGetCostEstimate: RAGTool = {
   },
 };
 
-/**
- * rag.set_budget - Configure budget limits
- */
 export const ragSetBudget: RAGTool = {
   name: 'rag.set_budget',
   description: 'Configure budget limits for cost control',
@@ -440,9 +476,6 @@ export const ragSetBudget: RAGTool = {
   },
 };
 
-/**
- * rag.get_budget_status - Get current budget status
- */
 export const ragGetBudgetStatus: RAGTool = {
   name: 'rag.get_budget_status',
   description: 'Get current budget status and remaining capacity',
@@ -506,9 +539,6 @@ export const ragGetBudgetStatus: RAGTool = {
   },
 };
 
-/**
- * rag.optimize_cost - Get cost optimization recommendations
- */
 export const ragOptimizeCost: RAGTool = {
   name: 'rag.optimize_cost',
   description: 'Get cost optimization recommendations based on current configuration',
@@ -551,7 +581,6 @@ export const ragOptimizeCost: RAGTool = {
 
     const recommendations = costTracker.getOptimizationRecommendations(currentConfig);
 
-    // Filter recommendations based on quality impact and budget
     const filteredRecommendations = recommendations.filter((rec) => {
       if (rec.quality_impact === 'high') {
         return false;
@@ -594,9 +623,6 @@ export const ragOptimizeCost: RAGTool = {
   },
 };
 
-/**
- * rag.get_cost_report - Get detailed cost breakdown
- */
 export const ragGetCostReport: RAGTool = {
   name: 'rag.get_cost_report',
   description: 'Get detailed cost breakdown by component',
@@ -627,13 +653,38 @@ export const ragGetCostReport: RAGTool = {
       },
     },
   },
-  handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
+  handler: async (args: Record<string, unknown>, pipeline: RAGPipeline) => {
     const period = (args.period as 'day' | 'week' | 'month') ?? 'day';
-    const _groupBy = args.group_by as string[] | undefined;
     const includeTrends = (args.include_trends as boolean) ?? false;
-    const _format = (args.format as 'summary' | 'detailed') ?? 'summary';
 
     const breakdown = costTracker.getCostReport(period);
+
+    let perDbBreakdown: Record<string, unknown> | undefined;
+    try {
+      const pipelineAny = pipeline as unknown as Record<string, unknown>;
+      let provider = 'configured';
+      if (typeof pipelineAny.getVectorStoreReadiness === 'function') {
+        const readiness = await (
+          pipelineAny.getVectorStoreReadiness as () => Promise<Record<string, unknown>>
+        )();
+        provider = (readiness.provider as string | undefined) ?? provider;
+      }
+      if (typeof pipelineAny.getVectorStoreCostModel === 'function') {
+        const costModel = await (
+          pipelineAny.getVectorStoreCostModel as () => Promise<Record<string, unknown>>
+        )();
+        if (costModel) {
+          perDbBreakdown = {
+            provider,
+            costPerQueryEstimate: costModel.costPerQueryEstimate ?? 0,
+            costPer1000Upserts: costModel.costPer1000Upserts ?? 0,
+            monthlyBaseCost: costModel.monthlyBaseCost ?? undefined,
+          };
+        }
+      }
+    } catch {
+      perDbBreakdown = undefined;
+    }
 
     const report: Record<string, unknown> = {
       period,
@@ -648,8 +699,11 @@ export const ragGetCostReport: RAGTool = {
       },
     };
 
+    if (perDbBreakdown) {
+      report.vectorStoreCostModel = perDbBreakdown;
+    }
+
     if (includeTrends) {
-      // Simplified trend analysis
       report.trends = {
         note: 'Trend analysis requires historical data storage',
         suggestion: 'Implement persistent cost tracking for trend analysis',
@@ -667,9 +721,6 @@ export const ragGetCostReport: RAGTool = {
   },
 };
 
-/**
- * rag.set_cost_controls - Configure cost controls and alerts
- */
 export const ragSetCostControls: RAGTool = {
   name: 'rag.set_cost_controls',
   description: 'Configure cost controls and alert settings',
@@ -708,7 +759,6 @@ export const ragSetCostControls: RAGTool = {
     const hardLimit = (args.hard_limit as boolean) ?? false;
     const alertChannels = args.alert_channels as string[] | undefined;
 
-    // Set per-query budget if specified
     if (maxCostPerQuery !== undefined) {
       costTracker.setBudget('per-query', {
         budget_type: 'per-query',
@@ -718,7 +768,6 @@ export const ragSetCostControls: RAGTool = {
       });
     }
 
-    // Set daily budget if specified
     if (maxCostPerDay !== undefined) {
       costTracker.setBudget('daily', {
         budget_type: 'daily',

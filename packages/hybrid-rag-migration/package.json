@@ -1,0 +1,38 @@
+{
+  "name": "@reaatech/hybrid-rag-migration",
+  "version": "2.0.0",
+  "description": "Cross-vector-database migration tools for hybrid RAG systems",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "test": "vitest run --passWithNoTests",
+    "test:coverage": "vitest run --coverage --passWithNoTests",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@reaatech/hybrid-rag": "workspace:*",
+    "@reaatech/hybrid-rag-retrieval": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.8"
+  }
+}

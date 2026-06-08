@@ -11,7 +11,8 @@ export type ToolHandler = (
   args: Record<string, unknown>,
   pipeline: RAGPipeline,
 ) => Promise<{
-  content: Array<{ type: string; text: string; isError?: boolean }>;
+  content: Array<{ type: string; text: string }>;
+  isError?: boolean;
 }>;
 
 export interface RAGTool extends MCPTool {

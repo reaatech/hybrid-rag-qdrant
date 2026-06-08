@@ -8,6 +8,18 @@
 import type { RAGPipeline } from '@reaatech/hybrid-rag-pipeline';
 import type { RAGTool } from '../types.js';
 
+// -- guardrail-chain integration (lazy, falls back to heuristics when not installed) --
+let _guardrailChainModule: Record<string, unknown> | null | undefined;
+async function getGuardrailChain(): Promise<Record<string, unknown> | null> {
+  if (_guardrailChainModule !== undefined) return _guardrailChainModule;
+  try {
+    _guardrailChainModule = (await import('@reaatech/guardrail-chain')) as Record<string, unknown>;
+  } catch {
+    _guardrailChainModule = null;
+  }
+  return _guardrailChainModule;
+}
+
 /**
  * Quality judgment result
  */
@@ -379,31 +391,117 @@ export const ragDetectHallucination: RAGTool = {
     const retrievedChunks = args.retrieved_chunks as Array<{ content: string; source?: string }>;
     const threshold = (args.threshold as number) ?? 0.7;
 
-    // Extract key claims from the generated answer
-    const claims = extractClaims(generatedAnswer);
+    // ---- runHallucinationCheck (uses guardrail-chain when available) ----
+    const runHallucinationCheck = async () => {
+      const gc = await getGuardrailChain();
+      if (gc) {
+        try {
+          const GuardrailChain = gc.GuardrailChain as new (
+            options: Record<string, unknown>,
+          ) => {
+            run: (
+              input: Record<string, unknown>,
+            ) => Promise<{ hallucinations: Array<Record<string, unknown>>; score: number }>;
+          };
+          const Guardrail = gc.Guardrail as new (
+            options: Record<string, unknown>,
+          ) => {
+            detect: (input: Record<string, unknown>) => Promise<{
+              flagged: boolean;
+              contradictions: Array<Record<string, unknown>>;
+              score: number;
+            }>;
+          };
 
-    // Check each claim against retrieved chunks
-    const contradictions = claims.map((claim) => {
-      const support = checkClaimSupport(claim, retrievedChunks);
-      return {
-        claim,
-        ...support,
-      };
-    });
+          const hallucinationGuardrail = new Guardrail({
+            id: 'hallucination-detector',
+            description:
+              'Detects hallucinated claims in generated answers against retrieved context',
+            detect: async (input: {
+              query: string;
+              answer: string;
+              chunks: Array<{ content: string; source?: string }>;
+              threshold: number;
+            }) => {
+              const claims = extractClaims(input.answer);
+              const contradictions = claims.map((claim) => {
+                const support = checkClaimSupport(claim, input.chunks);
+                return { claim, ...support };
+              });
+              const unsupported = contradictions.filter((c) => c.contradiction_type !== 'none');
+              const supportScore =
+                claims.length > 0 ? (claims.length - unsupported.length) / claims.length : 0;
+              const flagged =
+                claims.length > 0 &&
+                unsupported.length > 0 &&
+                unsupported.length / claims.length > 1 - input.threshold;
+              return { flagged, contradictions: unsupported, score: supportScore };
+            },
+          });
 
-    // Determine if hallucination detected
-    const unsupportedClaims = contradictions.filter((c) => c.contradiction_type !== 'none');
-    const hallucinationDetected =
-      claims.length > 0 &&
-      unsupportedClaims.length > 0 &&
-      unsupportedClaims.length / claims.length > 1 - threshold;
+          const chain = new GuardrailChain({ guardrails: [hallucinationGuardrail] });
+          const result = await chain.run({
+            query,
+            answer: generatedAnswer,
+            chunks: retrievedChunks,
+            threshold,
+          });
 
-    const supportScore =
-      claims.length > 0 ? (claims.length - unsupportedClaims.length) / claims.length : 0;
+          const hallucinations =
+            (result.hallucinations as Array<{
+              claim: string;
+              contradiction_type: string;
+              source?: string;
+            }>) ?? [];
+          const score = (result.score as number) ?? 1;
+
+          return {
+            hallucinationDetected: hallucinations.length > 0,
+            supportScore: score,
+            unsupportedClaims: hallucinations,
+            totalClaims: extractClaims(generatedAnswer).length,
+            source: 'guardrail-chain',
+          };
+        } catch {
+          // guardrail-chain threw — fall through to heuristics
+        }
+      }
+      return null;
+    };
+
+    const gcResult = await runHallucinationCheck();
+
+    // Fall back to heuristics when guardrail-chain is unavailable or failed
+    let hallucinationDetected: boolean;
+    let supportScore: number;
+    let unsupportedClaims: Array<{ claim: string; contradiction_type: string; source?: string }>;
+    let source: string;
+
+    if (gcResult) {
+      hallucinationDetected = gcResult.hallucinationDetected;
+      supportScore = gcResult.supportScore;
+      unsupportedClaims = gcResult.unsupportedClaims;
+      source = gcResult.source;
+    } else {
+      const claims = extractClaims(generatedAnswer);
+      const contradictions = claims.map((claim) => {
+        const support = checkClaimSupport(claim, retrievedChunks);
+        return { claim, ...support };
+      });
+      unsupportedClaims = contradictions.filter((c) => c.contradiction_type !== 'none');
+      hallucinationDetected =
+        claims.length > 0 &&
+        unsupportedClaims.length > 0 &&
+        unsupportedClaims.length / claims.length > 1 - threshold;
+      supportScore =
+        claims.length > 0 ? (claims.length - unsupportedClaims.length) / claims.length : 0;
+      source = 'heuristics';
+    }
 
     qualityMetrics.record('hallucination_score', supportScore, {
       query,
       detected: hallucinationDetected,
+      source,
     });
 
     return {
@@ -422,10 +520,11 @@ export const ragDetectHallucination: RAGTool = {
                 source_chunk: c.source || 'unknown',
                 contradiction_type: c.contradiction_type,
               })),
-              total_claims: claims.length,
-              supported_claims: claims.length - unsupportedClaims.length,
+              total_claims: extractClaims(generatedAnswer).length,
+              supported_claims: extractClaims(generatedAnswer).length - unsupportedClaims.length,
               unsupported_claims: unsupportedClaims.length,
               threshold,
+              detection_source: source,
             },
             null,
             2,

@@ -129,7 +129,7 @@ const agentRegistry = new AgentRegistry();
 function initializeDefaultAgents(): void {
   // RAG agent (this system itself)
   agentRegistry.register({
-    agent_id: 'hybrid-rag-qdrant',
+    agent_id: 'hybrid-rag',
     display_name: 'Hybrid RAG System',
     description:
       'Enterprise-grade RAG system with hybrid retrieval (vector + BM25), reranking, and evaluation',
@@ -584,7 +584,7 @@ function simulateAgentResponse(
   agent: AgentInfo,
   query: string,
   context?: Record<string, unknown>,
-): unknown {
+): Record<string, unknown> {
   // In production, this would make an actual API call to the agent
   switch (agent.agent_id) {
     case 'calculator':
@@ -599,7 +599,7 @@ function simulateAgentResponse(
         note: 'This is a simulated response',
       };
 
-    case 'hybrid-rag-qdrant':
+    case 'hybrid-rag':
       return {
         message: `RAG agent would search for: ${query}`,
         note: 'This is a simulated response',

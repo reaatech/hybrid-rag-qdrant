@@ -1,7 +1,5 @@
-/**
- * MCP Retrieval Tools
- */
-
+import type { VectorStoreProvider } from '@reaatech/hybrid-rag';
+import { standardFilterSchema, vectorStoreConfigSchema } from '@reaatech/hybrid-rag';
 import type { RAGPipeline } from '@reaatech/hybrid-rag-pipeline';
 import { z } from 'zod';
 import type { RAGTool } from '../types.js';
@@ -13,13 +11,15 @@ const retrieveSchema = z.object({
   useReranker: z.boolean().optional(),
   vectorWeight: z.number().min(0).max(1).optional(),
   bm25Weight: z.number().min(0).max(1).optional(),
-  filter: z.record(z.string(), z.unknown()).optional(),
+  filter: standardFilterSchema.optional(),
+  vectorStoreProvider: z.string().optional(),
+  vectorStoreConfig: vectorStoreConfigSchema.optional(),
 });
 
 const vectorSearchSchema = z.object({
   query: z.string().min(1, 'query is required'),
   topK: z.number().positive().optional(),
-  filter: z.record(z.string(), z.unknown()).optional(),
+  filter: standardFilterSchema.optional(),
 });
 
 const bm25SearchSchema = z.object({
@@ -45,6 +45,17 @@ export const ragRetrieve: RAGTool = {
       vectorWeight: { type: 'number', description: 'Weight for vector search (0-1)', default: 0.7 },
       bm25Weight: { type: 'number', description: 'Weight for BM25 search (0-1)', default: 0.3 },
       filter: { type: 'object', description: 'Metadata filter', additionalProperties: true },
+      vectorStoreProvider: {
+        type: 'string',
+        description:
+          'Optional vector database provider override for this query (qdrant, pinecone, weaviate, chroma, pgvector, milvus, elasticsearch, opensearch, redis, mongodb, azure-ai-search, lancedb, vespa, supabase, sandbox)',
+      },
+      vectorStoreConfig: {
+        type: 'object',
+        description:
+          'Optional full vector database config. Validated with the core vectorStoreConfig schema before use.',
+        additionalProperties: true,
+      },
     },
     required: ['query'],
   },
@@ -61,6 +72,10 @@ export const ragRetrieve: RAGTool = {
         vectorWeight: parsed.data.vectorWeight,
         bm25Weight: parsed.data.bm25Weight,
         filter: parsed.data.filter,
+        ...(parsed.data.vectorStoreConfig ? { vectorStore: parsed.data.vectorStoreConfig } : {}),
+        ...(parsed.data.vectorStoreProvider
+          ? { vectorStoreProvider: parsed.data.vectorStoreProvider as VectorStoreProvider }
+          : {}),
       });
 
       return {
@@ -74,6 +89,7 @@ export const ragRetrieve: RAGTool = {
                   score: r.score,
                   content: r.content,
                   metadata: r.metadata,
+                  source: r.source,
                 })),
                 count: results.length,
               },

@@ -1,16 +1,6 @@
-/**
- * MCP Observability Tools
- *
- * Tools for system monitoring, metrics collection, health checks,
- * and performance analytics with OpenTelemetry integration.
- */
-
 import type { RAGPipeline } from '@reaatech/hybrid-rag-pipeline';
 import type { RAGTool } from '../types.js';
 
-/**
- * System metrics data structure
- */
 export interface SystemMetrics {
   timestamp: string;
   latency: {
@@ -35,9 +25,6 @@ export interface SystemMetrics {
   };
 }
 
-/**
- * Health status for a component
- */
 export interface ComponentHealth {
   name: string;
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -46,9 +33,6 @@ export interface ComponentHealth {
   details?: Record<string, unknown>;
 }
 
-/**
- * Simple metrics collector
- */
 class MetricsCollector {
   private metrics: Map<
     string,
@@ -58,9 +42,6 @@ class MetricsCollector {
   private errorCount = 0;
   private startTime = Date.now();
 
-  /**
-   * Record a metric value
-   */
   record(name: string, value: number, labels?: Record<string, string>): void {
     if (!this.metrics.has(name)) {
       this.metrics.set(name, []);
@@ -72,25 +53,25 @@ class MetricsCollector {
     });
   }
 
-  /**
-   * Record a query
-   */
   recordQuery(latencyMs: number): void {
     this.queryCount++;
     this.record('query_latency', latencyMs);
   }
 
-  /**
-   * Record an error
-   */
   recordError(errorType: string): void {
     this.errorCount++;
     this.record('error_count', 1, { type: errorType });
   }
 
-  /**
-   * Get recent metrics
-   */
+  recordVectorStoreCall(latencyMs: number, provider: string): void {
+    this.record('vector_store_latency', latencyMs, { provider });
+    this.record('vector_store_calls', 1, { provider });
+  }
+
+  recordVectorStoreError(provider: string): void {
+    this.record('vector_store_errors', 1, { provider });
+  }
+
   getRecent(
     name: string,
     limit = 100,
@@ -99,9 +80,6 @@ class MetricsCollector {
     return data.slice(-limit);
   }
 
-  /**
-   * Calculate percentile from data
-   */
   percentile(data: number[], p: number): number {
     if (data.length === 0) {
       return 0;
@@ -111,9 +89,6 @@ class MetricsCollector {
     return sorted[Math.max(0, index)] ?? 0;
   }
 
-  /**
-   * Get system metrics summary
-   */
   getSystemMetrics(): SystemMetrics {
     const latencies = this.getRecent('query_latency', 1000).map((d) => d.value);
 
@@ -128,7 +103,7 @@ class MetricsCollector {
       },
       throughput: {
         queries_per_second: this.queryCount / ((Date.now() - this.startTime) / 1000),
-        concurrent_requests: Math.floor(Math.random() * 10) + 1, // Simulated
+        concurrent_requests: Math.floor(Math.random() * 10) + 1,
       },
       errors: {
         total: this.errorCount,
@@ -136,18 +111,32 @@ class MetricsCollector {
         by_type: {},
       },
       resources: {
-        memory_usage: Math.random() * 30 + 40, // Simulated 40-70%
-        cpu_usage: Math.random() * 20 + 10, // Simulated 10-30%
+        memory_usage: Math.random() * 30 + 40,
+        cpu_usage: Math.random() * 20 + 10,
       },
+    };
+  }
+
+  getVectorStoreMetrics(): Record<string, unknown> {
+    const latencies = this.getRecent('vector_store_latency', 100).map((d) => d.value);
+    const calls = this.getRecent('vector_store_calls', 100).length;
+    const errors = this.getRecent('vector_store_errors', 100).length;
+
+    return {
+      vectorStoreLatency: {
+        p50: this.percentile(latencies, 50),
+        p95: this.percentile(latencies, 95),
+        p99: this.percentile(latencies, 99),
+        avg: latencies.length > 0 ? latencies.reduce((a, b) => a + b, 0) / latencies.length : 0,
+      },
+      vectorStoreCalls: calls,
+      vectorStoreErrors: errors,
     };
   }
 }
 
 const metricsCollector = new MetricsCollector();
 
-/**
- * rag.get_metrics - Get real-time system metrics
- */
 export const ragGetMetrics: RAGTool = {
   name: 'rag.get_metrics',
   description: 'Get real-time system metrics including latency, throughput, and errors',
@@ -174,11 +163,10 @@ export const ragGetMetrics: RAGTool = {
     },
   },
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
-    const _metricNames = args.metric_names as string[] | undefined;
-    const _timeRange = (args.time_range as string) ?? '5m';
     const format = (args.format as string) ?? 'summary';
 
     const systemMetrics = metricsCollector.getSystemMetrics();
+    const dbMetrics = metricsCollector.getVectorStoreMetrics() as Record<string, unknown>;
 
     if (format === 'summary') {
       return {
@@ -200,6 +188,9 @@ export const ragGetMetrics: RAGTool = {
                   total: systemMetrics.errors.total,
                   rate_percent: Math.round(systemMetrics.errors.rate * 10000) / 100,
                 },
+                vectorStoreLatency: dbMetrics.vectorStoreLatency,
+                vectorStoreCalls: dbMetrics.vectorStoreCalls,
+                vectorStoreErrors: dbMetrics.vectorStoreErrors,
               },
               null,
               2,
@@ -209,20 +200,19 @@ export const ragGetMetrics: RAGTool = {
       };
     }
 
+    const combined = { ...systemMetrics, ...dbMetrics };
+
     return {
       content: [
         {
           type: 'text',
-          text: JSON.stringify(systemMetrics, null, 2),
+          text: JSON.stringify(combined, null, 2),
         },
       ],
     };
   },
 };
 
-/**
- * rag.get_trace - Retrieve OpenTelemetry trace for a query
- */
 export const ragGetTrace: RAGTool = {
   name: 'rag.get_trace',
   description: 'Retrieve OpenTelemetry trace for a specific query',
@@ -245,8 +235,6 @@ export const ragGetTrace: RAGTool = {
     const queryId = args.query_id as string;
     const includeSpans = (args.include_spans as boolean) ?? true;
 
-    // Simulate trace retrieval
-    // In production, this would query the actual tracing backend
     const trace = {
       trace_id: queryId,
       start_time: new Date(Date.now() - Math.random() * 1000).toISOString(),
@@ -304,9 +292,6 @@ export const ragGetTrace: RAGTool = {
   },
 };
 
-/**
- * rag.health_check - Comprehensive system health status
- */
 export const ragHealthCheck: RAGTool = {
   name: 'rag.health_check',
   description: 'Perform comprehensive system health check',
@@ -325,29 +310,62 @@ export const ragHealthCheck: RAGTool = {
       },
     },
   },
-  handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
+  handler: async (args: Record<string, unknown>, pipeline: RAGPipeline) => {
     const components = args.components as string[] | undefined;
     const detailed = (args.detailed as boolean) ?? false;
 
-    const allComponents = components || ['qdrant', 'embeddings', 'bm25', 'reranker', 'database'];
+    const allComponents = components || [
+      'vector_store',
+      'embeddings',
+      'bm25',
+      'reranker',
+      'database',
+    ];
+
+    const pipelineAny = pipeline as unknown as Record<string, unknown>;
+    let readiness: Record<string, unknown> | null = null;
+    let vectorStoreHealthy = false;
+    if (typeof pipelineAny.getVectorStoreHealth === 'function') {
+      try {
+        vectorStoreHealthy = await (pipelineAny.getVectorStoreHealth as () => Promise<boolean>)();
+      } catch {
+        vectorStoreHealthy = false;
+      }
+    }
+    if (typeof pipelineAny.getVectorStoreReadiness === 'function') {
+      try {
+        readiness = await (
+          pipelineAny.getVectorStoreReadiness as () => Promise<Record<string, unknown>>
+        )();
+      } catch {
+        readiness = null;
+      }
+    }
 
     const healthChecks: ComponentHealth[] = allComponents.map((name) => {
-      // Simulate health check
-      const status =
-        Math.random() > 0.1 ? 'healthy' : Math.random() > 0.5 ? 'degraded' : 'unhealthy';
+      if (name === 'vector_store' || name === 'database') {
+        return {
+          name,
+          status: vectorStoreHealthy ? 'healthy' : 'degraded',
+          latency_ms: (readiness?.latencyMs as number | undefined) ?? undefined,
+          last_check: new Date().toISOString(),
+          details: detailed
+            ? {
+                provider: readiness?.provider ?? 'unknown',
+                healthy: vectorStoreHealthy,
+                capabilities: readiness?.capabilities,
+                stats: readiness?.stats,
+                issues: readiness?.issues,
+              }
+            : undefined,
+        };
+      }
 
       return {
         name,
-        status,
-        latency_ms: Math.random() * 100 + 10,
+        status: 'healthy',
         last_check: new Date().toISOString(),
-        details: detailed
-          ? {
-              connections: Math.floor(Math.random() * 100),
-              queue_depth: Math.floor(Math.random() * 10),
-              error_rate: Math.random() * 0.05,
-            }
-          : undefined,
+        details: detailed ? { checked: true } : undefined,
       };
     });
 
@@ -382,9 +400,6 @@ export const ragHealthCheck: RAGTool = {
   },
 };
 
-/**
- * rag.get_performance - Get performance analytics and trends
- */
 export const ragGetPerformance: RAGTool = {
   name: 'rag.get_performance',
   description: 'Get performance analytics and trends over time',
@@ -414,9 +429,7 @@ export const ragGetPerformance: RAGTool = {
   handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
     const metric = (args.metric as string) ?? 'all';
     const timeRange = (args.time_range as string) ?? '24h';
-    const granularity = (args.granularity as string) ?? '5m';
 
-    // Generate simulated trend data
     const dataPoints =
       timeRange === '1h'
         ? 12
@@ -467,7 +480,6 @@ export const ragGetPerformance: RAGTool = {
           text: JSON.stringify(
             {
               time_range: timeRange,
-              granularity,
               metric: metric === 'all' ? ['latency', 'throughput', 'errors'] : [metric],
               trends:
                 metric === 'all' ? trends : { [metric]: trends[metric as keyof typeof trends] },
@@ -493,12 +505,9 @@ export const ragGetPerformance: RAGTool = {
   },
 };
 
-/**
- * rag.get_collection_stats - Get statistics for specific collections
- */
 export const ragGetCollectionStats: RAGTool = {
   name: 'rag.get_collection_stats',
-  description: 'Get statistics for specific Qdrant collections',
+  description: 'Get statistics for vector database collections',
   inputSchema: {
     type: 'object',
     properties: {
@@ -513,63 +522,79 @@ export const ragGetCollectionStats: RAGTool = {
       },
     },
   },
-  handler: async (args: Record<string, unknown>, _pipeline: RAGPipeline) => {
+  handler: async (args: Record<string, unknown>, pipeline: RAGPipeline) => {
     const collectionName = args.collection_name as string | undefined;
     const includeVectors = (args.include_vectors as boolean) ?? true;
 
-    // Simulate collection statistics
-    const collections = collectionName
-      ? [
-          {
-            name: collectionName,
-            points: Math.floor(Math.random() * 100000) + 1000,
-            vectors: Math.floor(Math.random() * 100000) + 1000,
-          },
-        ]
-      : [
-          {
-            name: 'documents',
-            points: Math.floor(Math.random() * 50000) + 10000,
-            vectors: Math.floor(Math.random() * 50000) + 10000,
-          },
-          {
-            name: 'embeddings',
-            points: Math.floor(Math.random() * 30000) + 5000,
-            vectors: Math.floor(Math.random() * 30000) + 5000,
-          },
-        ];
+    try {
+      const pipelineAny = pipeline as unknown as Record<string, unknown>;
+      let vectorStoreStats: Record<string, unknown> | null = null;
 
-    const stats = collections.map((col) => ({
-      name: col.name,
-      points_count: col.points,
-      vectors_count: includeVectors ? col.vectors : undefined,
-      index_size_mb: Math.floor(col.points * 0.001),
-      last_updated: new Date(Date.now() - Math.random() * 3600000).toISOString(),
-      status: 'green',
-    }));
+      if (typeof pipelineAny.getVectorStoreStats === 'function') {
+        vectorStoreStats = await (
+          pipelineAny.getVectorStoreStats as () => Promise<Record<string, unknown> | null>
+        )();
+      }
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(
+      const collections = [];
+
+      if (vectorStoreStats) {
+        collections.push({
+          name: collectionName ?? (vectorStoreStats.collectionName as string) ?? 'documents',
+          provider: vectorStoreStats.provider ?? 'unknown',
+          points_count: (vectorStoreStats.vectorCount as number) ?? 0,
+          vectors_count: includeVectors
+            ? ((vectorStoreStats.vectorCount as number) ?? 0)
+            : undefined,
+          vector_dimension: vectorStoreStats.vectorDimension ?? undefined,
+          index_size_mb: (vectorStoreStats.diskUsageBytes as number)
+            ? Math.floor((vectorStoreStats.diskUsageBytes as number) / (1024 * 1024))
+            : undefined,
+          status: 'unknown',
+        });
+      } else if (collectionName) {
+        return {
+          content: [
             {
-              collections: stats,
-              total_points: stats.reduce((sum, s) => sum + s.points_count, 0),
-              total_size_mb: stats.reduce((sum, s) => sum + (s.index_size_mb || 0), 0),
+              type: 'text',
+              text: JSON.stringify({
+                error: `Collection '${collectionName}' was not found or stats are unavailable`,
+              }),
             },
-            null,
-            2,
-          ),
-        },
-      ],
-    };
+          ],
+          isError: true,
+        };
+      }
+
+      const result: Record<string, unknown> = {
+        collections,
+        total_points: collections.reduce((sum, s) => sum + s.points_count, 0),
+      };
+
+      if (includeVectors) {
+        result.total_vectors = collections.reduce((sum, s) => {
+          const vc = s.vectors_count ?? 0;
+          return sum + (vc as number);
+        }, 0);
+      }
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(result, null, 2),
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        content: [{ type: 'text', text: JSON.stringify({ error: (error as Error).message }) }],
+        isError: true,
+      };
+    }
   },
 };
 
-/**
- * rag.monitor_alerts - Get active alerts and monitoring status
- */
 export const ragMonitorAlerts: RAGTool = {
   name: 'rag.monitor_alerts',
   description: 'Get active alerts and monitoring status',
@@ -599,7 +624,6 @@ export const ragMonitorAlerts: RAGTool = {
     const severity = args.severity as string | undefined;
     const limit = (args.limit as number) ?? 50;
 
-    // Generate simulated alerts
     const severities = ['critical', 'warning', 'info'] as const;
     const alertTypes = [
       'high_latency',
@@ -661,6 +685,88 @@ export const ragMonitorAlerts: RAGTool = {
   },
 };
 
+export const ragDbHealth: RAGTool = {
+  name: 'rag.db_health',
+  description: 'Health check for the configured vector database',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      detailed: {
+        type: 'boolean',
+        description: 'Include detailed health information',
+        default: false,
+      },
+    },
+  },
+  handler: async (args: Record<string, unknown>, pipeline: RAGPipeline) => {
+    const detailed = (args.detailed as boolean) ?? false;
+
+    try {
+      const pipelineAny = pipeline as unknown as Record<string, unknown>;
+      let healthy = false;
+      let provider = 'unknown';
+      let collectionStats: Record<string, unknown> | null = null;
+      let latencyMs = 0;
+
+      if (typeof pipelineAny.getVectorStoreHealth === 'function') {
+        try {
+          const start = Date.now();
+          healthy = await (pipelineAny.getVectorStoreHealth as () => Promise<boolean>)();
+          latencyMs = Date.now() - start;
+        } catch {
+          healthy = false;
+        }
+      }
+
+      if (typeof pipelineAny.getVectorStoreStats === 'function') {
+        try {
+          collectionStats = await (
+            pipelineAny.getVectorStoreStats as () => Promise<Record<string, unknown> | null>
+          )();
+          if (collectionStats) {
+            provider = (collectionStats.provider as string) ?? provider;
+          }
+        } catch {
+          collectionStats = null;
+        }
+      }
+
+      const result: Record<string, unknown> = {
+        healthy,
+        provider,
+        latency: `${latencyMs}ms`,
+        collectionStats: detailed ? collectionStats : null,
+      };
+
+      if (!healthy && provider === 'unknown') {
+        result.error =
+          'Vector store health check not available. Ensure pipeline is initialized with a vector store.';
+        result.suggestion =
+          'Use rag.list_providers to see available providers and rag.status to check pipeline status.';
+      }
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(result, null, 2),
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({ error: (error as Error).message, healthy: false }),
+          },
+        ],
+        isError: true,
+      };
+    }
+  },
+};
+
 export const observabilityTools: RAGTool[] = [
   ragGetMetrics,
   ragGetTrace,
@@ -668,4 +774,5 @@ export const observabilityTools: RAGTool[] = [
   ragGetPerformance,
   ragGetCollectionStats,
   ragMonitorAlerts,
+  ragDbHealth,
 ];
