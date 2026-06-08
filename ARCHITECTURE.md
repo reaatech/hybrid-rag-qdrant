@@ -1,8 +1,8 @@
-# hybrid-rag-qdrant — Architecture
+# hybrid-rag — Architecture
 
 ## System Overview
 
-This is a **pnpm monorepo** with 10 packages under `packages/*`, published to npm under the `@reaatech` scope. Each package builds independently via tsup (dual ESM/CJS output), and turbo orchestrates build ordering based on the dependency graph.
+This is a **pnpm monorepo** with 24 packages under `packages/*`, published to npm under the `@reaatech` scope. Each package builds independently via tsup (dual ESM/CJS output), and turbo orchestrates build ordering based on the dependency graph.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -23,7 +23,7 @@ This is a **pnpm monorepo** with 10 packages under `packages/*`, published to np
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐                  │
 │  │   Vector    │───▶│    BM25     │───▶│  Reranker   │                  │
 │  │  Retrieval  │    │  Retrieval  │    │ (Optional)  │                  │
-│  │  (Qdrant)   │    │  (Sparse)   │    │             │                  │
+│  │ (Adapter)   │    │  (Sparse)   │    │             │                  │
 │  └──────┬──────┘    └──────┬──────┘    └──────┬──────┘                  │
 │         │                   │                   │                         │
 │         └───────────────────┼───────────────────┘                         │
@@ -75,28 +75,43 @@ This is a **pnpm monorepo** with 10 packages under `packages/*`, published to np
 hybrid-rag                        (core types, schemas — zod only)
 hybrid-rag-observability          (pino, OTel — standalone)
   ├── hybrid-rag-qdrant           (Qdrant adapter → core)
+  ├── hybrid-rag-pinecone         (Pinecone adapter → core)
+  ├── hybrid-rag-weaviate         (Weaviate adapter → core)
+  ├── hybrid-rag-chroma           (Chroma adapter → core)
+  ├── hybrid-rag-pgvector         (PgVector adapter → core)
+  ├── hybrid-rag-milvus           (Milvus/Zilliz adapter → core)
+  ├── hybrid-rag-elasticsearch    (Elasticsearch adapter → core)
+  ├── hybrid-rag-opensearch       (OpenSearch adapter → core)
+  ├── hybrid-rag-redis            (Redis Vector adapter → core)
+  ├── hybrid-rag-mongodb          (MongoDB Atlas Vector adapter → core)
+  ├── hybrid-rag-azure-ai-search  (Azure AI Search adapter → core)
+  ├── hybrid-rag-lancedb          (LanceDB adapter → core)
+  ├── hybrid-rag-vespa            (Vespa adapter → core)
+  ├── hybrid-rag-supabase         (Supabase Vector adapter → core)
   ├── hybrid-rag-embedding        (embeddings → core)
   │     └── hybrid-rag-ingestion  (loading + 4 chunking strategies → core, observability)
-  │           └── hybrid-rag-retrieval (BM25, reranker, fusion, hybrid retriever → core, qdrant, embedding, ingestion, observability)
+  │           └── hybrid-rag-retrieval (BM25, reranker, fusion, adapter factory, sandbox → core, adapters, embedding, ingestion, observability)
   │                 └── hybrid-rag-pipeline    (orchestrator → all above)
-  │                       ├── hybrid-rag-evaluation (eval, ablation, benchmarking → core, pipeline, observability)
-  │                       ├── hybrid-rag-mcp-server (41 MCP tools → core, pipeline, evaluation, observability)
-  │                       └── hybrid-rag-cli        (CLI → pipeline, mcp-server, evaluation, ingestion)
+  │                       ├── hybrid-rag-evaluation (eval, ablation, benchmarking, DB benchmarking → core, pipeline, observability)
+  │                       ├── hybrid-rag-migration  (cross-DB migration → core, retrieval)
+  │                       ├── hybrid-rag-mcp-server (47+ MCP tools → core, pipeline, evaluation, migration, observability)
+  │                       └── hybrid-rag-cli        (CLI → pipeline, mcp-server, evaluation, ingestion, migration)
 ```
 
 ### Package Boundaries
 
 | Package | Responsibility | Key Classes |
 |---------|---------------|-------------|
-| `@reaatech/hybrid-rag` | Domain types, Zod schemas, enums | `Document`, `Chunk`, `ChunkingStrategy`, `RetrievalResult` |
+| `@reaatech/hybrid-rag` | Domain types, Zod schemas, enums, vector store contract | `Document`, `Chunk`, `ChunkingStrategy`, `RetrievalResult`, `VectorStoreAdapter` |
 | `@reaatech/hybrid-rag-observability` | Logging, tracing, metrics, dashboard | `createLogger`, `TracingManager`, `MetricsCollector` |
-| `@reaatech/hybrid-rag-qdrant` | Qdrant client wrapper, vector search | `QdrantClientWrapper` |
+| Adapter packages | Vector store implementations for 15 providers | `QdrantClientWrapper`, `PineconeClientWrapper`, `LanceDBClientWrapper`, etc. |
 | `@reaatech/hybrid-rag-embedding` | Embedding generation (OpenAI, Vertex, local) | `EmbeddingService` |
 | `@reaatech/hybrid-rag-ingestion` | Document loading, preprocessing, 4 chunking strategies | `DocumentLoader`, `ChunkingEngine`, `FixedSizeChunker` |
-| `@reaatech/hybrid-rag-retrieval` | BM25, reranker, fusion, hybrid retriever, vector search engine | `HybridRetriever`, `RerankerEngine`, `BM25SearchEngine` |
+| `@reaatech/hybrid-rag-retrieval` | BM25, reranker, fusion, hybrid retriever, vector search engine, adapter factory, sandbox store | `HybridRetriever`, `RerankerEngine`, `BM25SearchEngine`, `createVectorStore`, `SandboxVectorStore` |
 | `@reaatech/hybrid-rag-pipeline` | RAGPipeline orchestrator | `RAGPipeline` |
-| `@reaatech/hybrid-rag-evaluation` | Evaluation runner, ablation, benchmarking | `EvaluationRunner`, `AblationRunner`, `benchmarkLatency` |
-| `@reaatech/hybrid-rag-mcp-server` | MCP server + 41 tools | `MCPServer`, `createMCPServer` |
+| `@reaatech/hybrid-rag-evaluation` | Evaluation runner, ablation, benchmarking, vector DB benchmarking | `EvaluationRunner`, `AblationRunner`, `benchmarkLatency`, `benchmarkVectorStores` |
+| `@reaatech/hybrid-rag-migration` | Cross-DB scan/upsert migration and versioned export/import | `migrateVectors`, `exportVectors`, `importVectors` |
+| `@reaatech/hybrid-rag-mcp-server` | MCP server + 47+ tools | `MCPServer`, `createMCPServer` |
 | `@reaatech/hybrid-rag-cli` | CLI commands (commander) | `hybrid-rag`, `hybrid-rag-healthcheck` |
 
 ### Build System
@@ -115,16 +130,18 @@ hybrid-rag-observability          (pino, OTel — standalone)
 ## Design Principles
 
 ### 1. Hybrid Retrieval First
-- Vector search captures semantic similarity (via Qdrant)
+- Vector search captures semantic similarity through the configured `VectorStoreAdapter`
 - BM25 captures exact keyword matching (in-process)
 - Fusion combines strengths of both approaches (RRF default)
 - Reranking refines top results with cross-encoder (Cohere, Jina, local)
 
 ### 2. Pluggable Vector DB
-- Qdrant is the reference adapter in `@reaatech/hybrid-rag-qdrant`
-- Architecture supports swapping for Milvus, Chroma, Pinecone, Weaviate
-- New adapters follow the pattern defined in `skills/vector-db-adapters/skill.md`
-- Provider-agnostic embedding layer in `@reaatech/hybrid-rag-embedding`
+- `VectorStoreAdapter` in `@reaatech/hybrid-rag` is the contract for all vector stores.
+- `@reaatech/hybrid-rag-retrieval` owns the dynamic `createVectorStore()` factory and plugin registry.
+- v2 supports 15 providers: Qdrant, Pinecone, Weaviate, Chroma, PgVector, Milvus, Elasticsearch, OpenSearch, Redis, MongoDB, Azure AI Search, LanceDB, Vespa, Supabase, and Sandbox.
+- LanceDB is the zero-config embedded default; Chroma is server-only in JavaScript and requires `chroma run` or Docker.
+- New adapters follow the pattern defined in `skills/vector-db-adapters/skill.md`.
+- Provider-agnostic embedding layer in `@reaatech/hybrid-rag-embedding`.
 
 ### 3. Benchmark-Driven Development
 - Every claim backed by measured numbers
@@ -185,26 +202,27 @@ chunk_id = hash(document_id + strategy + chunk_index + seed)
 | Recursive | Hierarchical separators | Structured documents (headers → paragraphs → sentences) |
 | Sliding Window | Window + stride | Dense retrieval, high overlap |
 
-### Vector Retrieval — Qdrant Adapter (hybrid-rag-qdrant)
+### Vector Retrieval — Adapter Factory (hybrid-rag-retrieval)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                 Qdrant Adapter (hybrid-rag-qdrant)                   │
+│                 Vector Store Adapter Layer                           │
 │                                                                      │
-│  ┌──────────────────┐         ┌──────────────────┐                  │
-│  │ QdrantClientWrapper│       │  Collection Ops  │                  │
-│  │                   │       │                  │                  │
-│  │ - connect         │       │ - create/delete   │                  │
-│  │ - upsert (single) │       │ - exists check    │                  │
-│  │ - upsert (batch)  │       │ - get info        │                  │
-│  │ - search          │       │ - health check    │                  │
-│  │ - filter builder  │       │                  │                  │
-│  └──────────────────┘         └──────────────────┘                  │
+│  VectorSearchEngine ──▶ createVectorStore(config) ──▶ Adapter        │
+│                                │                                     │
+│                                ├── LanceDB (default, embedded)       │
+│                                ├── Qdrant / PgVector / Chroma        │
+│                                ├── Pinecone / Weaviate / Vespa       │
+│                                ├── Elastic / OpenSearch / Redis      │
+│                                ├── MongoDB / Azure / Supabase        │
+│                                └── Sandbox (in-memory dry run)       │
 │                                                                      │
-│  The adapter is independent of the embedding and retrieval layers.  │
-│  It can be swapped for other vector DBs (Milvus, Chroma, etc.).    │
+│  Each adapter reports capabilities, cost model, stats, health,       │
+│  metadata filtering support, and scan support for migration.         │
 └─────────────────────────────────────────────────────────────────────┘
 ```
+
+The common filter language is `StandardFilter`: simple equality, `$eq`, `$ne`, `$in`, `$nin`, numeric range operators, `$exists`, `$and`, and `$or`. Each adapter translates this to its native query language. Providers without native hybrid support use client-side BM25/vector fusion; providers with native hybrid support may use `hybridQuery`, `hybridAlpha`, or sparse vectors depending on capability.
 
 ### Embedding Service (hybrid-rag-embedding)
 
@@ -264,7 +282,7 @@ Reranking typically improves NDCG@10 by 10-15%.
          │
 5. Embed (generate embeddings in batch, track tokens and cost)
          │
-6. Index (upsert to Qdrant, build BM25 index, persist metadata)
+6. Index (upsert to configured vector store, build BM25 index, persist metadata)
 ```
 
 ### Query Flow
@@ -275,7 +293,7 @@ Reranking typically improves NDCG@10 by 10-15%.
 2. Generate query embedding (hybrid-rag-embedding)
          │
 3. Parallel retrieval:
-   - Vector search (Qdrant via hybrid-rag-qdrant)
+   - Vector search (configured VectorStoreAdapter)
    - BM25 search (in-process via hybrid-rag-retrieval)
          │
 4. Fusion (combine using RRF/weighted/normalized)
@@ -325,7 +343,7 @@ Layer 4: Input Validation — file size limits, content type, query length, rate
 |------|------------|
 | `rag.query` | query_id, chunking_strategy, retrieval_mode |
 | `rag.embedding` | provider, model, tokens, cost |
-| `rag.vector_search` | k, filter, latency_ms |
+| `rag.vector_search` | provider, operation, status, k, latency_ms |
 | `rag.bm25_search` | k, terms, latency_ms |
 | `rag.fusion` | strategy, candidates, latency_ms |
 | `rag.rerank` | provider, model, documents, cost |
@@ -337,9 +355,12 @@ Layer 4: Input Validation — file size limits, content type, query length, rate
 | `rag.queries.total` | Counter | status |
 | `rag.queries.duration_ms` | Histogram | component |
 | `rag.retrieval.results` | Histogram | source |
+| `rag.vector_store.operations` | Counter | provider, operation, status |
 | `rag.reranker.calls` | Counter | provider, status |
 | `rag.embeddings.generated` | Counter | provider |
 | `rag.chunks.created` | Counter | strategy |
+
+Vector-store observability uses low-cardinality labels only: `provider`, `operation`, and `status`. It must not tag query text, document IDs, collection names, namespaces, tenants, or raw error messages.
 
 ### Structured Logging
 
@@ -366,7 +387,7 @@ All logs are JSON with standard fields: timestamp, service, query_id, level, mes
 | Component | Cost (USD) |
 |-----------|------------|
 | Embedding (1 query, ~100 tokens) | $0.002 |
-| Vector search (Qdrant) | $0.001 |
+| Vector search (provider-dependent) | $0.000-$0.001 |
 | BM25 search | $0.000 |
 | Reranking (10 docs) | $0.01 |
 | **Total (with rerank)** | **$0.013** |
@@ -378,7 +399,7 @@ All logs are JSON with standard fields: timestamp, service, query_id, level, mes
 
 | Failure | Detection | Recovery |
 |---------|-----------|----------|
-| Qdrant unavailable | Connection error | Retry with backoff, return partial results from BM25 |
+| Vector store unavailable | Connection error or failed health check | Retry with backoff, return partial results from BM25 when possible |
 | Embedding API error | Non-2xx response | Retry with backoff, use cached embeddings |
 | Reranker API error | Timeout or error | Skip reranking, return fused results |
 | Budget exceeded | Cost > limit | Stop processing, return partial results |
@@ -395,3 +416,5 @@ All logs are JSON with standard fields: timestamp, service, query_id, level, mes
 - **packages/** — Source code organized by package
 - **MCP Specification** — https://modelcontextprotocol.io/
 - **Qdrant Documentation** — https://qdrant.tech/documentation/
+- **LanceDB Documentation** — https://lancedb.github.io/lancedb/
+- **Chroma Documentation** — https://docs.trychroma.com/

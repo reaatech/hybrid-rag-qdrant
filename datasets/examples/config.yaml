@@ -1,5 +1,12 @@
 # Evaluation Configuration Example
-# This file defines the evaluation settings for hybrid-rag-qdrant
+# This file defines the evaluation settings for hybrid-rag
+
+# Vector store configuration
+vectorStore:
+  provider: lancedb
+  url: ./datasets/lancedb-data
+  collectionName: documents
+  vectorSize: 1536
 
 # Baseline configuration
 baseline:

@@ -1,17 +1,17 @@
 ---
-agent_id: "hybrid-rag-qdrant"
+agent_id: "hybrid-rag"
 display_name: "Hybrid RAG (Qdrant)"
-version: "0.1.0"
-description: "Hybrid search RAG implementation using Qdrant vector database"
+version: "2.0.0"
+description: "Multi-vector-database hybrid search RAG with 15 supported backends (Qdrant, Pinecone, Weaviate, Chroma, PgVector, Milvus, Elasticsearch, OpenSearch, Redis, MongoDB, Azure AI Search, LanceDB, Vespa, Supabase, Sandbox)"
 type: "mcp"
 confidence_threshold: 0.9
 ---
 
-# hybrid-rag-qdrant — Agent Development Guide
+# hybrid-rag — Agent Development Guide
 
 ## What this is
 
-This monorepo provides a complete hybrid RAG stack across 10 packages: core types, document ingestion with four chunking strategies, hybrid retrieval (vector + BM25 + cross-encoder reranker), evaluation with standard IR metrics, ablation studies, performance benchmarking, an MCP server with 41+ tools, and a CLI.
+This monorepo provides a complete hybrid RAG stack across 24 packages: core types, document ingestion with four chunking strategies, hybrid retrieval (vector + BM25 + cross-encoder reranker), 14 vector database adapters (Qdrant, Pinecone, Weaviate, Chroma, PgVector, Milvus, Elasticsearch, OpenSearch, Redis, MongoDB, Azure AI Search, LanceDB, Vespa, Supabase), cross-DB migration, evaluation with standard IR metrics, ablation studies, performance benchmarking, an MCP server with 47+ tools, and a CLI.
 
 **Target audience:** Engineers building enterprise RAG systems and AI agents who need reproducible results, benchmarked performance, cost-aware deployment, and seamless integration with multi-agent systems like agent-mesh.
 
@@ -21,16 +21,30 @@ This monorepo provides a complete hybrid RAG stack across 10 packages: core type
 
 ```
 packages/
-├── hybrid-rag/              @reaatech/hybrid-rag (core types, zod schemas)
-├── hybrid-rag-observability/ @reaatech/hybrid-rag-observability (pino, OTel)
-├── hybrid-rag-qdrant/       @reaatech/hybrid-rag-qdrant (Qdrant adapter)
-├── hybrid-rag-embedding/    @reaatech/hybrid-rag-embedding (OpenAI, Vertex, local)
-├── hybrid-rag-ingestion/    @reaatech/hybrid-rag-ingestion (loading + 4 chunking strategies)
-├── hybrid-rag-retrieval/    @reaatech/hybrid-rag-retrieval (BM25, reranker, fusion, hybrid retriever)
-├── hybrid-rag-pipeline/     @reaatech/hybrid-rag-pipeline (RAGPipeline orchestrator)
-├── hybrid-rag-evaluation/   @reaatech/hybrid-rag-evaluation (eval, ablation, benchmarking)
-├── hybrid-rag-mcp-server/   @reaatech/hybrid-rag-mcp-server (41 MCP tools)
-└── hybrid-rag-cli/          @reaatech/hybrid-rag-cli (commander CLI + healthcheck)
+├── hybrid-rag/                 @reaatech/hybrid-rag (core types, zod schemas)
+├── hybrid-rag-observability/   @reaatech/hybrid-rag-observability (pino, OTel)
+├── hybrid-rag-qdrant/          @reaatech/hybrid-rag-qdrant (Qdrant adapter)
+├── hybrid-rag-pinecone/        @reaatech/hybrid-rag-pinecone (Pinecone adapter)
+├── hybrid-rag-weaviate/        @reaatech/hybrid-rag-weaviate (Weaviate adapter)
+├── hybrid-rag-chroma/          @reaatech/hybrid-rag-chroma (Chroma adapter)
+├── hybrid-rag-pgvector/        @reaatech/hybrid-rag-pgvector (PgVector adapter)
+├── hybrid-rag-milvus/          @reaatech/hybrid-rag-milvus (Milvus/Zilliz adapter)
+├── hybrid-rag-elasticsearch/   @reaatech/hybrid-rag-elasticsearch (Elasticsearch adapter)
+├── hybrid-rag-opensearch/      @reaatech/hybrid-rag-opensearch (OpenSearch adapter)
+├── hybrid-rag-redis/           @reaatech/hybrid-rag-redis (Redis Vector adapter)
+├── hybrid-rag-mongodb/         @reaatech/hybrid-rag-mongodb (MongoDB Atlas Vector adapter)
+├── hybrid-rag-azure-ai-search/ @reaatech/hybrid-rag-azure-ai-search (Azure AI Search adapter)
+├── hybrid-rag-lancedb/         @reaatech/hybrid-rag-lancedb (LanceDB adapter)
+├── hybrid-rag-vespa/           @reaatech/hybrid-rag-vespa (Vespa adapter)
+├── hybrid-rag-supabase/        @reaatech/hybrid-rag-supabase (Supabase Vector adapter)
+├── hybrid-rag-migration/       @reaatech/hybrid-rag-migration (cross-DB migration)
+├── hybrid-rag-embedding/       @reaatech/hybrid-rag-embedding (OpenAI, Vertex, local)
+├── hybrid-rag-ingestion/       @reaatech/hybrid-rag-ingestion (loading + 4 chunking strategies)
+├── hybrid-rag-retrieval/       @reaatech/hybrid-rag-retrieval (BM25, reranker, fusion, hybrid retriever)
+├── hybrid-rag-pipeline/        @reaatech/hybrid-rag-pipeline (RAGPipeline orchestrator)
+├── hybrid-rag-evaluation/      @reaatech/hybrid-rag-evaluation (eval, ablation, benchmarking)
+├── hybrid-rag-mcp-server/      @reaatech/hybrid-rag-mcp-server (47 MCP tools)
+└── hybrid-rag-cli/             @reaatech/hybrid-rag-cli (commander CLI + healthcheck)
 ```
 
 ### Dependency Graph
@@ -39,11 +53,25 @@ packages/
 hybrid-rag                         (core types, schemas — zod only)
 hybrid-rag-observability           (pino, OTel — standalone)
   ├── hybrid-rag-qdrant            (Qdrant adapter → hybrid-rag)
+  ├── hybrid-rag-pinecone          (Pinecone adapter → hybrid-rag)
+  ├── hybrid-rag-weaviate          (Weaviate adapter → hybrid-rag)
+  ├── hybrid-rag-chroma            (Chroma adapter → hybrid-rag)
+  ├── hybrid-rag-pgvector          (PgVector adapter → hybrid-rag)
+  ├── hybrid-rag-milvus            (Milvus adapter → hybrid-rag)
+  ├── hybrid-rag-elasticsearch     (Elasticsearch adapter → hybrid-rag)
+  ├── hybrid-rag-opensearch        (OpenSearch adapter → hybrid-rag)
+  ├── hybrid-rag-redis             (Redis Vector adapter → hybrid-rag)
+  ├── hybrid-rag-mongodb           (MongoDB adapter → hybrid-rag)
+  ├── hybrid-rag-azure-ai-search   (Azure AI Search adapter → hybrid-rag)
+  ├── hybrid-rag-lancedb           (LanceDB adapter → hybrid-rag)
+  ├── hybrid-rag-vespa             (Vespa adapter → hybrid-rag)
+  ├── hybrid-rag-supabase          (Supabase adapter → hybrid-rag)
   ├── hybrid-rag-embedding         (embeddings → hybrid-rag)
   │     └── hybrid-rag-ingestion   (loading + chunking → hybrid-rag, observability)
   │           └── hybrid-rag-retrieval (BM25, reranker, fusion → hybrid-rag, qdrant, embedding, ingestion, observability)
   │                 └── hybrid-rag-pipeline    (orchestrator → all above)
   │                       ├── hybrid-rag-evaluation (eval + ablation + benchmarking → hybrid-rag, pipeline, observability)
+  │                       ├── hybrid-rag-migration  (cross-DB migration → hybrid-rag, retrieval)
   │                       ├── hybrid-rag-mcp-server (MCP tools → hybrid-rag, pipeline, evaluation, observability)
   │                       └── hybrid-rag-cli        (CLI → pipeline, mcp-server, evaluation, ingestion)
 ```
@@ -61,9 +89,28 @@ hybrid-rag-observability           (pino, OTel — standalone)
                                                           ▼
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
 │   AI Agents     │◀───▶│  MCP Server      │────▶│   Hybrid       │
-│  (agent-mesh)   │     │  (41 Tools)      │     │   Retrieval    │
+│  (agent-mesh)   │     │  (47 Tools)      │     │   Retrieval    │
 └─────────────────┘     └──────────────────┘     └─────────────────┘
-                                 │
+                                 │                          │
+                                 │                          ▼
+                                 │              ┌──────────────────────┐
+                                 │              │ Vector Store Adapter │
+                                 │              │    (Factory + DI)    │
+                                 │              └──────────────────────┘
+                                 │       ┌─────────────────┴──────────────────┐
+                                 │       ▼          ▼          ▼              ▼
+                                 │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐
+                                 │  │ Qdrant  │ │Pinecone │ │Weaviate │ │ Chroma  │
+                                 │  └─────────┘ └─────────┘ └─────────┘ └─────────┘
+                                 │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐
+                                 │  │PgVector │ │ Milvus  │ │   ES    │ │OpenSrch │
+                                 │  └─────────┘ └─────────┘ └─────────┘ └─────────┘
+                                 │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐
+                                 │  │ Redis   │ │MongoDB  │ │ Azure   │ │LanceDB  │
+                                 │  └─────────┘ └─────────┘ └─────────┘ └─────────┘
+                                 │  ┌─────────┐ ┌─────────┐ ┌───────────┐
+                                 │  │ Vespa   │ │Supabase │ │ Sandbox    │
+                                 │  └─────────┘ └─────────┘ └───────────┘
                                  ▼
                         ┌──────────────────┐
                         │  Cost + Quality  │
@@ -77,20 +124,20 @@ hybrid-rag-observability           (pino, OTel — standalone)
 |-----------|---------|---------|
 | **Core Types** | `@reaatech/hybrid-rag` | Domain types, Zod schemas, shared utilities |
 | **Observability** | `@reaatech/hybrid-rag-observability` | Pino logger, OTel tracing, metrics, dashboard |
-| **Qdrant Adapter** | `@reaatech/hybrid-rag-qdrant` | Qdrant client wrapper, collection management, vector search |
+| **Vector Store Adapter** | `@reaatech/hybrid-rag-qdrant` | VectorStoreAdapter interface, factory, 14 DB adapters (Qdrant, Pinecone, Weaviate, Chroma, PgVector, Milvus, Elasticsearch, OpenSearch, Redis, MongoDB, Azure AI Search, LanceDB, Vespa, Supabase) + sandbox |
 | **Embedding** | `@reaatech/hybrid-rag-embedding` | Provider-agnostic embeddings (OpenAI, Vertex, local) |
 | **Document Ingestion** | `@reaatech/hybrid-rag-ingestion` | Multi-format loading, preprocessing, 4 chunking strategies |
 | **Retrieval** | `@reaatech/hybrid-rag-retrieval` | BM25, reranker, fusion strategies, hybrid retriever |
 | **Pipeline** | `@reaatech/hybrid-rag-pipeline` | Main RAGPipeline orchestrator |
 | **Evaluation** | `@reaatech/hybrid-rag-evaluation` | IR metrics, ablation studies, benchmarking |
-| **MCP Server** | `@reaatech/hybrid-rag-mcp-server` | 41 tools across 10 categories |
+| **MCP Server** | `@reaatech/hybrid-rag-mcp-server` | 47 tools across 10 categories |
 | **CLI** | `@reaatech/hybrid-rag-cli` | Commander CLI with 7 commands |
 
 ---
 
 ## MCP Tool Categories
 
-The MCP server exposes **41 tools** across 10 categories:
+The MCP server exposes **47 tools** across 10 categories:
 
 ### 1. Core RAG Tools (4 tools)
 | Tool | Description |
@@ -107,12 +154,13 @@ The MCP server exposes **41 tools** across 10 categories:
 | `rag.ingest_batch` | Batch process multiple documents |
 | `rag.chunk_document` | Preview chunking strategies on a document |
 
-### 3. Evaluation Tools (3 tools)
+### 3. Evaluation Tools (4 tools)
 | Tool | Description |
 |------|-------------|
 | `rag.evaluate` | Run evaluation on a dataset |
 | `rag.ablation` | Execute ablation study |
 | `rag.benchmark` | Run performance benchmarks |
+| `rag.benchmark_db` | Compare performance across configured vector databases |
 
 ### 4. Query Analysis Tools (3 tools)
 | Tool | Description |
@@ -170,7 +218,7 @@ The MCP server exposes **41 tools** across 10 categories:
 | Tool | Description |
 |------|-------------|
 | `rag.status` | System status and health |
-| `rag.collections` | Qdrant collection management |
+| `rag.collections` | Vector database collection management |
 | `rag.config` | Configuration management |
 
 ---
@@ -210,13 +258,32 @@ Skills represent the atomic capabilities of the RAG system. Each skill correspon
 ## Getting Started (Development)
 
 ```bash
-git clone https://github.com/reaatech/hybrid-rag-qdrant.git
-cd hybrid-rag-qdrant
+git clone https://github.com/reaatech/hybrid-rag.git
+cd hybrid-rag
 pnpm install
 pnpm build
 pnpm test
 pnpm lint
 pnpm typecheck
+```
+
+By default, `RAGPipeline` uses embedded LanceDB (zero-config, no server required) for local development:
+
+```typescript
+import { RAGPipeline } from '@reaatech/hybrid-rag-pipeline';
+
+// Zero-config local dev — embedded LanceDB (in-process, no server)
+const pipeline = new RAGPipeline({});
+
+// Switch to any supported provider:
+const pipeline = new RAGPipeline({
+  vectorStore: {
+    provider: 'qdrant',
+    url: 'http://localhost:6333',
+    collectionName: 'docs',
+    vectorSize: 1536,
+  },
+});
 ```
 
 ## MCP Integration
@@ -234,6 +301,7 @@ pnpm typecheck
     "bm25Weight": 0.3,
     "useReranker": true,
     "rerankerProvider": "cohere",
+    "vectorStoreProvider": "lancedb",
     "filter": { "department": "engineering" }
   }
 }
@@ -344,11 +412,11 @@ Subsequent queries with session context:
 
 ### Integration with agent-mesh
 
-Register hybrid-rag-qdrant as an agent in agent-mesh:
+Register hybrid-rag as an agent in agent-mesh:
 
 ```yaml
 # agents/hybrid-rag.yaml
-agent_id: hybrid-rag-qdrant
+agent_id: hybrid-rag
 display_name: Hybrid RAG System
 description: >-
   Enterprise-grade RAG system with hybrid retrieval (vector + BM25),
@@ -610,7 +678,12 @@ judge:
 import { RAGPipeline } from '@reaatech/hybrid-rag-pipeline';
 
 const pipeline = new RAGPipeline({
-  qdrantUrl: process.env.QDRANT_URL,
+  vectorStore: {
+    provider: 'qdrant',
+    url: process.env.QDRANT_URL,
+    collectionName: 'docs',
+    vectorSize: 1536,
+  },
   costControls: {
     maxCostPerQuery: 0.05,
     maxCostPerDay: 100.00,
@@ -631,7 +704,7 @@ Every query is logged with:
 ```json
 {
   "timestamp": "2026-04-15T23:00:00Z",
-  "service": "hybrid-rag-qdrant",
+  "service": "hybrid-rag",
   "query_id": "q-123",
   "session_id": "sess-456",
   "level": "info",
@@ -639,6 +712,7 @@ Every query is logged with:
   "latency_ms": 245,
   "results_count": 10,
   "embedding_cost": 0.0002,
+  "vector_store_cost": 0.0004,
   "reranker_cost": 0.001,
   "total_cost": 0.0012,
   "quality_score": 0.87
@@ -681,6 +755,9 @@ Before deploying a RAG system to production:
 - [ ] Error handling tested for all failure modes
 - [ ] Rate limiting configured for API providers
 - [ ] Fallback strategies defined for agent failures
+- [ ] Vector store provider selected and benchmarked for workload
+- [ ] Migration strategy defined (if switching providers)
+- [ ] Local dev mode (embedded LanceDB default) verified for developer experience
 
 ---
 
@@ -691,5 +768,5 @@ Before deploying a RAG system to production:
 - **skills/** — Skill definitions for each capability
 - **packages/** — Source code organized by package
 - **MCP Specification** — https://modelcontextprotocol.io/
-- **Qdrant Documentation** — https://qdrant.tech/documentation/
+- **Multi-Vector Store Providers** — https://qdrant.tech/documentation/
 - **agent-mesh/AGENTS.md** — Multi-agent orchestration patterns

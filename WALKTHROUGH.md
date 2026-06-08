@@ -1,6 +1,6 @@
 # End-to-End Walkthrough
 
-This guide walks you through setting up, deploying, and using the hybrid-rag-qdrant system from scratch.
+This guide walks you through setting up, deploying, and using the hybrid-rag system from scratch.
 
 ## Table of Contents
 
@@ -29,8 +29,8 @@ This guide walks you through setting up, deploying, and using the hybrid-rag-qdr
 ### 1. Clone and Install
 
 ```bash
-git clone https://github.com/your-org/hybrid-rag-qdrant.git
-cd hybrid-rag-qdrant
+git clone https://github.com/your-org/hybrid-rag.git
+cd hybrid-rag
 npm install
 ```
 

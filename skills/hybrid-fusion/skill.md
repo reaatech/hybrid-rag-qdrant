@@ -11,6 +11,54 @@ Combine vector and BM25 retrieval results using various fusion strategies.
 | Weighted Sum | w1*score1 + w2*score2 | Scores on similar scales |
 | Normalized | w1*norm(s1) + w2*norm(s2) | Different distributions |
 
+## Hybrid-Native Delegation (v2.0.0)
+
+When the underlying vector store advertises `supportsHybridSearch: true`, the fusion layer delegates to the adapter's native hybrid search — avoiding client-side fusion entirely. When false, client-side BM25 + vector fusion is used.
+
+### Native hybrid support by backend:
+
+| Backend | Native Support | Mechanism |
+|----------|---------------|-----------|
+| Weaviate | Yes | Alpha-weighted hybrid (`alpha` controls vector vs keyword balance) |
+| Pinecone | Yes | Sparse-dense hybrid embeddings (learned sparse vectors + dense vectors) |
+| Elasticsearch | Yes | `bm25` + `knn` combined query |
+| OpenSearch | Yes | Neural search + BM25 hybrid |
+| Vespa | Yes | WAND + nearest neighbor |
+| Qdrant | No (client-side) | Fusion layer performs RRF/weighted on client |
+| Chroma | No (client-side) | Fusion layer performs RRF/weighted on client |
+| PgVector | No (client-side) | Fusion layer performs RRF/weighted on client |
+
+### Delegation logic:
+
+```typescript
+const capabilities = vectorStore.getCapabilities();
+
+if (capabilities.supportsHybridSearch) {
+  // Adapter handles fusion natively — no client-side work
+  return await vectorStore.hybridSearch({ vector, text: query, topK, filter });
+}
+
+// Client-side: run both retrievals and fuse
+const [vectorResults, bm25Results] = await Promise.all([
+  vectorStore.search({ vector, topK: topK * 2, filter }),
+  bm25Index.search(query, topK * 2),
+]);
+return fusionEngine.fuse({ vectorResults, bm25Results, topK });
+```
+
+**Weaviate example** (alpha-weighted native hybrid):
+```typescript
+// Weaviate adapter handles this internally via GraphQL:
+// { Get { Document { ... } } } with hybrid: { query, alpha: 0.75 }
+// where alpha 0 = pure keyword, alpha 1 = pure vector
+```
+
+**Pinecone example** (sparse-dense native hybrid):
+```typescript
+// Pinecone adapter uses the pinecone-client sparseValues + dense vector
+// search via index.search({ vector: { values: dense, sparseValues: sparse }, ... })
+```
+
 ## Usage
 
 ```typescript
